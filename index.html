@@ -515,6 +515,7 @@ const APPS = [
   { id: 'telegram', n: 'Telegram', a: [], u: 'https://web.telegram.org/', d: 'tg://', pref: 'desk', c: '#2aabee', l: 'TG' },
   { id: 'linkedin', n: 'LinkedIn', a: ['linked in'], u: 'https://www.linkedin.com/', c: '#0a66c2', l: 'in' },
   { id: 'github', n: 'GitHub', a: ['git hub'], u: 'https://github.com/', c: '#2b3137', l: 'GH' },
+  { id: 'ontechbot', n: 'OntechBot', a: ['ontech bot', 'ontech', 'on tech bot', 'ontech assistant', 'my bot'], u: 'https://homelink-connect.github.io/Ontech/', c: '#2563eb', l: 'OB' },
   { id: 'chatgpt', n: 'ChatGPT', a: ['chat gpt', 'openai'], u: 'https://chatgpt.com/', c: '#10a37f', l: 'CG' },
   { id: 'claude', n: 'Claude', a: ['claude ai'], u: 'https://claude.ai/', c: '#d97757', l: 'CL' },
   { id: 'drive', n: 'Google Drive', a: ['drive'], u: 'https://drive.google.com/', c: '#1fa463', l: 'DR' },
@@ -553,6 +554,34 @@ const APPS = [
   { id: 'settings', n: 'Device Settings', a: ['windows settings', 'system settings', 'pc settings'], dw: 'ms-settings:', only: 'win', c: '#607d8b', l: 'ST' },
   { id: 'clock', n: 'Clock & Alarms', a: ['alarms', 'alarm clock', 'windows clock'], dw: 'ms-clock:', only: 'win', c: '#546e7a', l: 'CK' }
 ];
+/* ---- part 1b: more apps, news sites, phone deep links ---- */
+APPS.push(
+  { id: 'herald', n: 'The Herald', a: ['herald', 'the herald', 'herald zimbabwe', 'herald online', 'zimbabwe herald'], u: 'https://www.herald.co.zw/', c: '#b91c1c', l: 'HE' },
+  { id: 'newsday', n: 'NewsDay', a: ['news day', 'newsday zimbabwe'], u: 'https://www.newsday.co.zw/', c: '#0f766e', l: 'ND' },
+  { id: 'zimlive', n: 'ZimLive', a: ['zim live'], u: 'https://www.zimlive.com/', c: '#7c2d12', l: 'ZL' },
+  { id: 'newzimbabwe', n: 'NewZimbabwe', a: ['new zimbabwe'], u: 'https://www.newzimbabwe.com/', c: '#1d4ed8', l: 'NZ' },
+  { id: 'chronicle', n: 'The Chronicle', a: ['chronicle', 'the chronicle'], u: 'https://www.chronicle.co.zw/', c: '#4d7c0f', l: 'CH' },
+  { id: 'cnn', n: 'CNN', a: [], u: 'https://edition.cnn.com/', c: '#cc0000', l: 'CN' },
+  { id: 'aljazeera', n: 'Al Jazeera', a: ['al jazeera'], u: 'https://www.aljazeera.com/', c: '#b45309', l: 'AJ' },
+  { id: 'reuters', n: 'Reuters', a: [], u: 'https://www.reuters.com/', c: '#ea580c', l: 'RT' },
+  { id: 'skynews', n: 'Sky News', a: ['sky news'], u: 'https://news.sky.com/', c: '#0369a1', l: 'SK' },
+  { id: 'gemini', n: 'Gemini', a: ['google gemini'], u: 'https://gemini.google.com/', c: '#6366f1', l: 'GE' },
+  { id: 'perplexity', n: 'Perplexity', a: [], u: 'https://www.perplexity.ai/', c: '#0d9488', l: 'PX' },
+  { id: 'ytmusic', n: 'YouTube Music', a: ['yt music', 'youtube music'], u: 'https://music.youtube.com/', c: '#dc2626', l: 'YM' },
+  { id: 'canva', n: 'Canva', a: [], u: 'https://www.canva.com/', c: '#7c3aed', l: 'CV' },
+  { id: 'playstore', n: 'Play Store', a: ['google play', 'play store'], u: 'https://play.google.com/store', m: 'market://', c: '#059669', l: 'PS' },
+  { id: 'edge', n: 'Microsoft Edge', a: ['edge', 'edge browser'], u: 'https://www.bing.com/', dw: 'microsoft-edge:https://www.bing.com', pref: 'desk', c: '#0ea5e9', l: 'ED' },
+  { id: 'cameraapp', n: 'Camera App', a: ['camera app', 'native camera', 'windows camera'], dw: 'microsoft.windows.camera:', m: 'intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end', pref: 'desk', c: '#0891b2', l: 'CM' },
+  { id: 'dialer', n: 'Phone Dialer', a: ['dialer', 'phone app', 'keypad'], m: 'tel:', c: '#16a34a', l: 'PH' },
+  { id: 'messages', n: 'Messages', a: ['sms app', 'text messages', 'messaging'], m: 'sms:', c: '#22c55e', l: 'MG' },
+  { id: 'contacts', n: 'Contacts', a: ['contact book', 'address book'], u: 'https://contacts.google.com/', m: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CONTACTS;end', c: '#2563eb', l: 'CT' },
+  { id: 'devsettings', n: 'Phone Settings', a: ['phone settings', 'android settings'], m: 'intent:#Intent;action=android.settings.SETTINGS;end', c: '#475569', l: 'SE' },
+  { id: 'facetime', n: 'FaceTime', a: ['face time'], d: 'facetime:', m: 'facetime:', pref: 'desk', c: '#22c55e', l: 'FT' },
+  { id: 'terminal', n: 'Windows Terminal', a: ['terminal', 'command prompt', 'cmd', 'powershell'], dw: 'wt:', only: 'win', c: '#334155', l: '>_' },
+  { id: 'phonelink', n: 'Phone Link', a: ['phone link', 'your phone'], dw: 'ms-phonelink:', only: 'win', c: '#0284c7', l: 'PL' }
+);
+const MOBILE_LINKS = { whatsapp: 'whatsapp://send', telegram: 'tg://', spotify: 'spotify:', instagram: 'instagram://app', discord: 'discord://', slack: 'slack://open', teams: 'msteams:' };
+APPS.forEach(a => { if (MOBILE_LINKS[a.id] && !a.m) a.m = MOBILE_LINKS[a.id]; });
 const SETTINGS_PAGES = { wifi: 'network-wifi', 'wi-fi': 'network-wifi', network: 'network', bluetooth: 'bluetooth', display: 'display', screen: 'display', sound: 'sound', volume: 'sound', audio: 'sound', battery: 'batterysaver', power: 'powersleep', apps: 'appsfeatures', privacy: 'privacy', update: 'windowsupdate', updates: 'windowsupdate', personalization: 'personalization', background: 'personalization-background', accounts: 'yourinfo', time: 'dateandtime', date: 'dateandtime', language: 'regionlanguage', notifications: 'notifications', storage: 'storagesense', printers: 'printers', mouse: 'mousetouchpad', keyboard: 'typing', camera: 'privacy-webcam', microphone: 'privacy-microphone', vpn: 'network-vpn', hotspot: 'network-mobilehotspot', 'dark mode': 'colors', colors: 'colors', theme: 'themes', startup: 'startupapps', default: 'defaultapps' };
 let SHORT = store.get('shortcuts', []);
 const NOISE = /\b(the|my|app|application|website|site|please|for me|now|desktop|on my (phone|computer|pc|laptop))\b/g;
@@ -567,10 +596,10 @@ function findApp(q) {
 }
 /* decide what to open: {primary, alt, altLabel} — or null when this device cannot open it */
 function appTargets(app, wantDesk) {
-  const desk = (IS_WIN && app.dw) ? app.dw : (!IS_MOBILE && app.d) ? app.d : null;
+  const desk = (IS_WIN && app.dw) ? app.dw : (!IS_MOBILE && app.d) ? app.d : (IS_MOBILE && app.m) ? app.m : null;
   const web = app.u || null;
   if (!desk && !web) return null;
-  const preferDesk = desk && !IS_MOBILE && (wantDesk || app.pref === 'desk' || !web);
+  const preferDesk = desk && ((!IS_MOBILE && (wantDesk || app.pref === 'desk' || !web)) || (IS_MOBILE && !!app.m && (app.pref === 'desk' || !web || wantDesk)));
   if (preferDesk) return { primary: desk, alt: web, altLabel: 'Open ' + app.n + ' on the web', desk: true };
   return { primary: web, alt: desk, altLabel: 'Open the ' + app.n + ' desktop app', desk: false };
 }
@@ -792,8 +821,7 @@ async function getWeather(place) {
     lat = g.results[0].latitude; lon = g.results[0].longitude; name = g.results[0].name;
   } else {
     const pos = await new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000 }) : rej(new Error('no geo'))).catch(() => null);
-    if (!pos) return 'I need a city — try “weather in Harare” — or allow location access.';
-    lat = pos.coords.latitude; lon = pos.coords.longitude; name = 'your location';
+    if (!pos) { const g0 = await j('https://geocoding-api.open-meteo.com/v1/search?count=1&name=Harare'); lat = g0.results[0].latitude; lon = g0.results[0].longitude; name = 'Harare, since I could not get your location'; } else { lat = pos.coords.latitude; lon = pos.coords.longitude; name = 'your location'; }
   }
   const w = await j('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1');
   const c = w.current, d = w.daily;
@@ -829,7 +857,7 @@ function jokeLine() {
   const j = JOKES[jokeBag.pop()];
   return rnd(['Here is one for you, ' + NAME() + '. ', 'Right, ' + NAME() + ', brace yourself. ', 'This one is fresh, ' + NAME() + '. ', 'Alright ' + NAME() + ', you asked for it. ']) + j + ' ' + rnd(['Ba dum tss.', 'I will be here all week.', 'I have more where that came from.', 'Shall I go again?']);
 }
-const HELP = 'I can **open apps and websites** (“open YouTube”, “open WhatsApp”), **search** (“search for electric cars”, “play Burna Boy on YouTube”), **navigate** (“directions to Harare CBD”), **call / text / email**, manage **tasks** (“add task buy milk”, “complete buy milk”), set **reminders** (“remind me to call mum at 5pm”), **timers** (“set a 10 minute timer”), check the **weather**, do **quick maths**, give a **daily briefing** — and answer almost anything else.';
+let HELP = 'I can **open apps and websites** (“open YouTube”, “open WhatsApp”), **search** (“search for electric cars”, “play Burna Boy on YouTube”), **navigate** (“directions to Harare CBD”), **call / text / email**, manage **tasks** (“add task buy milk”, “complete buy milk”), set **reminders** (“remind me to call mum at 5pm”), **timers** (“set a 10 minute timer”), check the **weather**, do **quick maths**, give a **daily briefing** — and answer almost anything else.';
 
 function localCommand(raw) {
   let t = raw.trim().replace(/\s+/g, ' ');
@@ -851,7 +879,7 @@ function localCommand(raw) {
   if (/^(thanks|thank you|cheers|thanks jarvis|much appreciated)$/.test(low)) return R(rnd(['My pleasure, ' + NAME() + '.', 'Anytime.', 'Happy to help.']));
   if (/\b(who (made|created|built|developed|designed) you|who is your (creator|developer|maker)|who built jarvis|who created jarvis)\b/.test(low))
     return R('I was created by Arnold Nedahwa — a passionate, hardworking software engineer and the CEO and Founder of ZimPro-Linkup. He also built the Fleet truck tracking system, the WiseBot AI for Wise Parrot Junior School, the Home-Link housing app, and several school management systems.');
-  if (/^(daily )?(briefing|brief me|my day|what'?s (on )?(my day|today)|morning briefing|status report)$/.test(low) || /^good morning$/.test(low)) return R(briefing());
+  if (/^(daily )?(briefing|brief me|my day|what'?s (on )?(my day|today)|morning briefing|status report)$/.test(low) || /^good morning$/.test(low)) return R('', [{ type: 'full_briefing' }]);
 
   if (/^(?:what(?:'s| is) the |what )?(time|date|day)(?: is it)?(?: today| now)?$/.test(low) || /^what (time|day) is it$/.test(low) || /^what'?s the (time|date)$/.test(low) || /^(tell me )?the (time|date)$/.test(low) || /^what is today'?s date$/.test(low)) {
     const n = new Date();
@@ -892,6 +920,7 @@ function localCommand(raw) {
   if ((m = /^(?:cancel|delete|remove)\s+(?:the\s+|my\s+)?(?:reminder|alarm|timer)\s+(?:to |about |for )?(.+)$/.exec(low))) return R('', [{ type: 'cancel_reminder', text: m[1] }]);
   if (/\b(my |the |pending |upcoming )?(reminders|alarms|timers)\b/.test(low) && /^(what|show|list|read|any|do i have|how many|tell me)/.test(low)) return R(listRemsReply(), [{ type: 'show_pane', pane: 'remind' }]);
 
+  const sc0 = superCommand(low, cl, og); if (sc0) return sc0;
   const mc = moneyCommand(low, cl, og); if (mc) return mc;
   const xc = extraCommand(low, cl, og); if (xc) return xc;
 
@@ -977,17 +1006,19 @@ function sysPrompt() {
   return 'You are J.A.R.V.I.S., a calm, witty, highly capable British-style AI butler assistant. ' + (S.guest ? 'You are speaking with a guest who is NOT your founder. Be warm, polite and helpful, but never call them boss, sir or any title.' : 'You are speaking with your founder and creator, Arnold Nedahwa. Address him as ' + NAME() + ', with warmth and real respect, like a loyal partner. Add a short clean joke or witty remark now and then (roughly one reply in four), never at his expense.') + ' Keep replies short (1-3 sentences), natural to speak aloud, with no markdown or emojis. If you truly do not know something, say so. This is a continuous voice conversation, so answer directly and keep the flow going.\n' +
     'If asked who created you: Arnold Nedahwa, a passionate, hardworking software engineer, CEO and Founder of ZimPro-Linkup, who also built the Fleet truck tracking system, WiseBot AI for Wise Parrot Junior School, the Home-Link housing app and several school management systems.\n' +
     'Current local date and time: ' + n.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.\n' +
-    'Open tasks:\n' + tasks + '\nPending reminders:\n' + rems + '\n\n' +
+    'Open tasks:\n' + tasks + '\nPending reminders:\n' + rems + '\nSaved contacts: ' + (CONTACTS.map(c => c.name).join(', ') || '(none)') + '\nUpcoming meetings: ' + (upcomingMeetings().map(m => m.title + ' ' + fmtWhen(m.at)).join('; ') || '(none)') + '\n\n' +
     'You can DO things by returning actions. Reply with ONE raw JSON object and nothing else (no code fences, no commentary):\n' +
     '{"reply":"what you say aloud","actions":[ ... ]}\n' +
     'Allowed action objects:\n' +
-    '{"type":"open_app","name":"<any app or website name; known ones: ' + APP_NAMES + '>"}\n{"type":"camera"}\n{"type":"game","name":"chess|2048|tetris|snake|sudoku|solitaire|pool|..."}\n{"type":"download","name":"software name"}\n{"type":"news"}\n{"type":"open_url","url":"https://..."}\n' +
+    '{"type":"open_app","name":"<any app or website name; known ones: ' + APP_NAMES + '>"}\n{"type":"camera"}\n{"type":"game","name":"chess|2048|tetris|snake|sudoku|solitaire|pool|..."}\n{"type":"download","name":"software name"}\n{"type":"open_url","url":"https://..."}\n' +
     '{"type":"search","query":"...","site":"google|youtube|maps|wikipedia|amazon|spotify"}\n' +
     '{"type":"call","number":"..."}\n{"type":"sms","number":"...","body":"..."}\n{"type":"whatsapp","number":"...","body":"..."}\n{"type":"email","to":"...","subject":"...","body":"..."}\n' +
     '{"type":"add_task","text":"..."}\n{"type":"complete_task","text":"..."}\n{"type":"remove_task","text":"..."}\n' +
     '{"type":"reminder","text":"what to remind","in_minutes":10}  (or "at":"YYYY-MM-DDTHH:MM" in local time)\n' +
     '{"type":"timer","seconds":300,"label":"..."}\n{"type":"weather","place":"city"}\n' +
     '{"type":"log_income","amount":50,"note":"from John"}\n{"type":"log_expense","amount":20,"note":"data bundle"}\n{"type":"add_lead","name":"...","contact":"...","note":"...","value":0}\n{"type":"invoice","client":"...","amount":200,"desc":"..."}\n{"type":"work","prompt":"the full request"}  (use for long drafts: proposals, pitches, business plans, content plans, outreach messages; put a one-sentence reply and let the work action write it)\n' +
+    '{"type":"news","source":"herald|newsday|zimlive|bbc|africa|world|business|tech|sport|zimbabwe","topic":"any subject"}  (live headlines: use for ANY news question)\n{"type":"forecast","place":"city"}  (tomorrow / this week)\n{"type":"meeting","title":"...","with":"name or email","at":"YYYY-MM-DDTHH:MM","minutes":30}\n{"type":"email_draft","to":"saved contact name or address","topic":"what the email must say"}  (writes it and opens it ready to send)\n{"type":"screenshot"}\n{"type":"read_screen"}  (reads and summarises what is on screen)\n{"type":"share_photo"}\n{"type":"flip_camera"}\n{"type":"add_contact","name":"...","phone":"...","email":"..."}\n{"type":"full_briefing"}\n{"type":"pwa_install"}\n' +
+    'For anything current (news, weather, sports, prices) never guess: use the news or weather actions. You may use saved contact names for call, sms, whatsapp and email. Think like a strategic mastermind: give the sharpest practical answer first.\n' +
     'Rules: only include an action when the user asks for it; use "actions":[] for ordinary conversation; the reply must match what the actions do and never claim an action you did not include; for reminders always compute the time from the current date/time above.';
 }
 function extractJSON(txt) {
@@ -1001,7 +1032,7 @@ function extractJSON(txt) {
   }
   return null;
 }
-const OK_TYPES = ['camera', 'game', 'download', 'news', 'battery', 'log_income', 'log_expense', 'add_lead', 'lead_status', 'invoice', 'work', 'open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
+const OK_TYPES = ['camera', 'game', 'download', 'news', 'battery', 'log_income', 'log_expense', 'add_lead', 'lead_status', 'invoice', 'work', 'open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather', 'forecast', 'meeting', 'email_draft', 'screenshot', 'read_screen', 'share_photo', 'flip_camera', 'add_contact', 'full_briefing', 'pwa_install', 'camera_close'];
 function parseAI(text) {
   const j = extractJSON(text);
   if (j && (typeof j.reply === 'string' || Array.isArray(j.actions))) {
@@ -1046,6 +1077,8 @@ function siteUrl(site, q) {
 function digits(n) { return String(n || '').replace(/[^\d+]/g, ''); }
 const cardOpen = (label, url, sub) => ({ card: { label, url, sub } });
 async function execAction(a) {
+  a = withContact(a); if (a.type === 'email') return sendEmail(a);
+  { const so = await execSuper(a); if (so) return so; }
   switch (a.type) {
     case 'noop': return {};
     case 'enroll_voice': setTimeout(enrollVoice, 1500); return {};
@@ -1351,12 +1384,12 @@ let camEl = null, camStream = null;
 async function openCamera(snapAfter) {
   if (camEl) { if (snapAfter) setTimeout(camSnap, 300); return {}; }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return { fail: 'This browser cannot open the camera.' };
-  try { camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false }); }
+  try { camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: window.CAM_FACING || 'user' }, audio: false }); }
   catch (e) { return { fail: 'Camera blocked. Allow the camera in the address bar and ask again.' }; }
   camEl = document.createElement('div'); camEl.id = 'cam';
-  camEl.innerHTML = '<video autoplay playsinline muted></video><div class="cb"><button type="button" data-a="snap">Take photo</button><button type="button" data-a="close">Close</button></div>';
+  camEl.innerHTML = '<video autoplay playsinline muted></video><div class="cb"><button type="button" data-a="snap">Take photo</button><button type="button" onclick="flipCamera()">Flip</button><button type="button" onclick="sharePhoto()">Send</button><button type="button" data-a="close">Close</button></div>';
   document.body.appendChild(camEl);
-  const v = camEl.querySelector('video'); v.srcObject = camStream;
+  const v = camEl.querySelector('video'); v.srcObject = camStream; if ((window.CAM_FACING || 'user') !== 'user') v.style.transform = 'none';
   camEl.querySelector('[data-a=snap]').onclick = camSnap; camEl.querySelector('[data-a=close]').onclick = closeCamera;
   if (snapAfter) setTimeout(camSnap, 3200);
   return { done: { label: 'Camera on', sub: snapAfter ? 'photo in 3 seconds' : 'say “take a photo”' } };
@@ -1364,7 +1397,7 @@ async function openCamera(snapAfter) {
 function camSnap() {
   if (!camEl) return; const v = camEl.querySelector('video'); if (!v.videoWidth) return;
   const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0);
-  c.toBlob(b => { if (!b) return; const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'jarvis-photo-' + Date.now() + '.png'; document.body.appendChild(a); a.click(); a.remove(); camEl && camEl.classList.add('flash'); setTimeout(() => camEl && camEl.classList.remove('flash'), 300); }, 'image/png');
+  c.toBlob(b => { if (!b) return; window.LAST_FILE = new File([b], 'jarvis-photo-' + Date.now() + '.png', { type: 'image/png' }); const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'jarvis-photo-' + Date.now() + '.png'; document.body.appendChild(a); a.click(); a.remove(); camEl && camEl.classList.add('flash'); setTimeout(() => camEl && camEl.classList.remove('flash'), 300); }, 'image/png');
 }
 function closeCamera() { try { camStream && camStream.getTracks().forEach(t => t.stop()); } catch (e) { } camStream = null; if (camEl) camEl.remove(); camEl = null; }
 
@@ -1552,7 +1585,7 @@ async function handle(text, who) {
     if (o.card2) cards.push(o.card2);
     if (o.done) cards.push({ label: o.done.label, sub: o.done.sub });
     if (o.fail) cards.push({ label: o.fail, bad: true });
-    if (o.say) { says.push(o.say); if (o.fail || a.type === 'weather') key.push(o.say); }
+    if (o.say) { says.push(o.say); if (o.fail || ['weather', 'news', 'forecast', 'read_screen', 'full_briefing'].includes(a.type)) key.push(o.say); }
   }
   let reply = res.reply ? [res.reply].concat(key.filter(k => k !== res.reply)).join(' ') : says.join(' ');
   if (!reply && !cards.length) reply = rnd(['Done.', 'Understood.', 'Consider it done.']);
@@ -2177,6 +2210,258 @@ function initMoneyUI() {
   JOBS.forEach(([t, d, p]) => { const b = document.createElement('button'); b.className = 'job'; b.type = 'button'; b.innerHTML = '<b></b><span></span>'; b.querySelector('b').textContent = t; b.querySelector('span').textContent = d; b.onclick = () => { if (window.innerWidth <= 900) setView('jarvis'); const i = $('#txt'); i.value = p; i.focus(); try { i.setSelectionRange(p.length, p.length); } catch (e) { } toast('Finish the sentence and press Enter, or say it out loud.'); }; J.appendChild(b); });
   $('#sBiz').oninput = e => { S.settings.biz = e.target.value.trim(); save.settings(); };
   $('#sCur').oninput = e => { S.settings.cur = e.target.value.trim() || '$'; save.settings(); renderMoney(); };
+}
+
+/* ===== part 4: mastermind powers — contacts, email, meetings, share, screen, news, forecast ===== */
+let CONTACTS = store.get('contacts', []), MEETINGS = store.get('meetings', []);
+const saveContacts = () => store.set('contacts', CONTACTS), saveMeetings = () => store.set('meetings', MEETINGS);
+const hasEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim());
+HELP += ' I can also **send emails** (“email John about the invoice”), **organise meetings** (“schedule a meeting with John tomorrow at 3 pm”), **keep contacts**, **take screenshots**, **read your screen**, **send photos**, **read live news** (“news from the Herald”), give **forecasts**, and **install apps**.';
+function findContact(q) {
+  q = String(q || '').toLowerCase().replace(/^(my|the)\s+/, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); if (!q) return null;
+  return CONTACTS.find(c => c.name.toLowerCase() === q) || CONTACTS.find(c => c.name.toLowerCase().split(' ')[0] === q) || (q.length > 2 ? CONTACTS.find(c => c.name.toLowerCase().includes(q)) : null) || null;
+}
+function withContact(a) {
+  if (!a || typeof a !== 'object') return a;
+  if (['call', 'sms', 'whatsapp'].includes(a.type) && digits(a.number).replace(/\D/g, '').length < 4) { const c = findContact(a.number || a.name); if (c && c.phone) return Object.assign({}, a, { number: c.phone }); }
+  if (a.type === 'email' || a.type === 'email_draft') { if (!hasEmail(a.to)) { const c = findContact(a.to || a.name); if (c && c.email) return Object.assign({}, a, { to: c.email, toName: c.name }); } }
+  return a;
+}
+function downloadBlob(f) { const u = URL.createObjectURL(f); try { const x = document.createElement('a'); x.href = u; x.download = f.name; document.body.appendChild(x); x.click(); x.remove(); } catch (e) { } return u; }
+
+/* ---- email: opens a ready-to-send compose window (Gmail on desktop, mail app on phone) ---- */
+function sendEmail(a) {
+  const to = String(a.to || '').trim(); if (to && !hasEmail(to)) return { fail: 'That email address looks invalid.' };
+  const q = encodeURIComponent, subject = a.subject || '', body = a.body || '';
+  const gm = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + q(to) + '&su=' + q(subject) + '&body=' + q(body);
+  const ml = 'mailto:' + to + '?subject=' + q(subject) + '&body=' + q(body);
+  const first = IS_MOBILE ? ml : gm, second = IS_MOBILE ? gm : ml, ok = launch(first);
+  return { card: { label: 'Email ' + (a.toName || to || 'draft'), url: first, sub: ok ? 'ready to send' : 'Tap to open' }, card2: { label: IS_MOBILE ? 'Open in Gmail' : 'Open in Mail app', url: second } };
+}
+async function draftEmail(a) {
+  const topic = String(a.topic || a.prompt || '').trim(); if (!topic) return { fail: 'Tell me what the email is about.' };
+  let txt;
+  try { txt = await askWork('Write a short, polite, professional email' + (a.toName ? ' to ' + a.toName : '') + ' about: ' + topic + '. Start with a first line "Subject: ..." then a blank line, then the body, signed off with [Your name].'); }
+  catch (e) { return Object.assign(sendEmail({ to: a.to, toName: a.toName, subject: topic.slice(0, 60), body: topic }), { say: 'I could not reach my writing brain, so I opened a plain email for you.' }); }
+  const m = /^\s*subject:\s*(.+)\n+([\s\S]*)$/i.exec(txt), subject = m ? m[1].trim() : topic.slice(0, 60), body = m ? m[2].trim() : txt;
+  const o = sendEmail({ to: a.to, toName: a.toName, subject, body });
+  return Object.assign(o, { work: { text: txt, prompt: subject }, say: 'I have drafted the email and opened it ready to send, ' + NAME() + '. Check it, then press send.' });
+}
+
+/* ---- meetings ---- */
+const icsDate = ms => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const icsEsc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+function icsText(m) {
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//JARVIS//EN', 'BEGIN:VEVENT', 'UID:' + m.id + '@jarvis', 'DTSTAMP:' + icsDate(Date.now()), 'DTSTART:' + icsDate(m.at), 'DTEND:' + icsDate(m.at + m.min * 60000), 'SUMMARY:' + icsEsc(m.title), 'DESCRIPTION:' + icsEsc(m.notes)]
+    .concat(m.who.filter(x => x.email).map(x => 'ATTENDEE:mailto:' + x.email), ['BEGIN:VALARM', 'TRIGGER:-PT15M', 'ACTION:DISPLAY', 'DESCRIPTION:Meeting soon', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR']).join('\r\n');
+}
+const upcomingMeetings = () => MEETINGS.filter(m => m.at + m.min * 60000 > Date.now()).sort((a, b) => a.at - b.at);
+function scheduleMeeting(a) {
+  const at = a.at ? new Date(a.at).getTime() : a.in_minutes != null ? Date.now() + (+a.in_minutes) * 60000 : NaN;
+  if (!isFinite(at)) return { fail: 'I could not work out the time.', say: 'When should the meeting be? Try “schedule a meeting with John tomorrow at 3 pm”.' };
+  const min = Math.max(5, Math.min(600, Math.round(+a.minutes || 30)));
+  const who = String(a.with || '').split(/\s*(?:,|\band\b)\s*/).filter(Boolean).map(w => { const c = findContact(w); return c ? { name: c.name, email: c.email || '' } : { name: cap(w), email: hasEmail(w) ? w : '' }; });
+  const title = cap(String(a.title || '').trim()) || (who.length ? 'Meeting with ' + who.map(x => x.name).join(', ') : 'Meeting');
+  const m = { id: uid(), title, at, min, who, notes: a.notes || '' }; MEETINGS.unshift(m); saveMeetings();
+  const rAt = at - 15 * 60000; if (rAt > Date.now() + 5000) addReminder('Meeting in 15 minutes: ' + title, rAt, 'reminder'); else if (at > Date.now()) addReminder('Meeting: ' + title, at, 'reminder');
+  const emails = who.map(x => x.email).filter(Boolean), enc = encodeURIComponent;
+  const gcal = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + enc(title) + '&dates=' + icsDate(at) + '/' + icsDate(at + min * 60000) + '&details=' + enc(m.notes) + (emails.length ? '&add=' + enc(emails.join(',')) : '');
+  const ics = new File([icsText(m)], 'meeting-' + m.id + '.ics', { type: 'text/calendar' });
+  return { card: { label: 'Add to Google Calendar', url: gcal, sub: emails.length ? 'invites ' + emails.length + ' guest(s)' : '' }, card2: { label: 'Download invite (.ics)', url: URL.createObjectURL(ics), dl: ics.name }, done: { label: 'Meeting booked', sub: title + ' · ' + fmtWhen(at) }, say: 'Meeting booked: ' + title + ' ' + fmtWhen(at) + ' for ' + min + ' minutes.' + (rAt > Date.now() ? ' I will remind you 15 minutes before.' : '') + ' Tap Add to Google Calendar to send the invites.' };
+}
+function meetingsReply() {
+  const u = upcomingMeetings(); if (!u.length) return 'You have no meetings booked, ' + NAME() + '.';
+  return 'You have ' + u.length + (u.length === 1 ? ' meeting: ' : ' meetings: ') + u.slice(0, 5).map(m => m.title + ' ' + fmtWhen(m.at)).join('; ') + '.';
+}
+
+/* ---- share photo / screenshot, screen reading ---- */
+async function shareFile(a) {
+  const f = window.LAST_FILE;
+  if (!f) return { fail: 'No photo or screenshot is ready.', say: 'Take one first, ' + NAME() + '. Say “take a photo” or “take a screenshot”, then ask me to send it.' };
+  try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: 'From J.A.R.V.I.S.', text: a.text || '' }); return { done: { label: 'Shared', sub: f.name }, say: 'Done. Choose WhatsApp, email or any app, and the contact.' }; } }
+  catch (e) { if (e && e.name === 'AbortError') return { say: 'Share cancelled.' }; }
+  const url = downloadBlob(f), c = a.to && findContact(a.to), o = { card: { label: 'Saved ' + f.name, url, dl: f.name, sub: 'attach it to your message' }, say: 'This browser cannot attach files directly, so I saved it. Attach it from your downloads.' };
+  if (c && c.phone) o.card2 = { label: 'Open WhatsApp for ' + c.name, url: 'https://wa.me/' + digits(c.phone).replace(/^\+/, '') };
+  else o.card2 = sendEmail({ to: c && c.email || '', subject: 'Photo from Jarvis', body: '' }).card;
+  return o;
+}
+async function sharePhoto() { const o = await shareFile({}); toast(o.fail || o.say || 'Shared.', 3500, true); }
+async function flipCamera(face) {
+  window.CAM_FACING = face || ((window.CAM_FACING || 'user') === 'user' ? 'environment' : 'user'); closeCamera();
+  const o = await openCamera(false); return o.fail ? o : { done: { label: 'Camera switched', sub: window.CAM_FACING === 'user' ? 'front' : 'back' } };
+}
+async function grabScreen() {
+  const st = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+  const v = document.createElement('video'); v.srcObject = st; v.muted = true; await v.play(); await new Promise(r => setTimeout(r, 500));
+  const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); st.getTracks().forEach(t => t.stop());
+  const b = await new Promise(r => c.toBlob(r, 'image/png'));
+  return { canvas: c, file: new File([b], 'jarvis-screenshot-' + Date.now() + '.png', { type: 'image/png' }) };
+}
+const canCapture = () => !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+async function screenshot() {
+  if (!canCapture()) return IS_WIN ? Object.assign(openCard('Snipping Tool', 'ms-screenclip:'), { say: 'This browser cannot capture the screen, so I opened the Snipping Tool.' }) : { say: 'This browser cannot capture the screen. On a phone, press power and volume down together.' };
+  try { const g = await grabScreen(); window.LAST_FILE = g.file; const url = downloadBlob(g.file); return { card: { label: 'Screenshot saved', url, dl: g.file.name, sub: 'say “send the screenshot”' }, say: 'Screenshot captured and saved, ' + NAME() + '.' }; }
+  catch (e) { return { fail: 'Screen capture was cancelled or blocked.' }; }
+}
+let tessP = null;
+function loadOCR() { return tessP || (tessP = new Promise((res, rej) => { if (window.Tesseract) return res(window.Tesseract); const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js'; s.onload = () => res(window.Tesseract); s.onerror = () => { tessP = null; rej(new Error('ocr')); }; document.head.appendChild(s); })); }
+async function readScreen() {
+  if (!canCapture()) return { fail: 'This browser cannot read the screen.', say: 'Screen reading needs a desktop browser, ' + NAME() + '.' };
+  let g; try { g = await grabScreen(); } catch (e) { return { fail: 'Screen sharing was cancelled.' }; }
+  window.LAST_FILE = g.file; let text = '';
+  try { const T = await loadOCR(); text = ((await T.recognize(g.canvas, 'eng')).data.text || '').replace(/\n{3,}/g, '\n\n').trim(); }
+  catch (e) { return { fail: 'Text recognition failed to load.', say: 'I captured the screen but could not load my text recognition. Check the connection.' }; }
+  if (text.length < 8) return { say: 'I captured the screen but found no readable text on it.' };
+  let say; try { say = await askWork('Summarise what this screen shows in two or three short spoken sentences, then mention anything that needs action. Screen text:\n' + text.slice(0, 3500)); } catch (e) { say = 'Here is what I can read: ' + text.replace(/\s+/g, ' ').slice(0, 350); }
+  return { work: { text, prompt: 'Screen text' }, say };
+}
+
+/* ---- live news (RSS via rss2json) + forecast ---- */
+const NEWS_SRC = {
+  bbc: ['the BBC', 'https://feeds.bbci.co.uk/news/rss.xml', 'https://www.bbc.com/news'], world: ['BBC World', 'https://feeds.bbci.co.uk/news/world/rss.xml', 'https://www.bbc.com/news/world'],
+  africa: ['BBC Africa', 'https://feeds.bbci.co.uk/news/world/africa/rss.xml', 'https://www.bbc.com/news/world/africa'], business: ['BBC Business', 'https://feeds.bbci.co.uk/news/business/rss.xml', 'https://www.bbc.com/news/business'],
+  tech: ['BBC Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml', 'https://www.bbc.com/news/technology'], sport: ['BBC Sport', 'https://feeds.bbci.co.uk/sport/rss.xml', 'https://www.bbc.com/sport'],
+  health: ['BBC Health', 'https://feeds.bbci.co.uk/news/health/rss.xml', 'https://www.bbc.com/news/health'], science: ['BBC Science', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml', 'https://www.bbc.com/news/science_and_environment'],
+  entertainment: ['BBC Entertainment', 'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml', 'https://www.bbc.com/news/entertainment_and_arts'],
+  herald: ['the Herald', 'https://www.herald.co.zw/feed/', 'https://www.herald.co.zw/'], newsday: ['NewsDay', 'https://www.newsday.co.zw/feed/', 'https://www.newsday.co.zw/'],
+  zimlive: ['ZimLive', 'https://www.zimlive.com/feed/', 'https://www.zimlive.com/'], newzimbabwe: ['NewZimbabwe', 'https://www.newzimbabwe.com/feed/', 'https://www.newzimbabwe.com/'],
+  chronicle: ['the Chronicle', 'https://www.chronicle.co.zw/feed/', 'https://www.chronicle.co.zw/'], aljazeera: ['Al Jazeera', 'https://www.aljazeera.com/xml/rss/all.xml', 'https://www.aljazeera.com/']
+};
+const NEWS_GROUP = { zim: ['herald', 'newsday', 'zimlive'] };
+const NEWS_ALIAS = { herald: 'herald', 'the herald': 'herald', newsday: 'newsday', 'news day': 'newsday', zimlive: 'zimlive', 'zim live': 'zimlive', 'new zimbabwe': 'newzimbabwe', newzimbabwe: 'newzimbabwe', chronicle: 'chronicle', 'the chronicle': 'chronicle', bbc: 'bbc', 'al jazeera': 'aljazeera', aljazeera: 'aljazeera', world: 'world', global: 'world', international: 'world', africa: 'africa', african: 'africa', business: 'business', economy: 'business', tech: 'tech', technology: 'tech', sport: 'sport', sports: 'sport', football: 'sport', health: 'health', science: 'science', entertainment: 'entertainment', zimbabwe: 'zim', zimbabwean: 'zim', local: 'zim' };
+function rssTitles(feed, n) {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000);
+  return fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed), { signal: ctl.signal }).then(r => { if (!r.ok) throw new Error('http'); return r.json(); })
+    .then(j => { const t = (j.items || []).map(x => String(x.title || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#8217;/g, '’').trim()).filter(Boolean).slice(0, n); if (!t.length) throw new Error('none'); return t; }).finally(() => clearTimeout(to));
+}
+async function newsText(keys, n) {
+  const parts = await Promise.all(keys.map(async k => { const s = NEWS_SRC[k]; if (!s) return ''; try { return 'From ' + s[0] + ': ' + (await rssTitles(s[1], n)).map((x, i) => (i + 1) + '. ' + x.replace(/[.\s]+$/, '') + '.').join(' '); } catch (e) { return ''; } }));
+  return parts.filter(Boolean).join(' ');
+}
+async function newsAction(a) {
+  let keys = ['bbc', 'herald'], n = 3, link = 'https://www.bbc.com/news', lab = 'More news';
+  const topic = String(a.topic || '').trim(), sk = NEWS_ALIAS[String(a.source || '').toLowerCase().trim()] || (NEWS_SRC[String(a.source || '').toLowerCase()] ? String(a.source).toLowerCase() : '');
+  if (topic) { NEWS_SRC.__t = ['Google News', 'https://news.google.com/rss/search?q=' + encodeURIComponent(topic) + '&hl=en', 'https://news.google.com/search?q=' + encodeURIComponent(topic)]; keys = ['__t']; n = 5; link = NEWS_SRC.__t[2]; lab = 'News: ' + topic; }
+  else if (sk) { keys = NEWS_GROUP[sk] || [sk]; n = keys.length > 1 ? 2 : 5; const s = NEWS_SRC[keys[0]]; link = s[2]; lab = 'Open ' + s[0]; }
+  const t = await newsText(keys, n);
+  if (t) return { say: 'Here are the headlines. ' + t, card: { label: lab, url: link } };
+  try { return { say: await readNews(), card: { label: 'More news: BBC', url: 'https://www.bbc.com/news' } }; } catch (e) { return Object.assign(openCard('BBC News', 'https://www.bbc.com/news'), { say: 'I could not fetch the headlines directly, so I am opening the news site for you.' }); }
+}
+async function geoPlace(place) {
+  const j = async u => { const r = await fetch(u); if (!r.ok) throw new Error('http'); return r.json(); };
+  const gc = async nm => { const g = await j('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(nm)); return g.results && g.results[0] ? { lat: g.results[0].latitude, lon: g.results[0].longitude, name: g.results[0].name } : null; };
+  if (place) return await gc(place);
+  const pos = await new Promise(res => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, () => res(null), { timeout: 8000 }) : res(null));
+  return pos ? { lat: pos.coords.latitude, lon: pos.coords.longitude, name: 'your location' } : await gc('Harare');
+}
+async function getForecast(place) {
+  const p = await geoPlace(place); if (!p) return 'I could not find a place called ' + place + '.';
+  const d = (await (await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + p.lat + '&longitude=' + p.lon + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=5')).json()).daily;
+  return 'Forecast for ' + p.name + '. ' + d.time.slice(1).map((t, k) => { const i = k + 1, day = i === 1 ? 'Tomorrow' : new Date(t + 'T12:00').toLocaleDateString([], { weekday: 'long' }); return day + ': ' + (WMO[d.weather_code[i]] || 'changing conditions') + ', ' + Math.round(d.temperature_2m_min[i]) + ' to ' + Math.round(d.temperature_2m_max[i]) + ' degrees' + (d.precipitation_probability_max[i] >= 40 ? ', ' + d.precipitation_probability_max[i] + ' percent chance of rain' : '') + '.'; }).join(' ');
+}
+async function fullBriefing() {
+  let s = briefing();
+  try { s += ' ' + await getWeather(''); } catch (e) { }
+  const td = upcomingMeetings().filter(m => new Date(m.at).toDateString() === new Date().toDateString());
+  if (td.length) s += ' Meetings today: ' + td.map(m => m.title + ' at ' + fmtClock(new Date(m.at))).join('; ') + '.';
+  try { const h = await newsText(['bbc', 'herald'], 2); if (h) s += ' Headlines. ' + h; } catch (e) { }
+  return { say: s };
+}
+
+/* ---- executor for the new action types ---- */
+async function execSuper(a) {
+  switch (a.type) {
+    case 'news': return await newsAction(a);
+    case 'forecast': try { return { say: await getForecast(String(a.place || '').trim()) }; } catch (e) { return { say: 'I could not reach the weather service just now.' }; }
+    case 'full_briefing': return await fullBriefing();
+    case 'meeting': return scheduleMeeting(a);
+    case 'show_meetings': return { say: meetingsReply() };
+    case 'cancel_meeting': { const q = String(a.text || '').toLowerCase(), m = upcomingMeetings().find(x => !q || x.title.toLowerCase().includes(q) || x.who.some(w => w.name.toLowerCase().includes(q))); if (!m) return { say: 'I could not find that meeting.' }; MEETINGS = MEETINGS.filter(x => x !== m); saveMeetings(); return { done: { label: 'Meeting cancelled', sub: m.title }, say: 'Cancelled: ' + m.title + '.' }; }
+    case 'email_draft': return await draftEmail(a);
+    case 'screenshot': return await screenshot();
+    case 'read_screen': return await readScreen();
+    case 'share_photo': return await shareFile(a);
+    case 'flip_camera': return await flipCamera(a.facing);
+    case 'add_contact': {
+      const name = cap(String(a.name || '').trim()); if (!name) return { fail: 'I need a name for the contact.' };
+      let c = CONTACTS.find(x => x.name.toLowerCase() === name.toLowerCase()); if (!c) { c = { name, phone: '', email: '' }; CONTACTS.unshift(c); }
+      if (a.phone) c.phone = String(a.phone).trim(); if (a.email) c.email = String(a.email).trim(); saveContacts();
+      return { done: { label: 'Contact saved', sub: [name, c.phone, c.email].filter(Boolean).join(' · ') }, say: 'Saved ' + name + '. Say “call ' + name.split(' ')[0] + '” or “email ' + name.split(' ')[0] + ' about…” any time.' };
+    }
+    case 'del_contact': { const c = findContact(a.name); if (!c) return { say: 'I could not find that contact.' }; CONTACTS = CONTACTS.filter(x => x !== c); saveContacts(); return { say: 'Removed ' + c.name + ' from your contacts.' }; }
+    case 'show_contacts': return { say: CONTACTS.length ? 'You have ' + CONTACTS.length + ' contacts: ' + CONTACTS.slice(0, 12).map(c => c.name).join(', ') + '.' : 'Your contact book is empty. Say “save contact John 0771234567”.' };
+    case 'pwa_install': { const b = $('#instBtn'); if (b && !b.hidden) { b.click(); return { say: 'Installing now. Confirm the prompt.' }; } return { say: 'Open your browser menu and choose Install app or Add to Home screen, ' + NAME() + '. If you do not see it, I am probably installed already.' }; }
+    case 'download': {
+      const k = String(a.name || '').toLowerCase().replace(/[^a-z0-9+ ]/g, ' ').replace(/\s+/g, ' ').trim(), key = Object.keys(DOWNLOADS).sort((x, y) => y.length - x.length).find(x => k === x || k.includes(x));
+      const o = key ? openCard('Download ' + cap(key), DOWNLOADS[key]) : openCard('Download ' + a.name, 'https://www.google.com/search?btnI=1&q=' + encodeURIComponent(a.name + ' official download')), q = encodeURIComponent(a.name || key || '');
+      const st = IS_WIN ? 'ms-windows-store://search/?query=' + q : /Android/i.test(UA) ? 'market://search?q=' + q : /iPhone|iPad|iPod/i.test(UA) ? 'itms-apps://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=' + q : '';
+      if (st) o.card2 = { label: IS_WIN ? 'Search Microsoft Store' : 'Search the app store', url: st };
+      return o;
+    }
+  }
+  return null;
+}
+
+/* ---- local voice/text commands for the new powers ---- */
+function superCommand(low, cl, og) {
+  let m;
+  if (/^(?:install|add)\s+(?:jarvis|this app|yourself|the app|jarvis app)(?:\s+(?:on|to|as).*)?$/.test(low)) return R('', [{ type: 'pwa_install' }]);
+  if (/^(?:take|capture|grab|get|make)\s+(?:a\s+|me a\s+|my\s+)?(?:screen ?shot|screen capture|print ?screen)$|^(?:screen ?shot|screen capture|capture (?:the |my )?screen)$/.test(low)) return R('Choose what to capture and I will grab it.', [{ type: 'screenshot' }]);
+  if (/^(?:read|scan|check|analy[sz]e|describe|look at|summari[sz]e)\s+(?:the\s+|my\s+|this\s+)?screen(?:\s+(?:for me|to me|out loud))?$|^what(?:'s| is) on (?:the |my )?screen$|^what am i looking at$/.test(low)) return R('Choose the screen or window and I will read it.', [{ type: 'read_screen' }]);
+  if ((m = /^(?:send|share|forward|email|whatsapp|text)\s+(?:me\s+)?(?:(?:the|this|that|my|last|latest)\s+)*(?:photo|picture|pic|selfie|screenshot|screen shot|image)s?(?:\s+(?:to|with|on|via|by)\s+(.+))?$/.exec(low))) return R('Opening the share sheet.', [{ type: 'share_photo', to: m[1] || '' }]);
+  if (/^(?:switch|flip|change|turn)\s+(?:the\s+)?(?:camera|cam)(?:\s+(?:around|over))?$|^(?:use|open|switch to)\s+(?:the\s+)?(?:back|rear|front|selfie)\s+camera$/.test(low)) return R('Switching the camera.', [{ type: 'flip_camera', facing: /back|rear/.test(low) ? 'environment' : /front|selfie/.test(low) ? 'user' : '' }]);
+  /* contacts */
+  if ((m = /^(?:save|add|create|new|store)\s+(?:(?:a|new)\s+)*contact\s+(.+)$/.exec(low))) {
+    const rest = og(m[1]), ph = /(\+?\d[\d\s\-()]{5,}\d)/.exec(rest), em = /([^\s@]+@[^\s@]+\.[^\s@]+)/.exec(rest);
+    const name = rest.replace(ph ? ph[0] : '', '').replace(em ? em[0] : '', '').replace(/\b(?:phone|number|mobile|cell|email|e-mail|is|at|with|called|named)\b/gi, ' ').replace(/\s+/g, ' ').trim();
+    return R('', [{ type: 'add_contact', name, phone: ph ? ph[1].trim() : '', email: em ? em[1] : '' }]);
+  }
+  if ((m = /^(?:delete|remove|forget)\s+(?:the\s+)?contact\s+(.+)$/.exec(low))) return R('', [{ type: 'del_contact', name: m[1] }]);
+  if (/^(?:list|show|read|open|my)\s+(?:me\s+)?(?:all\s+)?(?:my\s+)?contacts$/.test(low)) return R('', [{ type: 'show_contacts' }]);
+  if ((m = /^(?:what(?:'s| is)|give me|show me|tell me)\s+(.+?)(?:'s|s)\s+(?:phone |mobile |cell )?(number|phone|email|email address)$/.exec(low))) {
+    const c = findContact(m[1]); if (c) return R(c.name + (/email/.test(m[2]) ? (c.email ? ' email is ' + c.email : ' has no email saved') : (c.phone ? ' number is ' + c.phone : ' has no number saved')) + '.');
+  }
+  /* call / message / email by name */
+  if ((m = /^(?:call|phone|ring|dial)\s+(.+)$/.exec(low)) && !/^[\d+\s\-()]+$/.test(m[1])) { const c = findContact(m[1]); if (c) return c.phone ? R('Calling ' + c.name + '.', [{ type: 'call', number: c.phone }]) : R(c.name + ' has no phone number saved.'); }
+  if ((m = /^(?:send (?:an? )?(whatsapp|text|sms|message)(?: message)?(?: to)?|(whatsapp|text|sms|message))\s+(.+?)(?:\s+(?:saying|that says|that|:|-)\s*(.*))?$/.exec(low))) {
+    const kind = m[1] || m[2], c = findContact(m[3]);
+    if (c && c.phone) { const sms = /^(text|sms)$/.test(kind); return R((sms ? 'Preparing a text to ' : 'Opening WhatsApp for ') + c.name + '.', [{ type: sms ? 'sms' : 'whatsapp', number: c.phone, body: m[4] ? og(m[4]) : '' }]); }
+  }
+  if ((m = /^(?:email|mail|send (?:an? )?email to|write (?:an? )?email to|compose (?:an? )?email to)\s+(.+?)(?:\s+(about|regarding|re|saying|that says|that)\s+(.+))?$/.exec(low))) {
+    const rawTo = m[1].trim(), c = hasEmail(rawTo) ? { name: '', email: rawTo } : findContact(rawTo);
+    if (c && c.email) {
+      const topic = m[3] ? og(m[3]) : '';
+      if (!topic) return R('Opening an email to ' + (c.name || c.email) + '.', [{ type: 'email', to: c.email, toName: c.name, subject: '', body: '' }]);
+      if (/^(?:saying|that says|that)$/.test(m[2])) return R('', [{ type: 'email', to: c.email, toName: c.name, subject: topic.slice(0, 60), body: topic }]);
+      return R('', [{ type: 'email_draft', to: c.email, toName: c.name, topic }]);
+    }
+  }
+  /* meetings */
+  if ((m = /^(?:schedule|book|set up|setup|arrange|organi[sz]e|plan|create|add|fix)\s+(?:me\s+)?(?:(?:a|an|the|new)\s+)*(?:meeting|call|appointment|catch ?up|interview|session|zoom call|video call)\b\s*(.*)$/.exec(low))) {
+    let rest = m[1], min = 30;
+    const dm = new RegExp('\\bfor\\s+(' + DURRE + ')(?=\\W|$)', 'i').exec(rest); if (dm) { min = Math.max(5, Math.round(durToSec(dm[1]) / 60)); rest = rest.replace(dm[0], ' '); }
+    const w = parseWhen(rest); if (!w) return R('When should the meeting be? Say for example “schedule a meeting with John tomorrow at 3 pm”.');
+    let r2 = w.rest, who = '', title = '';
+    const wm = /\bwith\s+(.+?)(?=\s+(?:about|regarding|to discuss|re)\b|$)/.exec(r2); if (wm) { who = og(wm[1]); r2 = r2.replace(wm[0], ' '); }
+    const tm = /\b(?:about|regarding|to discuss|re|called|titled)\s+(.+)$/.exec(r2); if (tm) title = og(tm[1]);
+    return R('', [{ type: 'meeting', title, with: who, at: w.at.toISOString(), minutes: min }]);
+  }
+  if ((m = /^(?:cancel|delete|remove)\s+(?:the\s+|my\s+)?(?:meeting|appointment)(?:\s+(?:with|about|called)\s+(.+))?$/.exec(low))) return R('', [{ type: 'cancel_meeting', text: m[1] || '' }]);
+  if (/^(?:what|which|show|list|read|any|do i have|how many|tell me|my)\b.*\b(?:meetings?|appointments?)\b/.test(low) || /^(?:meetings?|appointments?)$/.test(low)) return R('', [{ type: 'show_meetings' }]);
+  if (/^(?:write|draft|prepare|create|make|generate)\b.*\b(?:agenda|minutes|meeting notes)\b/.test(low)) return R('', [{ type: 'work', prompt: cl }]);
+  /* briefing, news, forecast */
+  if (/^(?:full|complete|mastermind|morning|situation)\s+(?:briefing|brief|report)$|^(?:brief me fully|situation report|sitrep)$/.test(low)) return R('', [{ type: 'full_briefing' }]);
+  if (/\b(?:news|headlines)\b/.test(low) && /^(?:read|tell|what|give|any|show|latest|top|the|news|headlines|get|search|find|brief|play)/.test(low) && !/\b(?:open|go to|visit|launch)\b/.test(low)) {
+    const tm = /\b(?:news|headlines)\s+(?:about|on|regarding|for)\s+(.+)$/.exec(low) || /\b(?:about|regarding)\s+(.+?)\s+(?:news|headlines)$/.exec(low);
+    if (tm && !NEWS_ALIAS[tm[1].trim()]) return R('Checking the news on ' + og(tm[1]) + '.', [{ type: 'news', topic: og(tm[1]) }]);
+    const key = Object.keys(NEWS_ALIAS).sort((x, y) => y.length - x.length).find(k => new RegExp('\\b' + escRe(k) + '\\b').test(low));
+    return R('Fetching the headlines.', [{ type: 'news', source: key || '' }]);
+  }
+  if (/\b(?:weather|forecast|rain|temperature)\b/.test(low) && /\b(?:tomorrow|this week|next week|coming days|next few days|forecast|5 day|five day|weekend)\b/.test(low)) {
+    const pm = /(?:in|for|at)\s+([a-z .'-]{2,40}?)(?:\s+(?:today|tomorrow|now|tonight|this week|next week))?$/.exec(low), pl = pm && !/^(tomorrow|today|the week|this week|next week|the weekend|the next days)$/.test(pm[1]) ? pm[1] : '';
+    return R('', [{ type: 'forecast', place: pl }]);
+  }
+  return null;
 }
 
 init();
