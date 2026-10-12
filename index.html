@@ -459,6 +459,22 @@ details.lab .plist{padding:.2rem .8rem .7rem}
 @media(max-width:520px){.bn{font-size:.78rem;letter-spacing:.2em}.themes{grid-template-columns:repeat(3,1fr)}.orbs{grid-template-columns:repeat(3,1fr)}.hubgrid{grid-template-columns:repeat(3,1fr)}}
 @media(max-height:760px) and (min-width:901px){.quick{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;justify-content:center}.q{white-space:nowrap}#clock{font-size:1.5rem}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+#recChip{color:var(--dn);border-color:rgba(255,107,107,.5)}#recChip::before{background:var(--dn)}
+#eyes{position:fixed;inset:0;z-index:135;background:#000;display:flex;flex-direction:column}
+#eyes[hidden]{display:none}
+.eyestage{position:relative;flex:1;min-height:0}
+.eyestage video,.eyestage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.eyetop{position:absolute;top:calc(.8rem + env(safe-area-inset-top));left:1rem;right:1rem;display:flex;justify-content:space-between;gap:.6rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;pointer-events:none}
+.eyetop span{background:rgba(0,0,0,.55);border:1px solid var(--line);border-radius:.4rem;padding:.35rem .7rem;color:var(--cy)}
+.recdot{color:var(--dn)!important;border-color:rgba(255,107,107,.6)!important;animation:dp 1s infinite}
+.eyebar{display:flex;gap:.6rem;padding:.9rem 1rem calc(.9rem + env(safe-area-inset-bottom));flex-wrap:wrap;justify-content:center;background:linear-gradient(to top,rgba(0,0,0,.85),transparent)}
+.eyebar button{border:1px solid var(--cy);background:rgba(var(--a),.12);color:var(--cy);padding:.7rem 1.3rem;border-radius:.4rem;font-family:var(--hud);font-size:.9rem}
+.eyebar button.rec{border-color:var(--dn);color:var(--dn);background:rgba(255,107,107,.15)}
+.mus .t small{white-space:normal}
+
+#linkChip{color:var(--gr);border-color:rgba(var(--g),.45)}#linkChip::before{background:var(--gr)}
+@media(max-width:900px){#miniBtn{display:none}}
 </style></head><body>
 <div class="bg"></div>
 <div class="floor"></div>
@@ -502,9 +518,12 @@ details.lab .plist{padding:.2rem .8rem .7rem}
       <div class="brand"><div class="mark" style="width:1.7rem;height:1.7rem;border-radius:50%;border:1.5px solid var(--cy);position:relative;box-shadow:0 0 1rem rgba(var(--a),.5)"></div><div class="bn">J.A.R.V.I.S.<small>COMMAND DECK · v4</small></div></div>
       <div class="chip" id="nextChip" hidden><span class="dot am"></span><span id="nextTxt"></span></div>
       <div class="chip" id="focusChip" hidden><svg class="i" data-i="timer"></svg><span id="focusTxt">Focus</span></div>
+      <div class="chip" id="recChip" hidden><span class="dot off pulse"></span><span id="recChipT">REC</span></div>
+      <button class="chip btnchip" id="linkChip" hidden title="Screen linked — tap to unlink"><span class="dot on pulse"></span><span>Screen linked</span></button>
       <div class="chip" id="aiChip" title="Cloud brain status"><span class="dot" id="aiDot"></span><span class="lbl" id="aiTxt">Ready</span></div>
       <button class="chip btnchip" id="hfBtn" title="Tap to turn listening on or off" aria-label="Listening status"><span class="dot" id="hfDot"></span><span class="lbl" id="hfTxt">Mic off</span></button>
       <button class="ib" id="stealthBtn" title="Stealth mode: blur private data" aria-label="Stealth mode"><svg class="i" data-i="shield"></svg></button>
+      <button class="ib" id="miniBtn" title="Mini mode: float Jarvis above other windows" aria-label="Mini mode"><svg class="i" data-i="mini"></svg></button>
       <button class="ib" id="palBtn" title="Command palette (Ctrl+K)" aria-label="Command palette"><svg class="i" data-i="search"></svg></button>
       <button class="ib" id="menuBtn" title="Toggle panel" aria-label="Show or hide panel"><svg class="i" data-i="grid"></svg></button>
     </header>
@@ -637,6 +656,24 @@ details.lab .plist{padding:.2rem .8rem .7rem}
             <form class="add" id="habForm"><input id="habIn" type="text" placeholder="New habit (e.g. drink water)" aria-label="New habit"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Track</button></form>
             <div class="plist" id="habList"></div>
           </details>
+          <details class="lab" open id="labLink"><summary>Screen link &amp; mini mode</summary>
+            <div class="fmeta" style="text-align:left;padding:.1rem .9rem .5rem">Tap <b>Link screen</b> once and choose <b>Entire screen</b>. From then on I can read whatever is on top, with no more prompts, even while I float in mini mode.</div>
+            <div class="fbtns"><button type="button" class="btn sol" id="lnkOn"><svg class="i" data-i="screen"></svg>Link screen</button><button type="button" class="btn dn" id="lnkOff">Unlink</button></div>
+            <div class="fbtns"><button type="button" class="btn" id="lnkMini"><svg class="i" data-i="mini"></svg>Mini mode</button><button type="button" class="btn" id="lnkRead"><svg class="i" data-i="eye"></svg>Read screen</button></div>
+            <form class="add" id="sentForm"><input id="sentIn" type="text" placeholder="Alert me when my screen says…" aria-label="Screen sentinel"><button class="btn sol" type="submit">Watch</button></form>
+            <div class="plist" id="sentList"></div>
+          </details>
+          <details class="lab" open id="labEyes"><summary>Eyes · faces &amp; recording</summary>
+            <div class="fbtns"><button type="button" class="btn sol" id="eyOpen"><svg class="i" data-i="eye"></svg>Open eyes</button><button type="button" class="btn" id="eyOpenRec">Open &amp; record</button></div>
+            <div class="fbtns"><button type="button" class="btn" id="scrRec">Record screen</button><button type="button" class="btn" id="memoRec">Voice memo</button></div>
+            <div class="colh">Faces I know</div><div class="plist" id="faceList"></div>
+          </details>
+          <details class="lab" open id="labMusic"><summary>Music grabber · free &amp; legal</summary>
+            <form class="add" id="musicForm"><input id="musicIn" type="text" placeholder="Genre, artist or mood — e.g. jazz, lofi, african" aria-label="Music search"><button class="btn sol" type="submit"><svg class="i" data-i="download"></svg>Get</button></form>
+            <div class="plist" id="musicList"></div>
+            <div class="fbtns" style="padding-top:0"><button type="button" class="btn" id="musStream">Stream (Audius)</button><button type="button" class="btn" id="musNext">Next</button><button type="button" class="btn dn" id="musStop">Stop</button></div>
+            <audio id="musicPlayer" controls style="width:calc(100% - 1.6rem);margin:0 .8rem .8rem;display:none"></audio>
+          </details>
           <details class="lab" id="labDiag"><summary>Diagnostics</summary>
             <div class="diag" id="diagList"></div>
             <div class="fbtns"><button type="button" class="btn" id="diagRun"><svg class="i" data-i="pulse"></svg>Run &amp; speak</button></div>
@@ -645,6 +682,12 @@ details.lab .plist{padding:.2rem .8rem .7rem}
       </aside>
     </div>
   </aside>
+</div>
+
+<div id="eyes" hidden>
+  <div class="eyestage"><video id="eyeVid" autoplay playsinline muted></video><canvas id="eyeCv"></canvas></div>
+  <div class="eyetop"><span class="recdot" id="recTag" hidden>● REC <b id="recTime">00:00</b></span><span id="eyeStat">Opening…</span></div>
+  <div class="eyebar"><button type="button" id="eyRec">Record</button><button type="button" id="eySnap">Snap</button><button type="button" id="eyLearn">Remember face</button><button type="button" id="eyFlip">Flip</button><button type="button" id="eyClose">Close</button></div>
 </div>
 
 <div id="pal" hidden>
@@ -663,6 +706,7 @@ details.lab .plist{padding:.2rem .8rem .7rem}
       <button type="button" data-sp="voice"><svg class="i" data-i="speaker"></svg>Voice</button>
       <button type="button" data-sp="listen"><svg class="i" data-i="mic"></svg>Listening</button>
       <button type="button" data-sp="look"><svg class="i" data-i="palette"></svg>Interface</button>
+      <button type="button" data-sp="eyes"><svg class="i" data-i="eye"></svg>Eyes</button>
       <button type="button" data-sp="alerts"><svg class="i" data-i="bell"></svg>Alerts &amp; sound</button>
       <button type="button" data-sp="data"><svg class="i" data-i="download"></svg>Data</button>
       <button type="button" data-sp="adv"><svg class="i" data-i="pulse"></svg>Advanced</button>
@@ -729,6 +773,15 @@ details.lab .plist{padding:.2rem .8rem .7rem}
           <div class="sbtns"><button type="button" class="btn" id="sFull"><svg class="i" data-i="expand"></svg>Toggle fullscreen</button><button type="button" class="btn" id="sUiReset">Reset interface</button></div>
         </div>
 
+        <div class="spane" data-sp="eyes">
+          <h3>EYES</h3><p class="sub">Camera, face memory and recording. Face data is stored as numeric templates (no photos) on this device only. Only enrol people who know and agree.</p>
+          <div class="tg"><span>Greet known faces<small>“Hi, you are …” when a saved person appears on camera</small></span><button type="button" class="sw" id="sFaceGreet" aria-label="Greet known faces"></button></div>
+          <div class="tg"><span>Ask unknown people their name<small>Jarvis asks, then remembers the face under that name</small></span><button type="button" class="sw" id="sFaceAsk" aria-label="Ask names"></button></div>
+          <div class="tg"><span>Record audio with video<small>May interrupt voice listening while recording</small></span><button type="button" class="sw" id="sRecAudio" aria-label="Record audio"></button></div>
+          <div class="fld" style="margin-top:.8rem"><label>Camera</label><div class="seg" id="sCam"><button type="button" data-v="user">Front</button><button type="button" data-v="environment">Rear</button></div></div>
+          <div class="sbtns"><button type="button" class="btn dn" id="sFacesWipe">Forget all faces</button></div>
+        </div>
+
         <div class="spane" data-sp="alerts">
           <h3>ALERTS &amp; SOUND</h3><p class="sub">How the deck gets your attention.</p>
           <div class="tg"><span>Reminder notifications<small id="nSt">Checking…</small></span><button type="button" class="btn" id="nBtn">Enable</button></div>
@@ -748,6 +801,8 @@ details.lab .plist{padding:.2rem .8rem .7rem}
         <div class="spane" data-sp="adv">
           <h3>ADVANCED</h3><p class="sub">For builders.</p>
           <div class="fld"><label for="sEp">AI endpoint</label><input type="text" id="sEp" placeholder="Cloudflare Worker URL"></div>
+          <div class="fld"><label for="sJam">Jamendo client ID (optional, free at devportal.jamendo.com)</label><input type="text" id="sJam" placeholder="Adds Jamendo's Creative Commons catalogue"></div>
+          <div class="tg"><span>Stay awake<small>Keep the screen and Jarvis alive while linked or in mini mode</small></span><button type="button" class="sw" id="sAwake" aria-label="Stay awake"></button></div>
           <div class="foot">J.A.R.V.I.S. Command Deck · created by Arnold Nedahwa<br>Browser apps cannot launch every native program. Jarvis opens websites and app links; install it as an app for the best reminders.</div>
         </div>
       </div>
@@ -3235,7 +3290,7 @@ function renderHabits() {
 
 /* ---------------- command palette ---------------- */
 let palSel = 0, palItems = [];
-const PAL_BASE = () => {
+let PAL_BASE = () => {
   const L = [];
   [['jarvis', 'Core'], ['log', 'Conversation'], ['plan', 'Plan'], ['money', 'Money'], ['apps', 'Apps'], ['hub', 'Hub'], ['lab', 'Lab']].forEach(([v, n]) => L.push({ k: 'GO', t: 'Go to ' + n, kw: 'open show panel ' + v, run: () => setView(v) }));
   [['Daily briefing', 'daily briefing'], ['What’s the weather?', 'what is the weather'], ['Headlines', 'what is the news'], ['Forecast', 'weather forecast'], ['Open camera', 'open the camera'], ['Take a screenshot', 'take a screenshot'], ['Read my screen', 'read my screen'], ['My meetings', 'what meetings do I have'], ['What can you do?', 'help'], ['System status', 'system status']].forEach(([t, c]) => L.push({ k: 'ASK', t, kw: c, run: () => handle(c) }));
@@ -3434,6 +3489,439 @@ setInterval(() => { telemRender(); focusCheck(); }, 1000); setInterval(renderRad
 setTimeout(() => wxLoad(false), 1200); setInterval(() => wxLoad(false), 600000);
 if (FOCUS && FOCUS.end <= Date.now()) focusCheck();
 
+
+/* =====================================================================
+   EYES (camera + faces + recording), MUSIC GRABBER, ROUTINES
+   ===================================================================== */
+Object.assign(DECK_DEF, { faceGreet: true, faceAsk: true, recAudio: false, cam: 'user' });
+Object.keys(DECK_DEF).forEach(k => { if (S.settings[k] === undefined) S.settings[k] = DECK_DEF[k]; });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const FACEAPI = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js', FACEMODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+let FACES = store.get('faces', []);
+const saveFaces = () => store.set('faces', FACES);
+const EYE = { stream: null, on: false, loop: 0, last: [], greeted: {}, ask: null, unk: 0, askAt: 0, models: null, facing: null };
+const REC = {};
+
+/* ---------- files ---------- */
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  try { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { }
+  return url;
+}
+const stamp = () => { const d = new Date(); return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()); };
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.round(b / 1024) + ' KB';
+
+/* ---------- recorder ---------- */
+function recBegin(kind, stream, onend) {
+  if (REC[kind] || !window.MediaRecorder) return false;
+  const cand = kind === 'memo' ? ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'] : ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
+  const mt = cand.find(t => MediaRecorder.isTypeSupported(t)) || ''; let mr;
+  try { mr = new MediaRecorder(stream, mt ? { mimeType: mt } : undefined); } catch (e) { return false; }
+  const r = { mr, chunks: [], t0: Date.now(), kind, stream, mt, onend }; mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); };
+  mr.onstop = () => recFinish(r); mr.start(1000); REC[kind] = r; recUI(); burst('wake'); return true;
+}
+function recEnd(kind) { const r = REC[kind]; if (!r) return false; try { if (r.mr.state !== 'inactive') r.mr.stop(); } catch (e) { } return true; }
+function recFinish(r) {
+  delete REC[r.kind];
+  const ext = /mp4/.test(r.mt) ? 'mp4' : 'webm', name = 'jarvis-' + r.kind + '-' + stamp() + '.' + (r.kind === 'memo' && ext === 'webm' ? 'webm' : ext);
+  const blob = new Blob(r.chunks, { type: r.mt || (r.kind === 'memo' ? 'audio/webm' : 'video/webm') }), url = saveBlob(blob, name);
+  addMsg('j', 'Recording saved: ' + name + ' (' + fmtSize(blob.size) + ').', [{ label: 'Saved ' + name, url, dl: name, sub: 'tap if it did not download' }], false);
+  try { if (r.kind !== 'eyes') r.stream.getTracks().forEach(t => t.stop()); } catch (e) { }
+  recUI(); burst('ok'); sfx('done'); if (r.onend) r.onend();
+}
+function recUI() {
+  const ks = Object.keys(REC), chip = $('#recChip'), tag = $('#recTag'), btn = $('#eyRec');
+  const el = ks.length ? Math.floor((Date.now() - Math.min(...ks.map(k => REC[k].t0))) / 1000) : 0, tm = pad(Math.floor(el / 60)) + ':' + pad(el % 60);
+  if (chip) { chip.hidden = !ks.length; $('#recChipT').textContent = 'REC ' + ks.join('+') + ' ' + tm; }
+  if (tag) { tag.hidden = !REC.eyes; $('#recTime').textContent = tm; }
+  if (btn) { btn.textContent = REC.eyes ? 'Stop & save' : 'Record'; btn.classList.toggle('rec', !!REC.eyes); }
+  ks.forEach(k => { if (Date.now() - REC[k].t0 > 1800000) recEnd(k); });
+}
+setInterval(recUI, 1000);
+
+/* ---------- face maths ---------- */
+const fdist = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); };
+function matchFace(desc) {
+  let best = null, bd = 9;
+  FACES.forEach(f => f.descs.forEach(d => { const x = fdist(desc, d); if (x < bd) { bd = x; best = f; } }));
+  return bd < 0.5 ? { face: best, d: bd } : null;
+}
+function saveFace(name, desc) {
+  name = cap(String(name || '').trim()); if (!name) return null;
+  let f = FACES.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (!f) { f = { id: uid(), name, descs: [], ts: Date.now() }; FACES.push(f); }
+  f.descs.push(Array.from(desc)); if (f.descs.length > 8) f.descs.shift(); saveFaces(); renderFaces(); return f;
+}
+function renderFaces() {
+  const L = $('#faceList'); if (!L) return; L.innerHTML = FACES.length ? '' : '<div class="empty">No faces saved yet.<br>Open my eyes and say “remember this face as John”.</div>';
+  FACES.forEach(f => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = '<span style="color:var(--cy)">' + ic('eye') + '</span><div class="t"></div><button class="rm" aria-label="Forget face">' + ic('trash') + '</button>';
+    r.querySelector('.t').innerHTML = esc(f.name) + '<small>' + f.descs.length + ' samples · since ' + esc(new Date(f.ts).toLocaleDateString([], { day: 'numeric', month: 'short' })) + '</small>';
+    r.querySelector('.rm').onclick = () => { FACES = FACES.filter(x => x !== f); saveFaces(); renderFaces(); };
+    L.appendChild(r);
+  });
+}
+function loadVision() {
+  if (EYE.models) return EYE.models;
+  return EYE.models = new Promise((res, rej) => {
+    const go = async () => { try { const fa = window.faceapi; await Promise.all([fa.nets.tinyFaceDetector.loadFromUri(FACEMODELS), fa.nets.faceLandmark68TinyNet.loadFromUri(FACEMODELS), fa.nets.faceRecognitionNet.loadFromUri(FACEMODELS)]); res(fa); } catch (e) { rej(e); } };
+    if (window.faceapi) return go();
+    const s = document.createElement('script'); s.src = FACEAPI; s.onload = go; s.onerror = () => rej(new Error('script')); document.head.appendChild(s);
+  }).catch(e => { EYE.models = null; throw e; });
+}
+
+/* ---------- eyes overlay ---------- */
+const eyeStat = t => { const e = $('#eyeStat'); if (e) e.textContent = t; };
+async function eyesOpen(record) {
+  if (EYE.on) { if (record && !REC.eyes) eyesRecord(); return true; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('This browser cannot open the camera.', 3000, true); return false; }
+  EYE.facing = S.settings.cam || 'user';
+  try { EYE.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: EYE.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: !!S.settings.recAudio }); }
+  catch (e) { try { EYE.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); } catch (e2) { toast('Camera blocked. Allow the camera in the address bar and try again.', 4000, true); return false; } }
+  EYE.on = true; EYE.last = []; EYE.unk = 0; const v = $('#eyeVid'); v.srcObject = EYE.stream; $('#eyes').hidden = false; v.play().catch(() => { });
+  burst('wake'); sfx('wake'); eyeStat('Eyes open · loading vision…');
+  if (record) setTimeout(eyesRecord, 400);
+  loadVision().then(() => { eyeStat('Vision online'); EYE.loop = 1; eyeLoop(); }).catch(() => eyeStat('Vision models unavailable (needs internet once) · camera still works'));
+  return true;
+}
+function eyesRecord() { if (!EYE.on) return false; if (REC.eyes) { recEnd('eyes'); return true; } const ok = recBegin('eyes', EYE.stream); if (!ok) toast('Recording is not supported in this browser.', 3000, true); return ok; }
+function eyesClose() {
+  EYE.loop = 0; EYE.on = false; if (REC.eyes) recEnd('eyes');
+  setTimeout(() => { try { EYE.stream && EYE.stream.getTracks().forEach(t => t.stop()); } catch (e) { } EYE.stream = null; }, REC.eyes ? 600 : 0);
+  $('#eyes').hidden = true; $('#eyeVid').srcObject = null; EYE.ask = null;
+}
+async function eyesFlip() { if (!EYE.on) return; const rec = !!REC.eyes; S.settings.cam = EYE.facing === 'user' ? 'environment' : 'user'; save.settings(); syncDeckUI(); if (rec) { recEnd('eyes'); await sleep(900); } eyesClose(); await sleep(250); eyesOpen(rec); }
+function eyesSnap() {
+  const v = $('#eyeVid'); if (!EYE.on || !v.videoWidth) return false;
+  const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; const x = c.getContext('2d'); x.drawImage(v, 0, 0);
+  const names = EYE.last.filter(f => f.name).map(f => f.name);
+  if (names.length) { x.font = Math.round(c.height / 28) + 'px sans-serif'; x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, c.height - c.height / 14, c.width, c.height / 14); x.fillStyle = '#fff'; x.fillText(names.join(', '), 12, c.height - c.height / 40); }
+  c.toBlob(b => { if (!b) return; const n = 'jarvis-photo-' + stamp() + '.png', url = saveBlob(b, n); window.LAST_FILE = new File([b], n, { type: 'image/png' }); addMsg('j', 'Photo saved' + (names.length ? ' — ' + names.join(', ') : '') + '.', [{ label: 'Saved ' + n, url, dl: n, sub: 'tap if it did not download' }], false); flashScreen(); sfx('tick'); }, 'image/png');
+  return true;
+}
+function drawEyes() {
+  const v = $('#eyeVid'), cv2 = $('#eyeCv'); if (!v.videoWidth) return; if (cv2.width !== v.videoWidth) { cv2.width = v.videoWidth; cv2.height = v.videoHeight; }
+  const c = cv2.getContext('2d'); c.clearRect(0, 0, cv2.width, cv2.height); const rgb = col.map(x => x | 0).join(',');
+  EYE.last.forEach(f => {
+    const b = f.box, k = Math.max(2, cv2.width / 320), L = Math.min(b.w, b.h) * .22; c.lineWidth = k; c.strokeStyle = f.name ? `rgb(${rgb})` : 'rgb(255,178,56)'; c.shadowColor = c.strokeStyle; c.shadowBlur = 8;
+    [[b.x, b.y, 1, 1], [b.x + b.w, b.y, -1, 1], [b.x, b.y + b.h, 1, -1], [b.x + b.w, b.y + b.h, -1, -1]].forEach(([x, y, dx, dy]) => { c.beginPath(); c.moveTo(x + dx * L, y); c.lineTo(x, y); c.lineTo(x, y + dy * L); c.stroke(); });
+    c.shadowBlur = 0; c.font = Math.max(16, cv2.width / 36) + 'px "Chakra Petch",sans-serif'; const t = f.name || 'Unknown', w = c.measureText(t).width + 14;
+    c.fillStyle = 'rgba(0,0,0,.65)'; c.fillRect(b.x, b.y - cv2.width / 30, w, cv2.width / 33); c.fillStyle = '#fff'; c.fillText(t, b.x + 7, b.y - cv2.width / 90);
+  });
+}
+async function eyeLoop() {
+  if (!EYE.loop || !EYE.on) return;
+  const fa = window.faceapi, v = $('#eyeVid');
+  try {
+    if (fa && v.videoWidth && v.readyState >= 2) {
+      const ds = await fa.detectAllFaces(v, new fa.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: .5 })).withFaceLandmarks(true).withFaceDescriptors();
+      EYE.last = ds.map(d => { const m = matchFace(d.descriptor); return { box: { x: d.detection.box.x, y: d.detection.box.y, w: d.detection.box.width, h: d.detection.box.height }, desc: d.descriptor, name: m ? m.face.name : '', face: m ? m.face : null, d: m ? m.d : 9 }; });
+      drawEyes(); eyeStat(EYE.last.length ? EYE.last.map(f => f.name || 'unknown').join(' · ') : 'Scanning…'); faceLogic();
+    }
+  } catch (e) { }
+  if (EYE.loop) setTimeout(eyeLoop, 450);
+}
+function faceLogic() {
+  const now = Date.now();
+  EYE.last.forEach(f => {
+    if (!f.face) return;
+    if (f.d < .42 && f.face.descs.length < 8 && Math.random() < .03) { f.face.descs.push(Array.from(f.desc)); saveFaces(); }
+    if (S.settings.faceGreet !== false && (!EYE.greeted[f.face.id] || now - EYE.greeted[f.face.id] > 600000)) {
+      EYE.greeted[f.face.id] = now; const g = 'Hi, you are ' + f.face.name + '.'; addMsg('j', g, [], false); toast(g, 3000, true); burst('ok'); const was = S.settings.autoSpeak; speak(g);
+    }
+  });
+  const unk = EYE.last.filter(f => !f.face);
+  if (EYE.ask) { if (now - EYE.ask.t > 25000) { EYE.ask = null; EYE.askAt = now + 90000; } return; }
+  if (unk.length === 1 && EYE.last.length === 1) EYE.unk++; else EYE.unk = 0;
+  if (EYE.unk >= 4 && S.settings.faceAsk !== false && now > EYE.askAt && !S.speaking && !S.busy) {
+    EYE.unk = 0; EYE.askAt = now + 60000; EYE.ask = { desc: unk[0].desc, t: now };
+    const q = 'I do not recognise you yet. What is your name?'; addMsg('j', q, [], false); toast(q, 4000, true); if (!S.convo) setConvo(true); speak(q);
+  }
+}
+function takeName(text) {
+  const a = EYE.ask; if (!a) return null; const raw = String(text || '').trim();
+  if (/^(?:no|nope|cancel|never ?mind|skip|forget it|stop)$/i.test(raw)) { EYE.ask = null; return R('No problem. I will not save you.'); }
+  const n = raw.replace(/[.!?]+$/, '').replace(/^(?:(?:my name is|i am|i'm|im|it's|its|this is|call me|name'?s|the name is)\s+)/i, '').trim();
+  if (!n || n.split(' ').length > 4 || /\d/.test(n)) return R('Sorry, I did not catch a name. Please say just your name.');
+  EYE.ask = null; const f = saveFace(n, a.desc); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Pleasure to meet you, ' + f.name + '. I will remember your face.');
+}
+
+/* ---------- screen + voice memo ---------- */
+async function screenRecord() {
+  if (REC.screen) { recEnd('screen'); return 'Screen recording saved.'; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) return 'This browser cannot record the screen.';
+  try { const s = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); s.getVideoTracks()[0].onended = () => recEnd('screen'); return recBegin('screen', s) ? 'Recording your screen. Say “stop recording” when done.' : 'Recording is not supported here.'; }
+  catch (e) { return 'Screen sharing was cancelled.'; }
+}
+async function memoRecord() {
+  if (REC.memo) { recEnd('memo'); return 'Voice memo saved.'; }
+  try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); return recBegin('memo', s) ? 'Recording a voice memo. Say “stop recording” when done.' : 'Recording is not supported here.'; }
+  catch (e) { return 'Microphone access was blocked.'; }
+}
+
+/* ---------- music grabber (free + legal sources only) ---------- */
+const MUS = { list: [] };
+async function musicSearch(q) {
+  const base = q ? '(' + q.replace(/[()":]/g, ' ') + ') AND ' : '';
+  const query = base + 'mediatype:audio AND (licenseurl:*creativecommons* OR licenseurl:*publicdomain* OR collection:netlabels)';
+  const r = await fetch('https://archive.org/advancedsearch.php?q=' + encodeURIComponent(query) + '&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=licenseurl&rows=8&sort[]=downloads+desc&output=json');
+  const j = await r.json(); return (j.response && j.response.docs) || [];
+}
+async function musicPick(doc) {
+  const m = await (await fetch('https://archive.org/metadata/' + encodeURIComponent(doc.identifier))).json();
+  const fs = (m.files || []).filter(f => /\.mp3$/i.test(f.name) && +f.size > 100000 && +f.size < 60e6); if (!fs.length) return null;
+  fs.sort((a, b) => (/VBR|MP3/i.test(b.format || '') ? 1 : 0) - (/VBR|MP3/i.test(a.format || '') ? 1 : 0)); return fs[0];
+}
+async function musicGet(q) {
+  toast('Searching free music for “' + (q || 'anything') + '”…', 2500, true);
+  let docs; try { docs = await musicSearch(q); } catch (e) { return { err: 'I could not reach the free music library. Check your connection.' }; }
+  if (!docs.length) return { err: 'I found no free, legally shareable tracks for “' + q + '”.' };
+  for (const d of docs.slice(0, 5)) {
+    try {
+      const f = await musicPick(d); if (!f) continue;
+      toast('Downloading “' + (d.title || d.identifier) + '”…', 4000, true);
+      const resp = await fetch('https://archive.org/download/' + encodeURIComponent(d.identifier) + '/' + f.name.split('/').map(encodeURIComponent).join('/')); if (!resp.ok) continue;
+      const blob = await resp.blob(), clean = s => String(s || '').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 70), name = clean((d.creator ? (Array.isArray(d.creator) ? d.creator[0] : d.creator) + ' - ' : '') + (d.title || d.identifier)) + '.mp3';
+      const url = saveBlob(blob, name); const t = { title: d.title || d.identifier, creator: d.creator || '', name, url, lic: /publicdomain/i.test(d.licenseurl || '') ? 'Public domain' : 'Creative Commons' };
+      MUS.list.unshift(t); MUS.list = MUS.list.slice(0, 12); renderMusic(); const p = $('#musicPlayer'); p.src = url; p.style.display = ''; p.play().catch(() => { });
+      burst('ok'); sfx('done'); return { ok: t };
+    } catch (e) { }
+  }
+  return { err: 'Every match failed to download. Try a different search.' };
+}
+function renderMusic() {
+  const L = $('#musicList'); if (!L) return; L.innerHTML = MUS.list.length ? '' : '<div class="empty">Say “download some jazz” and I will fetch a free track.<br>Only Creative Commons / public-domain music.</div>';
+  MUS.list.forEach(t => { const r = document.createElement('div'); r.className = 'row mus'; r.innerHTML = '<span style="color:var(--cy)">' + ic('download') + '</span><div class="t"></div><button class="rm" aria-label="Play">' + ic('play') + '</button>'; r.querySelector('.t').innerHTML = esc(t.title) + '<small>' + esc((t.creator ? t.creator + ' · ' : '') + t.lic) + '</small>'; r.querySelector('.rm').onclick = () => { const p = $('#musicPlayer'); p.src = t.url; p.style.display = ''; p.play().catch(() => { }); }; L.appendChild(r); });
+}
+async function musicAction(a) {
+  const q = String(a.q || '').trim(), res = await musicGet(q), yt = { label: 'Play “' + (q || 'music') + '” on YouTube', url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q + ' music'), sub: 'streaming' };
+  if (res.ok) return { say: 'Downloaded “' + res.ok.title + '”, ' + res.ok.lic + ' licensed. It is playing now.', card: { label: 'Saved ' + res.ok.name, url: res.ok.url, dl: res.ok.name, sub: 'tap if it did not download' } };
+  return { say: res.err + ' I only download free, legally shareable music. For commercial songs I can stream them instead.', card: yt };
+}
+
+/* ---------- routines ---------- */
+let ROUTINES = store.get('routines', { morning: ['full briefing', 'show my tasks'] });
+async function routineRun(name) {
+  const cmds = ROUTINES[name]; if (!cmds) return; await sleep(400);
+  for (const c of cmds) { let n = 0; while ((S.busy || S.speaking) && n++ < 120) await sleep(300); await _handle(c); await sleep(300); }
+}
+
+/* ---------- commands ---------- */
+function eyesCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/[!?.]+$/, '').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim(), low = t.toLowerCase(); let m;
+  if (EYE.ask && !S.guest) { const r = takeName(t); if (r) return r; }
+  if (!low) return null;
+  if (S.guest && /\b(eyes?|record|recording|faces?|download|routine|screen|memo)\b/.test(low)) return R('That one is reserved for the founder.');
+  if ((m = /^(?:open|wake|activate|turn on|start) (?:up )?(?:your )?eyes?(?: and (.+))?$/.exec(low))) {
+    const rec = !!(m[1] && /record|film|capture|video|save/.test(m[1])); eyesOpen(rec);
+    return R(rec ? 'Eyes open. Recording what I see, ' + NAME() + '.' : 'Eyes open. Scanning for faces.');
+  }
+  if (/^(?:close|shut|rest|turn off) (?:your )?eyes?$/.test(low)) { if (!EYE.on) return R('My eyes are already closed.'); eyesClose(); return R('Eyes closed.'); }
+  if (/^(?:start |begin )?(?:recording|record(?: video| what you see| this| everything)?|film this)$/.test(low)) { if (EYE.on) { if (REC.eyes) return R('Already recording.'); eyesRecord(); return R('Recording.'); } eyesOpen(true); return R('Opening my eyes and recording.'); }
+  if (/^(?:stop|end|finish|save) (?:the |my )?(?:recording|video|screen recording|voice memo)$/.test(low) || /^stop record(?:ing)?$/.test(low)) { const ks = Object.keys(REC); if (!ks.length) return R('Nothing is recording.'); ks.forEach(recEnd); return R('Recording stopped and saved.'); }
+  if (/^(?:record|capture) (?:my |the )?screen$|^screen record(?:ing)?$/.test(low)) return R('', [{ type: 'deck_screen' }]);
+  if (/^(?:record|start|take) (?:a )?(?:voice memo|voice note|audio recording|audio note)$/.test(low)) return R('', [{ type: 'deck_memo' }]);
+  if (EYE.on && /^(?:take|snap|capture) (?:a |the )?(?:photo|picture|pic|selfie|shot)$/.test(low)) { eyesSnap(); return R('Captured.'); }
+  if (/^(?:who|what) (?:do you see|can you see|is this|is that|am i|are you looking at)$|^who(?:'s| is) (?:there|this|that|in front of you)$|^(?:scan|look at) (?:me|the room|faces?)$/.test(low)) {
+    if (!EYE.on) { eyesOpen(false); return R('Opening my eyes. Give me a moment, then ask again.'); }
+    const n = EYE.last; if (!n.length) return R('I do not see any faces right now.');
+    const names = n.map(f => f.name || 'someone I do not know'); return R('I see ' + (n.length === 1 ? names[0] : n.length + ' people: ' + names.join(', ')) + '.');
+  }
+  if ((m = /^(?:remember|learn|save|enrol+|enroll|memorize|memorise) (?:this |my |his |her |their )?(?:face|person)(?: (?:as|is|name is|called))? (.+)$/.exec(t)) || (EYE.on && (m = /^(?:this is|i am|i'm|my name is) ([a-z' -]{2,30})$/i.exec(t)))) {
+    if (!EYE.on) return R('Say “open your eyes” first so I can see the face.');
+    const big = EYE.last.slice().sort((a, b) => b.box.w * b.box.h - a.box.w * a.box.h)[0]; if (!big) return R('I cannot see a face right now. Look at the camera.');
+    const f = saveFace(m[1].replace(/[.!?]+$/, ''), big.desc); if (!f) return R('What name should I save?'); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Done. I will recognise ' + f.name + ' from now on.');
+  }
+  if ((m = /^forget (?:the )?face(?: of| named| called)? (.+)$/.exec(low))) { const f = FACES.find(x => x.name.toLowerCase() === m[1].trim()); if (!f) return R('I do not have a face saved for ' + m[1] + '.'); FACES = FACES.filter(x => x !== f); saveFaces(); renderFaces(); return R('Forgotten: ' + f.name + '.'); }
+  if (/^forget (?:all )?faces$/.test(low)) { FACES = []; saveFaces(); renderFaces(); return R('All saved faces erased.'); }
+  if (/^(?:list|show|who are) (?:the )?(?:known )?(?:faces|people (?:you know|i know))$/.test(low)) { setView('lab'); return R(FACES.length ? 'I know ' + FACES.map(f => f.name).join(', ') + '.' : 'I do not know any faces yet.'); }
+  if ((m = /^(?:download|get|fetch|grab|find)(?: me)?(?: some| a| an)?(?: free| legal)?\s*(?:music|songs?|tracks?|mp3s?)(?: (?:of|by|from|called|named|for|about))?\s*(.*)$/.exec(low)) || (m = /^(?:download|get me)(?: some| a)? (.+?) (?:music|songs?|tracks?|mp3)$/.exec(low)) || (m = /^(?:download|get|fetch)(?: me)? some (.+)$/.exec(low)) || (m = /^(?:download|get|fetch)(?: me)? ((?:jazz|lofi|lo-fi|classical|ambient|rock|blues|folk|piano|guitar|electronic|chill|reggae|afro ?beats?|hip ?hop|african|instrumental|gospel)(?: .*)?)$/.exec(low))) return R('Searching the free music library.', [{ type: 'deck_music', q: m[1] || '' }]);
+  if ((m = /^(?:create|save|teach|make|add)(?: a| me a)? routine (?:called |named )?(.+?)[:,]\s*(.+)$/.exec(low))) { const nm = m[1].trim(), cmds = m[2].split(/\s+then\s+|;\s*/).map(s => s.trim()).filter(Boolean); ROUTINES[nm] = cmds; store.set('routines', ROUTINES); return R('Routine “' + nm + '” saved with ' + cmds.length + (cmds.length === 1 ? ' step.' : ' steps.')); }
+  if ((m = /^(?:run|start|do|execute|begin) (?:my |the )?(.+?) routine$/.exec(low))) { const nm = m[1].trim(); if (!ROUTINES[nm]) return R('I do not have a routine called ' + nm + '. Say “create routine ' + nm + ': full briefing then show my tasks”.'); return R('Running your ' + nm + ' routine.', [{ type: 'deck_routine', name: nm }]); }
+  if (/^(?:list|show|what are) (?:my )?routines$/.test(low)) return R(Object.keys(ROUTINES).length ? 'Your routines: ' + Object.keys(ROUTINES).join(', ') + '.' : 'You have no routines yet.');
+  return null;
+}
+const _deckCommand = deckCommand; deckCommand = function (raw) { let r = null; try { r = eyesCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand(raw); };
+const _execSuper = execSuper; execSuper = async function (a) {
+  if (a.type === 'deck_music') return await musicAction(a);
+  if (a.type === 'deck_routine') { routineRun(a.name); return {}; }
+  if (a.type === 'deck_screen') return { say: await screenRecord() };
+  if (a.type === 'deck_memo') return { say: await memoRecord() };
+  return _execSuper(a);
+};
+HELP += ' I also have **eyes**: say “open your eyes and record”, “remember this face as John”, “who do you see”, **free music** (“download some jazz”), **screen recording**, **voice memos**, and **routines** (“create routine morning: full briefing then show my tasks”).';
+QUICK.push('Open your eyes', 'Download some jazz');
+
+/* ---------- wiring ---------- */
+function bindEyes() {
+  $('#eyClose').onclick = eyesClose; $('#eyRec').onclick = () => eyesRecord(); $('#eySnap').onclick = eyesSnap; $('#eyFlip').onclick = eyesFlip;
+  $('#eyLearn').onclick = () => { const big = EYE.last.slice().sort((a, b) => b.box.w * b.box.h - a.box.w * a.box.h)[0]; if (!big) { toast('No face in view yet.', 2000, true); return; } const n = prompt('Whose face is this?'); if (n && saveFace(n, big.desc)) toast('Saved ' + cap(n.trim()) + '.', 2000, true); };
+  $('#eyOpen').onclick = () => eyesOpen(false); $('#eyOpenRec').onclick = () => eyesOpen(true);
+  $('#scrRec').onclick = async () => toast(await screenRecord(), 3000, true); $('#memoRec').onclick = async () => toast(await memoRecord(), 3000, true);
+  $('#musicForm').onsubmit = async e => { e.preventDefault(); const q = $('#musicIn').value.trim(), o = await musicAction({ q }); toast(o.say, 4500, true); };
+  const tg = (id, k, dflt) => $(id).onclick = () => { const cur = S.settings[k] === undefined ? dflt : S.settings[k]; S.settings[k] = !cur; save.settings(); syncEyesUI(); };
+  tg('#sFaceGreet', 'faceGreet', true); tg('#sFaceAsk', 'faceAsk', true); tg('#sRecAudio', 'recAudio', false);
+  $$('#sCam button').forEach(b => b.onclick = () => { S.settings.cam = b.dataset.v; save.settings(); syncEyesUI(); });
+  $('#sFacesWipe').onclick = () => { if (confirm('Erase every saved face?')) { FACES = []; saveFaces(); renderFaces(); toast('All faces erased.', 2000, true); } };
+}
+function syncEyesUI() { const s = S.settings, sw = (i, v) => $(i).classList.toggle('on', !!v); sw('#sFaceGreet', s.faceGreet !== false); sw('#sFaceAsk', s.faceAsk !== false); sw('#sRecAudio', s.recAudio); $$('#sCam button').forEach(b => b.classList.toggle('act', b.dataset.v === (s.cam || 'user'))); }
+const _syncDeckUI = syncDeckUI; syncDeckUI = function () { _syncDeckUI(); try { syncEyesUI(); } catch (e) { } };
+const _PAL_BASE = PAL_BASE; PAL_BASE = function () { const L = _PAL_BASE(); L.push({ k: 'EYES', t: 'Open eyes', kw: 'camera face see', run: () => eyesOpen(false) }, { k: 'EYES', t: 'Open eyes and record', kw: 'camera video film', run: () => eyesOpen(true) }, { k: 'REC', t: 'Record screen', kw: 'capture', run: async () => toast(await screenRecord(), 3000, true) }, { k: 'REC', t: 'Voice memo', kw: 'audio note', run: async () => toast(await memoRecord(), 3000, true) }, { k: 'MUSIC', t: 'Download free music', kw: 'mp3 song', run: () => { setView('lab'); const d = $('#labMusic'); if (d) d.open = true; setTimeout(() => $('#musicIn').focus(), 100); } }); return L; };
+bindEyes(); syncEyesUI(); renderFaces(); renderMusic();
+
+/* =====================================================================
+   SCREEN LINK, MINI MODE, MUSIC SOURCES, RECURRING REMINDERS, CLIPBOARD
+   ===================================================================== */
+Object.assign(DECK_DEF, { jamendoId: '', awake: true });
+Object.keys(DECK_DEF).forEach(k => { if (S.settings[k] === undefined) S.settings[k] = DECK_DEF[k]; });
+Object.assign(IC, { mini: '<rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1"/>' });
+
+/* ---------- wake lock ---------- */
+let WL = null;
+async function wakeSync() {
+  const want = S.settings.awake !== false && (LINK.st || MINI);
+  try { if (want && !WL && navigator.wakeLock) { WL = await navigator.wakeLock.request('screen'); WL.addEventListener('release', () => { WL = null; }); } else if (!want && WL) { await WL.release(); WL = null; } } catch (e) { }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) wakeSync(); });
+
+/* ---------- persistent screen link ---------- */
+const LINK = { st: null, vid: null };
+const linkLive = () => !!(LINK.st && LINK.st.getVideoTracks().some(t => t.readyState === 'live'));
+function linkUI() { const c = $('#linkChip'); if (c) c.hidden = !linkLive(); wakeSync(); }
+async function linkOn() {
+  if (linkLive()) return true;
+  if (!canCapture()) throw new Error('unsupported');
+  let st; try { st = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor', frameRate: 5 }, audio: false, selfBrowserSurface: 'exclude', monitorTypeSurfaces: 'include', surfaceSwitching: 'include' }); }
+  catch (e) { if (e && e.name === 'NotAllowedError') throw e; st = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }); }
+  LINK.st = st; const v = LINK.vid || (LINK.vid = document.createElement('video')); v.muted = true; v.srcObject = st; await v.play().catch(() => { });
+  st.getVideoTracks()[0].onended = () => { LINK.st = null; linkUI(); toast('Screen link ended.', 2500, true); };
+  linkUI(); burst('ok'); sfx('done'); return true;
+}
+function linkOff() { if (LINK.st) { try { LINK.st.getTracks().forEach(t => t.stop()); } catch (e) { } } LINK.st = null; linkUI(); }
+grabScreen = async function () {
+  await linkOn(); const v = LINK.vid; if (!v.videoWidth) await sleep(400);
+  const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0);
+  const b = await new Promise(r => c.toBlob(r, 'image/png'));
+  return { canvas: c, file: new File([b], 'jarvis-screenshot-' + Date.now() + '.png', { type: 'image/png' }) };
+};
+async function screenText() { const g = await grabScreen(), T = await loadOCR(); return ((await T.recognize(g.canvas, 'eng')).data.text || '').trim(); }
+
+/* ---------- screen sentinels ---------- */
+let SENT = [], sentBusy = false;
+function renderSent() {
+  const L = $('#sentList'); if (!L) return; L.innerHTML = SENT.length ? '' : '<div class="empty">No screen watches.<br>Say “tell me when my screen says download complete”.</div>';
+  SENT.forEach(s => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<span style="color:var(--gr)">' + ic('eye') + '</span><div class="t"></div><button class="rm" aria-label="Stop watching">' + ic('x') + '</button>'; r.querySelector('.t').innerHTML = esc(s) + '<small>watching every 12 s</small>'; r.querySelector('.rm').onclick = () => { SENT = SENT.filter(x => x !== s); renderSent(); }; L.appendChild(r); });
+}
+async function sentTick() {
+  if (sentBusy || !SENT.length || !linkLive()) return; sentBusy = true;
+  try {
+    const txt = (await screenText()).toLowerCase().replace(/\s+/g, ' ');
+    SENT.slice().forEach(s => { if (txt.includes(s.toLowerCase())) { SENT = SENT.filter(x => x !== s); renderSent(); const m = 'Heads up, ' + NAME() + ': your screen now says “' + s + '”.'; addMsg('j', m, [], false); toast(m, 6000, true); burst('alert'); sfx('alert'); haptic([150, 80, 150]); notify('J.A.R.V.I.S.', m); speak(m); } });
+  } catch (e) { } sentBusy = false;
+}
+setInterval(sentTick, 12000);
+
+/* ---------- mini mode (floating window) ---------- */
+let MINI = null, miniLoop = 0;
+async function miniOpen() {
+  if (MINI && !MINI.closed) { try { MINI.close(); } catch (e) { } MINI = null; wakeSync(); return true; }
+  let w = null;
+  try { if (window.documentPictureInPicture) w = await documentPictureInPicture.requestWindow({ width: 380, height: 470 }); } catch (e) { }
+  if (!w) w = window.open('', 'jarvis-mini', 'popup=yes,width=380,height=470'); if (!w) return false;
+  MINI = w; const d = w.document, a = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '70,224,240'; d.title = 'Jarvis · mini';
+  d.head.innerHTML = '<meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#04070c;color:#e9f2f9;font:14px system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;padding:10px;gap:8px}canvas{width:100%;max-height:44vh;aspect-ratio:1;align-self:center;flex-shrink:1;min-height:0}#st{text-align:center;font:600 11px monospace;letter-spacing:.3em;text-transform:uppercase;color:rgb(' + a + ')}#cp{flex:1;min-height:2.6em;overflow:auto;text-align:center;font-size:14px;line-height:1.45}form{display:flex;gap:6px}input{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(' + a + ',.35);border-radius:8px;color:inherit;padding:9px;outline:0}button{background:rgba(' + a + ',.14);border:1px solid rgba(' + a + ',.5);color:rgb(' + a + ');border-radius:8px;padding:8px 11px;cursor:pointer}.q{display:flex;gap:6px;flex-wrap:wrap}.q button{font-size:11px;padding:5px 9px}</style>';
+  d.body.innerHTML = '<canvas id="o" width="320" height="320"></canvas><div id="st">Standing by</div><div id="cp"></div><form id="f"><button type="button" id="mic">🎙</button><input id="t" placeholder="Type a command…" autocomplete="off"><button>➤</button></form><div class="q"><button data-c="read my screen">Read screen</button><button data-c="daily briefing">Briefing</button><button data-c="what is on my tasks">Tasks</button><button data-c="system status">Status</button></div>';
+  const g = id => d.getElementById(id), cv2 = g('o'), c2 = cv2.getContext('2d');
+  g('f').onsubmit = e => { e.preventDefault(); const v = g('t').value; g('t').value = ''; handle(v); }; g('mic').onclick = () => $('#hfBtn').click();
+  d.querySelectorAll('[data-c]').forEach(b => b.onclick = () => handle(b.dataset.c));
+  const draw = now => {
+    if (!MINI || MINI.closed) { MINI = null; wakeSync(); return; }
+    const t = now / 1000, W = 320, c = col.map(x => x | 0).join(','); c2.clearRect(0, 0, W, W);
+    const gr = c2.createRadialGradient(160, 160, 0, 160, 160, 150); gr.addColorStop(0, `rgba(${c},${.3 + lvl * .3})`); gr.addColorStop(.6, `rgba(${c},.07)`); gr.addColorStop(1, `rgba(${c},0)`); c2.fillStyle = gr; c2.beginPath(); c2.arc(160, 160, 150, 0, 7); c2.fill();
+    for (let i = 0; i < 3; i++) { c2.save(); c2.translate(160, 160); c2.rotate(t * (i % 2 ? -.5 : .4) * (S.state === 'thinking' ? 3 : 1)); c2.strokeStyle = `rgba(${c},${.55 - i * .15})`; c2.lineWidth = 1.5; c2.setLineDash([i ? 4 : 18, 10]); c2.beginPath(); c2.arc(0, 0, 135 - i * 28, 0, 7); c2.stroke(); c2.restore(); }
+    c2.setLineDash([]); const r = 30 * (1 + lvl * .4); c2.shadowColor = `rgba(${c},1)`; c2.shadowBlur = 24; c2.fillStyle = `rgba(${c},1)`; c2.beginPath(); c2.arc(160, 160, r, 0, 7); c2.fill(); c2.shadowBlur = 0;
+    g('st').textContent = $('#stateLbl').textContent; g('cp').textContent = $('#caption').textContent; w.requestAnimationFrame(draw);
+  };
+  w.requestAnimationFrame(draw); w.addEventListener('pagehide', () => { MINI = null; wakeSync(); }); wakeSync(); return true;
+}
+
+/* ---------- music: extra legal sources ---------- */
+const _musicGet = musicGet;
+musicGet = async function (q) {
+  if (S.settings.jamendoId) { try { const r = await jamendoGet(q); if (r && r.ok) return r; } catch (e) { } }
+  return _musicGet(q);
+};
+async function jamendoGet(q) {
+  const j = await (await fetch('https://api.jamendo.com/v3.0/tracks/?client_id=' + encodeURIComponent(S.settings.jamendoId) + '&format=json&limit=6&audiodownload_allowed=true&include=musicinfo&order=popularity_total&' + (q ? 'search=' + encodeURIComponent(q) : 'tags=pop'))).json();
+  for (const d of (j.results || [])) {
+    if (!d.audiodownload) continue; const clean = s => String(s || '').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 70), name = clean(d.artist_name + ' - ' + d.name) + '.mp3'; let url = d.audiodownload;
+    try { const r = await fetch(d.audiodownload); if (!r.ok) throw 0; url = saveBlob(await r.blob(), name); } catch (e) { try { window.open(d.audiodownload, '_blank'); } catch (e2) { } }
+    const t = { title: d.name, creator: d.artist_name, name, url, lic: 'Creative Commons (Jamendo)' }; MUS.list.unshift(t); MUS.list = MUS.list.slice(0, 12); renderMusic(); const p = $('#musicPlayer'); p.src = url; p.style.display = ''; p.play().catch(() => { }); burst('ok'); return { ok: t };
+  } return null;
+}
+async function audiusStream(q) {
+  const hosts = (await (await fetch('https://api.audius.co')).json()).data || [], host = hosts[0]; if (!host) return null;
+  const j = await (await fetch(host + '/v1/tracks/search?limit=5&app_name=JARVIS&query=' + encodeURIComponent(q))).json(), t = (j.data || [])[0]; if (!t) return null;
+  const url = host + '/v1/tracks/' + t.id + '/stream?app_name=JARVIS', item = { title: t.title, creator: t.user && t.user.name, name: '', url, lic: 'Streaming via Audius' };
+  MUS.list.unshift(item); MUS.list = MUS.list.slice(0, 12); renderMusic(); const p = $('#musicPlayer'); p.src = url; p.style.display = ''; p.play().catch(() => { }); return item;
+}
+function musicCtl(cmd) {
+  const p = $('#musicPlayer'); if (!p || !p.src) return false;
+  if (cmd === 'pause') p.pause(); else if (cmd === 'resume') p.play().catch(() => { }); else if (cmd === 'stop') { p.pause(); p.currentTime = 0; }
+  else if (cmd === 'next') { const i = MUS.list.findIndex(t => t.url === p.src), n = MUS.list[(i - 1 + MUS.list.length) % MUS.list.length]; if (n) { p.src = n.url; p.play().catch(() => { }); } }
+  return true;
+}
+
+/* ---------- recurring reminders + clipboard ---------- */
+const _fr2 = fireReminder; fireReminder = function (r, missed) { _fr2(r, missed); if (r.recur) { const n = addReminder(r.text, Date.now() + r.recur, 'reminder'); n.recur = r.recur; save.reminders(); } };
+function everyMs(n, u) { n = /^(?:an?|one)$/.test(n) ? 1 : /^half/.test(n) ? .5 : +n; return n * (/^h/.test(u) ? 3600000 : 60000); }
+
+/* ---------- commands ---------- */
+function linkCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/[!?.]+$/, '').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim(), low = t.toLowerCase(); let m; if (!low) return null;
+  if (S.guest && /screen|mini|stream|music|clipboard|recurring|every \d|watch/.test(low)) return R('That one is reserved for the founder.');
+  if (/^(?:link|connect(?: to)?|attach(?: to)?|watch|share) (?:my |the )?(?:screen|desktop|display)s?$|^(?:start )?screen (?:link|watch)$/.test(low)) return R('', [{ type: 'deck_link' }]);
+  if (/^(?:unlink|disconnect|detach|stop watching|stop sharing)(?: from)?(?: my| the)?(?: screen)?$/.test(low)) { linkOff(); return R('Screen unlinked.'); }
+  if ((m = /^(?:tell|alert|notify|warn) me (?:when|if) (?:my |the )?screen (?:says|shows|contains|has|displays) (.+)$/.exec(low)) || (m = /^watch (?:the screen )?for (.+)$/.exec(low))) { const s = m[1].replace(/^["“]|["”]$/g, '').trim(); SENT.push(s); renderSent(); if (!linkLive()) return R('Watching for “' + s + '”. Tap Link screen once so I can see it.'); return R('Watching your screen for “' + s + '”.'); }
+  if (/^(?:copy|grab) (?:the )?(?:text )?(?:on|from) (?:my |the )?screen$|^copy (?:my )?screen text$/.test(low)) return R('Reading and copying your screen text.', [{ type: 'deck_copytext' }]);
+  if (/^(?:minimi[sz]e|mini mode|go mini|float(?: yourself)?|picture in picture|pip)$/.test(low)) { miniOpen().then(ok => { if (!ok) toast('Tap the Mini button — browsers need a click to open a floating window.', 4500, true); }).catch(() => toast('Tap the Mini button — browsers need a click to open a floating window.', 4500, true)); return R('Floating mode.'); }
+  if ((m = /^(?:stream|play free|play from audius)\s+(.+)$/.exec(low)) && !/youtube|spotify/.test(low)) return R('Streaming it.', [{ type: 'deck_stream', q: m[1] }]);
+  if ((m = /^(pause|resume|stop|next|skip)(?: the| my)? (?:music|song|track|playlist)$|^(next|skip) (?:song|track)$/.exec(low))) { const c = (m[1] || m[2]).replace('skip', 'next'); if (musicCtl(c)) return R(c === 'next' ? 'Next track.' : c === 'pause' ? 'Paused.' : c === 'resume' ? 'Resuming.' : 'Stopped.'); }
+  if ((m = /^remind me every (\d+|an?|one|half an?) ?(minutes?|mins?|hours?|hrs?)(?: to)? (.+)$/.exec(low))) { const ms = everyMs(m[1], m[2]), r = addReminder(cap(t.replace(/^.*?(?:minutes?|mins?|hours?|hrs?)(?: to)? /i, '')), Date.now() + ms, 'reminder'); r.recur = ms; save.reminders(); return R('Done. I will remind you every ' + Math.round(ms / 60000) + ' minutes.'); }
+  if (/^(?:stop|cancel|clear) (?:all )?(?:recurring|repeating) reminders?$/.test(low)) { const n = S.reminders.filter(r => r.recur && !r.fired).length; S.reminders.forEach(r => { if (r.recur) r.recur = 0; }); S.reminders = S.reminders.filter(r => r.fired || !r.recur); save.reminders(); renderReminders(); return R(n ? 'Recurring reminders stopped.' : 'You have no recurring reminders.'); }
+  if (/^(?:read|what(?:'s| is) on) my clipboard$/.test(low)) return R('', [{ type: 'deck_clip', mode: 'read' }]);
+  if (/^save (?:my )?clipboard(?: as| to)?(?: a)?(?: note)?$/.test(low)) return R('', [{ type: 'deck_clip', mode: 'note' }]);
+  return null;
+}
+const _deckCommand2 = deckCommand; deckCommand = function (raw) { let r = null; try { r = linkCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand2(raw); };
+const _execSuper2 = execSuper; execSuper = async function (a) {
+  if (a.type === 'deck_link') { try { await linkOn(); return { say: 'Screen linked. I can now read whatever is on top, even when I am minimised.' }; } catch (e) { return { say: 'Browsers need a tap for that. Press Link screen once, choose Entire screen, and I will keep the link.' }; } }
+  if (a.type === 'deck_copytext') { try { const tx = await screenText(); if (!tx) return { say: 'I could not find readable text on your screen.' }; try { await navigator.clipboard.writeText(tx); } catch (e) { } return { say: 'Copied ' + tx.length + ' characters of screen text.', work: { text: tx, prompt: 'Screen text' } }; } catch (e) { return { fail: 'I could not read the screen. Link it first.' }; } }
+  if (a.type === 'deck_stream') { try { const t = await audiusStream(a.q); return t ? { say: 'Streaming “' + t.title + '”' + (t.creator ? ' by ' + t.creator : '') + '.' } : { say: 'I found nothing to stream for ' + a.q + '.' }; } catch (e) { return { say: 'I could not reach the streaming service.' }; } }
+  if (a.type === 'deck_clip') { try { const tx = (await navigator.clipboard.readText()).trim(); if (!tx) return { say: 'Your clipboard is empty.' }; if (a.mode === 'note') { addNote(tx); return { say: 'Saved your clipboard as a note.' }; } return { say: 'Your clipboard says: ' + tx.slice(0, 300), work: { text: tx, prompt: 'Clipboard' } }; } catch (e) { return { say: 'The browser blocked clipboard access. Allow it when prompted and ask again.' }; } }
+  return _execSuper2(a);
+};
+HELP += ' **Screen link** (“link my screen”, “tell me when my screen says done”, “copy text on my screen”), **mini mode** (floating Jarvis), **stream** (“stream lofi”), **recurring reminders** (“remind me every hour to drink water”), and **clipboard** (“read my clipboard”).';
+QUICK.push('Read my screen');
+
+/* ---------- wiring ---------- */
+function bindLink() {
+  const fail = e => toast(e && e.name === 'NotAllowedError' ? 'Screen sharing was cancelled.' : 'This browser cannot share the screen.', 3000, true);
+  $('#lnkOn').onclick = () => linkOn().then(() => toast('Screen linked. I can read it any time now.', 3000, true)).catch(fail); $('#lnkOff').onclick = () => { linkOff(); toast('Screen unlinked.', 2000, true); };
+  $('#lnkMini').onclick = () => miniOpen().then(ok => { if (!ok) toast('Pop-ups are blocked — allow them for this page.', 3500, true); }); $('#miniBtn').onclick = $('#lnkMini').onclick;
+  $('#lnkRead').onclick = () => handle('read my screen'); $('#linkChip').onclick = () => { linkOff(); };
+  $('#sentForm').onsubmit = e => { e.preventDefault(); const v = $('#sentIn').value.trim(); if (!v) return; SENT.push(v); $('#sentIn').value = ''; renderSent(); if (!linkLive()) toast('Now tap Link screen so I can watch it.', 3000, true); };
+  $('#musStream').onclick = async () => { const q = $('#musicIn').value.trim(); if (!q) { toast('Type what to stream first.', 2000, true); return; } try { const t = await audiusStream(q); toast(t ? 'Streaming “' + t.title + '”' : 'Nothing found to stream.', 3000, true); } catch (e) { toast('Streaming service unreachable.', 3000, true); } };
+  $('#musNext').onclick = () => musicCtl('next'); $('#musStop').onclick = () => musicCtl('stop');
+  $('#musicPlayer').onended = () => musicCtl('next');
+  $('#sJam').onchange = e => { S.settings.jamendoId = e.target.value.trim(); save.settings(); toast('Jamendo source ' + (S.settings.jamendoId ? 'enabled.' : 'disabled.'), 2000, true); };
+  $('#sAwake').onclick = () => { S.settings.awake = S.settings.awake === false; save.settings(); syncLinkUI(); wakeSync(); };
+}
+function syncLinkUI() { $('#sJam').value = S.settings.jamendoId || ''; $('#sAwake').classList.toggle('on', S.settings.awake !== false); }
+const _syncDeckUI2 = syncDeckUI; syncDeckUI = function () { _syncDeckUI2(); try { syncLinkUI(); } catch (e) { } };
+const _PAL_BASE2 = PAL_BASE; PAL_BASE = function () { const L = _PAL_BASE2(); L.push({ k: 'SCREEN', t: 'Link screen (read it any time)', kw: 'share watch', run: () => linkOn().catch(() => { }) }, { k: 'SCREEN', t: 'Mini mode (floating Jarvis)', kw: 'pip minimize float', run: () => miniOpen() }, { k: 'SCREEN', t: 'Read my screen', kw: 'ocr summarize', run: () => handle('read my screen') }, { k: 'SCREEN', t: 'Copy text on my screen', kw: 'ocr clipboard', run: () => handle('copy text on my screen') }); return L; };
+bindLink(); syncLinkUI(); renderSent(); linkUI();
 
 init();
 </script>
