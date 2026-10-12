@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>J.A.R.V.I.S. Assistant</title>
+<meta name="theme-color" content="#04070c"><meta name="description" content="J.A.R.V.I.S. — voice AI assistant that opens apps, manages tasks, sets reminders and timers.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2304070c'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2346e0f0' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='10' fill='%2346e0f0'/%3E%3C/svg%3E"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Jarvis"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#04070c;--bg2:#070d15;--panel:rgba(14,22,34,.72);--panel-s:#0c1420;--line:rgba(120,190,255,.14);--line2:rgba(120,190,255,.07);
+  --cy:#46e0f0;--cy2:#1a8d9c;--am:#ffb238;--gr:#5af0a0;--bl:#78beff;--tx:#e8f1f8;--mu:#8296ab;--mu2:#586a7e;--dn:#ff6b6b;
+  --r:16px;--font:'Sora','Inter','Segoe UI',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace;--disp:'Orbitron','Sora',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);overflow:hidden;font-size:14.5px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(900px 600px at 20% -10%,rgba(70,224,240,.10),transparent 60%),
+  radial-gradient(800px 600px at 110% 110%,rgba(255,178,56,.06),transparent 60%),
+  radial-gradient(600px 400px at 60% 40%,rgba(120,190,255,.04),transparent 70%)}
+.bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(70,224,240,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(70,224,240,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(700px 500px at 30% 30%,#000,transparent 80%);-webkit-mask-image:radial-gradient(700px 500px at 30% 30%,#000,transparent 80%)}
+
+/* boot */
+#boot{position:fixed;inset:0;z-index:200;background:radial-gradient(700px 500px at 50% 40%,#0a1826,#04070c);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .7s,visibility .7s;padding:24px;text-align:center}
+#boot.hide{opacity:0;visibility:hidden;pointer-events:none}
+#bootOrb{width:150px;height:150px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center}
+#bootOrb::before,#bootOrb::after{content:'';position:absolute;border-radius:50%;border:1.5px solid var(--cy2)}
+#bootOrb::before{inset:0;border-top-color:var(--cy);animation:spin 1.4s linear infinite}
+#bootOrb::after{inset:18px;border-style:dashed;border-color:var(--cy2);animation:spin 6s linear infinite reverse}
+#bootOrb i{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c8f8ff,var(--cy) 55%,var(--cy2));box-shadow:0 0 40px 8px rgba(70,224,240,.4);animation:pulse 2.4s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{transform:scale(1.14);box-shadow:0 0 60px 14px rgba(70,224,240,.5)}}
+.bt{font-family:var(--disp);font-weight:900;letter-spacing:.5em;font-size:26px;padding-left:.5em;background:linear-gradient(90deg,var(--cy),#fff,var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bs{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mu);text-transform:uppercase;min-height:16px}
+.bchecks{font-family:var(--mono);font-size:11.5px;color:var(--mu2);text-align:left;min-height:84px;line-height:1.9}
+.bchecks b{color:var(--gr);font-weight:500}
+#bootGo{margin-top:6px;border:1px solid var(--cy);background:rgba(70,224,240,.08);color:var(--cy);padding:12px 34px;border-radius:999px;font-family:var(--disp);letter-spacing:.3em;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.4s}
+#bootGo.show{opacity:1;pointer-events:auto}
+#bootGo:hover{background:var(--cy);color:#04141a;box-shadow:0 0 30px rgba(70,224,240,.45)}
+
+/* layout */
+.app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.mark{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--cy);position:relative;box-shadow:0 0 14px rgba(70,224,240,.35)}
+.mark::after{content:'';position:absolute;inset:7px;border-radius:50%;background:var(--cy);box-shadow:0 0 10px var(--cy)}
+.bn{font-family:var(--disp);font-weight:800;letter-spacing:.28em;font-size:15px}
+.bn small{display:block;font-family:var(--mono);font-weight:400;letter-spacing:.14em;font-size:8.5px;color:var(--mu);margin-top:1px}
+.chip{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--mu);padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-transform:uppercase;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;background:rgba(10,16,26,.5)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mu2);flex-shrink:0}
+.dot.on{background:var(--gr);box-shadow:0 0 8px var(--gr)}.dot.off{background:var(--dn);box-shadow:0 0 8px var(--dn)}.dot.am{background:var(--am);box-shadow:0 0 8px var(--am)}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(10,16,26,.6);color:var(--mu);display:flex;align-items:center;justify-content:center;transition:.18s;position:relative}
+.ib:hover{color:var(--cy);border-color:var(--cy2)}
+.ib.act{background:var(--cy);color:#04141a;border-color:var(--cy);box-shadow:0 0 18px rgba(70,224,240,.45)}
+.ib[hidden]{display:none}
+main{flex:1;display:grid;grid-template-columns:340px minmax(0,1fr) 340px;min-height:0;gap:0}
+.col{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line2)}
+#colSide{border-right:0;border-left:1px solid var(--line2)}
+
+/* core */
+#colCore{align-items:center;padding:18px 16px;gap:14px;overflow-y:auto}
+#orbWrap{position:relative;width:min(300px,100%);aspect-ratio:1;flex-shrink:0}
+#orb{width:100%;height:100%;display:block}
+#stateLbl{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--cy);text-align:center;min-height:16px}
+#clock{font-family:var(--disp);font-size:30px;font-weight:700;letter-spacing:.08em;text-align:center;line-height:1}
+#clock small{display:block;font-family:var(--font);font-weight:400;letter-spacing:.02em;font-size:12px;color:var(--mu);margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.stat{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.18s}
+.stat:hover{border-color:var(--cy2)}
+.stat b{display:block;font-family:var(--disp);font-size:20px;color:var(--cy)}
+.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--mu);text-transform:uppercase}
+.quick{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;width:100%}
+.q{border:1px solid var(--line);background:rgba(10,16,26,.55);border-radius:999px;padding:7px 13px;font-size:12px;color:var(--mu);transition:.18s}
+.q:hover{color:var(--cy);border-color:var(--cy2);background:rgba(70,224,240,.06)}
+
+/* chat */
+#colChat{background:linear-gradient(180deg,rgba(7,13,21,.35),rgba(7,13,21,.7))}
+#log{flex:1;overflow-y:auto;padding:22px 22px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.msg{max-width:min(720px,88%);display:flex;flex-direction:column;gap:8px;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.msg.u{align-self:flex-end;align-items:flex-end}
+.bub{padding:11px 15px;border-radius:16px;border:1px solid var(--line);background:var(--panel);word-wrap:break-word;overflow-wrap:anywhere}
+.msg.u .bub{background:linear-gradient(135deg,rgba(70,224,240,.18),rgba(120,190,255,.12));border-color:rgba(70,224,240,.3);border-bottom-right-radius:5px}
+.msg.j .bub{border-bottom-left-radius:5px}
+.msg.j .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--cy);margin:0 0 -3px 4px}
+.bub b{color:#fff}
+.bub ul{margin:6px 0 2px;padding-left:18px}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.card{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:12px;border:1px solid rgba(70,224,240,.3);background:rgba(70,224,240,.07);color:var(--cy);text-decoration:none;font-size:13px;font-weight:600;transition:.18s}
+a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
+.card.ok{border-color:rgba(90,240,160,.35);color:var(--gr);background:rgba(90,240,160,.07)}
+.card.bad{border-color:rgba(255,107,107,.35);color:var(--dn);background:rgba(255,107,107,.07)}
+.card small{font-weight:400;color:var(--mu);font-size:11.5px}
+.typing{display:flex;gap:5px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--cy);animation:bounce 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-5px)}}
+#interim{min-height:22px;padding:0 24px;font-size:13px;color:var(--mu);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock{padding:8px 18px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center}
+.inp{flex:1;display:flex;align-items:center;border:1px solid var(--line);background:rgba(10,16,26,.8);border-radius:999px;padding:0 6px 0 18px;transition:.18s}
+.inp:focus-within{border-color:var(--cy);box-shadow:0 0 0 3px rgba(70,224,240,.12)}
+.inp input{flex:1;background:none;border:0;outline:0;padding:14px 0;min-width:0;font-size:15px}
+.inp input::placeholder{color:var(--mu2)}
+.send{width:40px;height:40px;border-radius:50%;border:0;background:var(--cy);color:#04141a;display:flex;align-items:center;justify-content:center}
+.send:hover{box-shadow:0 0 16px rgba(70,224,240,.6)}
+.mic{width:52px;height:52px;border-radius:50%;border:1px solid var(--cy2);background:rgba(70,224,240,.08);color:var(--cy);display:flex;align-items:center;justify-content:center;font-size:18px;transition:.2s;flex-shrink:0;position:relative}
+.mic:hover{background:rgba(70,224,240,.18)}
+.mic.act{background:var(--gr);border-color:var(--gr);color:#03140b;box-shadow:0 0 0 0 rgba(90,240,160,.6);animation:ring 1.4s infinite}
+@keyframes ring{to{box-shadow:0 0 0 16px rgba(90,240,160,0)}}
+.mic[hidden]{display:none}
+
+/* side */
+#colSide{background:rgba(7,13,21,.4)}
+.tabs{display:flex;border-bottom:1px solid var(--line2);flex-shrink:0}
+.tab{flex:1;background:none;border:0;padding:13px 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;justify-content:center;gap:7px;border-bottom:2px solid transparent;transition:.18s}
+.tab:hover{color:var(--tx)}
+.tab.act{color:var(--cy);border-bottom-color:var(--cy)}
+.tab em{font-style:normal;background:var(--cy);color:#04141a;border-radius:999px;font-size:9.5px;padding:0 6px;font-weight:700}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.app[data-pane=tasks] #pTasks,.app[data-pane=remind] #pRemind,.app[data-pane=apps] #pApps{display:flex}
+.plist{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.add{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.add input,.add select{flex:1;min-width:0;background:rgba(10,16,26,.8);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:0;color-scheme:dark}
+.add input:focus{border-color:var(--cy)}
+.btn{border:1px solid var(--cy2);background:rgba(70,224,240,.1);color:var(--cy);border-radius:10px;padding:9px 14px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;transition:.18s}
+.btn:hover{background:rgba(70,224,240,.2)}
+.btn.dn{border-color:rgba(255,107,107,.4);color:var(--dn);background:rgba(255,107,107,.08)}
+.btn.sol{background:var(--cy);color:#04141a;border-color:var(--cy)}
+.row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);background:var(--panel);border-radius:12px;animation:in .25s}
+.row.done .t{text-decoration:line-through;color:var(--mu2)}
+.row .t{flex:1;min-width:0;word-wrap:break-word;overflow-wrap:anywhere}
+.row .t small{display:block;color:var(--mu);font-size:11.5px;font-family:var(--mono);margin-top:2px}
+.chk{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--cy2);background:none;display:flex;align-items:center;justify-content:center;color:transparent;padding:0;flex-shrink:0}
+.row.done .chk{background:var(--cy);border-color:var(--cy);color:#04141a}
+.rm{background:none;border:0;color:var(--mu2);padding:4px;display:flex}.rm:hover{color:var(--dn)}
+.cd{font-family:var(--mono);font-size:12px;color:var(--am);white-space:nowrap}
+.sec{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu2);margin:8px 2px 0}
+.empty{color:var(--mu2);text-align:center;padding:26px 10px;font-size:13px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;padding:14px;overflow-y:auto}
+.app-t{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border:1px solid var(--line);background:var(--panel);border-radius:14px;color:var(--tx);font-size:11.5px;transition:.18s;text-align:center}
+.app-t:hover{border-color:var(--cy2);transform:translateY(-2px)}
+.app-t i{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em}
+
+/* alerts */
+#toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:150;display:flex;flex-direction:column;gap:10px;width:min(460px,92vw)}
+.toast{border:1px solid var(--am);background:rgba(20,16,6,.94);backdrop-filter:blur(12px);border-radius:16px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 28px rgba(255,178,56,.25);animation:drop .35s cubic-bezier(.2,1.2,.4,1)}
+@keyframes drop{from{opacity:0;transform:translateY(-20px) scale(.96)}}
+.toast h4{margin:0 0 3px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--am);text-transform:uppercase}
+.toast p{margin:0 0 12px;font-size:15px;font-weight:600}
+.toast .bt2{display:flex;gap:8px}
+.toast.info{border-color:var(--cy2);background:rgba(8,18,26,.94);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.toast.info h4{color:var(--cy)}
+.toast.info p{margin:0;font-weight:500;font-size:13.5px}
+
+/* settings */
+#sheet{position:fixed;inset:0;z-index:120;background:rgba(2,5,9,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px}
+#sheet.open{display:flex}
+.sbox{width:min(480px,100%);max-height:92vh;overflow-y:auto;background:var(--panel-s);border:1px solid var(--line);border-radius:20px;padding:22px}
+.sbox h2{margin:0 0 4px;font-family:var(--disp);font-size:15px;letter-spacing:.2em}
+.sbox .sub{color:var(--mu);font-size:12.5px;margin:0 0 16px}
+.fld{margin:0 0 14px}
+.fld label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.fld input[type=text],.fld select{width:100%;background:rgba(10,16,26,.9);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:0}
+.fld input[type=range]{width:100%;accent-color:var(--cy)}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line2)}
+.tg span small{display:block;color:var(--mu);font-size:11.5px}
+.sw{width:44px;height:25px;border-radius:999px;background:var(--line);border:0;position:relative;flex-shrink:0;transition:.2s;padding:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--cy)}.sw.on::after{left:22px}
+.sbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line2);color:var(--mu2);font-size:11.5px;text-align:center;line-height:1.7}
+
+#tabbar{display:none}
+
+/* responsive */
+@media(max-width:1180px){main{grid-template-columns:300px minmax(0,1fr) 300px}#orbWrap{width:min(250px,100%)}}
+@media(max-width:900px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .col{min-width:0}
+  .quick{flex:1 1 100%;min-width:0}
+  .col{border:0}
+  #colSide{display:none;border:0}
+  .app:not([data-view=chat]) #colCore,.app:not([data-view=chat]) #colChat{display:none}
+  .app:not([data-view=chat]) #colSide{display:flex}
+  .app:not([data-view=chat]) .tabs{display:none}
+  #colCore{flex-direction:row;padding:8px 16px;gap:12px;overflow:visible;flex-wrap:wrap;justify-content:flex-start;align-items:center}
+  #orbWrap{width:84px}
+  #clock,.stats{display:none}
+  #stateLbl{text-align:left;font-size:10.5px}
+  .quick{flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px;justify-content:flex-start;scrollbar-width:none}
+  .quick::-webkit-scrollbar{display:none}
+  .q{white-space:nowrap}
+  #log{padding:12px 14px 6px}
+  .msg{max-width:94%}
+  .dock{padding:6px 12px calc(10px + env(safe-area-inset-bottom))}
+  #tabbar{display:flex;border-top:1px solid var(--line2);background:rgba(5,9,14,.92);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+  #tabbar button{flex:1;background:none;border:0;padding:10px 4px 9px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase}
+  #tabbar button.act{color:var(--cy)}
+  #tabbar svg.i{width:20px;height:20px}
+  .chip#nextChip{display:none}
+  header{padding:10px 14px;gap:8px}
+  .bn small{display:none}
+  .chip{padding:6px 10px}
+  .chip .lbl{display:none}
+}
+@media(max-width:520px){#colCore{padding:6px 14px}.bn{font-size:13px;letter-spacing:.2em}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+</style></head><body>
+<div class="bg"></div>
+
+<div id="boot">
+  <div id="bootOrb"><i></i></div>
+  <div class="bt">JARVIS</div>
+  <div class="bs" id="bootSub">Initializing neural core</div>
+  <div class="bchecks" id="bootChecks"></div>
+  <button id="bootGo">INITIALIZE</button>
+</div>
+
+<div id="toasts"></div>
+
+<div class="app" id="app" data-view="chat" data-pane="tasks">
+  <header>
+    <div class="brand"><div class="mark"></div><div class="bn">J.A.R.V.I.S.<small>PERSONAL AI ASSISTANT</small></div></div>
+    <div class="chip" id="nextChip" hidden><span class="dot am"></span><span id="nextTxt"></span></div>
+    <div class="chip" id="aiChip" title="Cloud brain status"><span class="dot" id="aiDot"></span><span class="lbl" id="aiTxt">Ready</span></div>
+    <button class="ib" id="hfBtn" title="Hands-free: say “Hey Jarvis”" aria-label="Hands-free wake word"><svg class="i" data-i="bolt"></svg></button>
+    <button class="ib" id="instBtn" title="Install app" aria-label="Install app" hidden><svg class="i" data-i="download"></svg></button>
+    <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="i" data-i="sliders"></svg></button>
+  </header>
+
+  <main>
+    <section class="col" id="colCore">
+      <div id="orbWrap"><canvas id="orb"></canvas></div>
+      <div id="stateLbl">Standing by</div>
+      <div id="clock">--:--<small>—</small></div>
+      <div class="stats">
+        <div class="stat" data-go="tasks"><b id="sT">0</b><span>Tasks</span></div>
+        <div class="stat" data-go="remind"><b id="sR">0</b><span>Reminders</span></div>
+        <div class="stat" data-go="remind"><b id="sM">0</b><span>Timers</span></div>
+      </div>
+      <div class="quick" id="quick"></div>
+    </section>
+
+    <section class="col" id="colChat">
+      <div id="log" aria-live="polite"></div>
+      <div id="interim"></div>
+      <form class="dock" id="form" autocomplete="off">
+        <button type="button" class="mic" id="micBtn" title="Tap to speak" aria-label="Speak"><svg class="i" data-i="mic"></svg></button>
+        <div class="inp">
+          <input id="txt" type="text" placeholder="Ask anything, or say: open YouTube · remind me in 10 minutes…" enterkeyhint="send" aria-label="Message">
+          <button type="submit" class="send" aria-label="Send"><svg class="i" data-i="send"></svg></button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="col" id="colSide">
+      <div class="tabs">
+        <button class="tab act" data-pane="tasks"><svg class="i" data-i="list"></svg>Tasks <em id="bT">0</em></button>
+        <button class="tab" data-pane="remind"><svg class="i" data-i="bell"></svg>Remind <em id="bR">0</em></button>
+        <button class="tab" data-pane="apps"><svg class="i" data-i="grid"></svg>Apps</button>
+      </div>
+
+      <div class="pane" id="pTasks">
+        <div class="plist" id="taskList"></div>
+        <form class="add" id="taskForm"><input id="taskIn" type="text" placeholder="Add a task…" aria-label="New task"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button></form>
+      </div>
+
+      <div class="pane" id="pRemind">
+        <div class="plist" id="remList"></div>
+        <form class="add" id="remForm">
+          <input id="remText" type="text" placeholder="Remind me to…" aria-label="Reminder text" style="flex:1 1 100%">
+          <input id="remAt" type="datetime-local" aria-label="When" style="flex:1 1 60%">
+          <button class="btn sol" type="submit"><svg class="i" data-i="bell"></svg>Set</button>
+          <select id="tmSel" aria-label="Quick timer" style="flex:1 1 60%">
+            <option value="">Quick timer…</option><option value="60">1 minute</option><option value="300">5 minutes</option><option value="600">10 minutes</option><option value="900">15 minutes</option><option value="1800">30 minutes</option><option value="3600">1 hour</option>
+          </select>
+          <button class="btn" type="button" id="tmGo"><svg class="i" data-i="timer"></svg>Start</button>
+        </form>
+      </div>
+
+      <div class="pane" id="pApps">
+        <div class="apps" id="appGrid"></div>
+      </div>
+    </aside>
+  </main>
+
+  <nav id="tabbar">
+    <button data-view="chat" class="act"><svg class="i" data-i="chat"></svg>Jarvis</button>
+    <button data-view="tasks"><svg class="i" data-i="list"></svg>Tasks</button>
+    <button data-view="remind"><svg class="i" data-i="bell"></svg>Remind</button>
+    <button data-view="apps"><svg class="i" data-i="grid"></svg>Apps</button>
+  </nav>
+</div>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="sbox">
+    <h2>SETTINGS</h2><p class="sub">Tune how Jarvis talks, listens and reaches you.</p>
+    <div class="fld"><label for="sName">What should I call you?</label><input type="text" id="sName" maxlength="24" placeholder="Sir"></div>
+    <div class="fld"><label for="sVoice">Voice</label><select id="sVoice"></select></div>
+    <div class="fld"><label for="sRate">Speaking speed</label><input type="range" id="sRate" min="0.7" max="1.4" step="0.05"></div>
+    <div class="tg"><span>Speak replies<small>Jarvis reads every answer aloud</small></span><button type="button" class="sw" id="sSpeak" aria-label="Speak replies"></button></div>
+    <div class="tg"><span>Hands-free “Hey Jarvis”<small>Keeps the mic open for the wake word (needs the page open)</small></span><button type="button" class="sw" id="sHands" aria-label="Hands-free"></button></div>
+    <div class="tg"><span>Reminder notifications<small id="nSt">Checking…</small></span><button type="button" class="btn" id="nBtn">Enable</button></div>
+    <div class="fld" style="margin-top:14px"><label for="sEp">AI endpoint (advanced)</label><input type="text" id="sEp" placeholder="Cloudflare Worker URL"></div>
+    <div class="sbtns">
+      <button type="button" class="btn" id="sTest">Test voice</button>
+      <button type="button" class="btn" id="sClear">Clear chat</button>
+      <button type="button" class="btn dn" id="sReset">Erase all data</button>
+      <button type="button" class="btn sol" id="sClose" style="margin-left:auto">Done</button>
+    </div>
+    <div class="foot">J.A.R.V.I.S. · created by Arnold Nedahwa<br>Browser apps cannot launch every native program. Jarvis opens websites and app links; install it as an app for the best reminders.</div>
+  </div>
+</div>
+
+<script>'use strict';
+/* ===== J.A.R.V.I.S. — part 1: core, storage, apps, time parsing ===== */
+window.JARVIS_AI_ENDPOINT = window.JARVIS_AI_ENDPOINT || 'https://ontechbot.softwareengineerarno.workers.dev/';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+/* icons */
+const IC = {
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+  sliders: '<path d="M4 6h8M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="15" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>',
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  list: '<path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+  chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  ext: '<path d="M14 4h6v6M20 4 10 14M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  download: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>'
+};
+const ic = n => '<svg class="i" viewBox="0 0 24 24">' + (IC[n] || '') + '</svg>';
+function hydrateIcons(root) { (root || document).querySelectorAll('svg[data-i]').forEach(s => { s.setAttribute('viewBox', '0 0 24 24'); s.innerHTML = IC[s.dataset.i] || ''; }); }
+
+/* storage: localStorage with in-memory fallback */
+const store = {
+  mem: {},
+  get(k, d) { try { const v = localStorage.getItem('jarvis:' + k); if (v != null) return JSON.parse(v); } catch (e) { if (k in this.mem) return this.mem[k]; } return d; },
+  set(k, v) { try { localStorage.setItem('jarvis:' + k, JSON.stringify(v)); } catch (e) { this.mem[k] = v; } },
+  wipe() { try { Object.keys(localStorage).filter(k => k.startsWith('jarvis:')).forEach(k => localStorage.removeItem(k)); } catch (e) { } this.mem = {}; }
+};
+
+/* state */
+const S = {
+  settings: Object.assign({ name: 'Sir', voice: '', rate: 1, autoSpeak: true, hands: false, endpoint: '' }, store.get('settings', {})),
+  tasks: store.get('tasks', []),
+  reminders: store.get('reminders', []),
+  chat: store.get('chat', []),
+  busy: false, speaking: false, listening: false, state: 'idle', pending: null, online: null
+};
+const save = {
+  settings: () => store.set('settings', S.settings),
+  tasks: () => store.set('tasks', S.tasks),
+  reminders: () => store.set('reminders', S.reminders),
+  chat: () => store.set('chat', S.chat.slice(-60))
+};
+const NAME = () => (S.settings.name || 'Sir').trim() || 'Sir';
+
+/* platform */
+const UA = navigator.userAgent || '';
+const IS_WIN = /Windows/i.test(UA);
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(UA);
+
+/* ---------- app registry ---------- */
+const APPS = [
+  { id: 'youtube', n: 'YouTube', a: ['yt', 'you tube'], u: 'https://www.youtube.com/', c: '#e02b20', l: 'YT', s: q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q) },
+  { id: 'whatsapp', n: 'WhatsApp', a: ['whats app', 'wa'], u: 'https://web.whatsapp.com/', c: '#1fa855', l: 'WA' },
+  { id: 'gmail', n: 'Gmail', a: ['email', 'mail', 'google mail'], u: 'https://mail.google.com/', c: '#d44638', l: 'GM' },
+  { id: 'maps', n: 'Google Maps', a: ['maps', 'map', 'google maps'], u: 'https://www.google.com/maps', c: '#2f9e5b', l: 'MP', s: q => 'https://www.google.com/maps/search/' + encodeURIComponent(q) },
+  { id: 'google', n: 'Google', a: ['search', 'browser', 'chrome', 'web'], u: 'https://www.google.com/', c: '#4285f4', l: 'G', s: q => 'https://www.google.com/search?q=' + encodeURIComponent(q) },
+  { id: 'spotify', n: 'Spotify', a: ['music', 'songs'], u: 'https://open.spotify.com/', c: '#1db954', l: 'SP', s: q => 'https://open.spotify.com/search/' + encodeURIComponent(q) },
+  { id: 'netflix', n: 'Netflix', a: ['movies'], u: 'https://www.netflix.com/', c: '#e50914', l: 'NF' },
+  { id: 'facebook', n: 'Facebook', a: ['fb'], u: 'https://www.facebook.com/', c: '#1877f2', l: 'FB' },
+  { id: 'instagram', n: 'Instagram', a: ['insta', 'ig'], u: 'https://www.instagram.com/', c: '#c13584', l: 'IG' },
+  { id: 'x', n: 'X (Twitter)', a: ['twitter', 'x'], u: 'https://x.com/', c: '#222a33', l: 'X' },
+  { id: 'tiktok', n: 'TikTok', a: ['tik tok'], u: 'https://www.tiktok.com/', c: '#111', l: 'TT' },
+  { id: 'telegram', n: 'Telegram', a: [], u: 'https://web.telegram.org/', c: '#2aabee', l: 'TG' },
+  { id: 'linkedin', n: 'LinkedIn', a: ['linked in'], u: 'https://www.linkedin.com/', c: '#0a66c2', l: 'in' },
+  { id: 'github', n: 'GitHub', a: ['git hub'], u: 'https://github.com/', c: '#2b3137', l: 'GH' },
+  { id: 'chatgpt', n: 'ChatGPT', a: ['chat gpt', 'openai'], u: 'https://chatgpt.com/', c: '#10a37f', l: 'CG' },
+  { id: 'claude', n: 'Claude', a: ['claude ai'], u: 'https://claude.ai/', c: '#d97757', l: 'CL' },
+  { id: 'drive', n: 'Google Drive', a: ['drive'], u: 'https://drive.google.com/', c: '#1fa463', l: 'DR' },
+  { id: 'docs', n: 'Google Docs', a: ['docs', 'google doc', 'document'], u: 'https://docs.google.com/document/u/0/', c: '#4285f4', l: 'DC' },
+  { id: 'sheets', n: 'Google Sheets', a: ['sheets', 'spreadsheet'], u: 'https://docs.google.com/spreadsheets/u/0/', c: '#0f9d58', l: 'SH' },
+  { id: 'calendar', n: 'Calendar', a: ['google calendar', 'schedule'], u: 'https://calendar.google.com/', c: '#4285f4', l: 'CA' },
+  { id: 'meet', n: 'Google Meet', a: ['meet', 'video call'], u: 'https://meet.google.com/', c: '#00897b', l: 'ME' },
+  { id: 'zoom', n: 'Zoom', a: [], u: 'https://zoom.us/join', c: '#2d8cff', l: 'ZM' },
+  { id: 'teams', n: 'Microsoft Teams', a: ['teams', 'microsoft teams'], u: 'https://teams.microsoft.com/', c: '#5b5fc7', l: 'MT' },
+  { id: 'outlook', n: 'Outlook', a: ['outlook mail'], u: 'https://outlook.live.com/mail/', c: '#0078d4', l: 'OL' },
+  { id: 'amazon', n: 'Amazon', a: ['shopping'], u: 'https://www.amazon.com/', c: '#ff9900', l: 'AZ', s: q => 'https://www.amazon.com/s?k=' + encodeURIComponent(q) },
+  { id: 'wikipedia', n: 'Wikipedia', a: ['wiki'], u: 'https://www.wikipedia.org/', c: '#555', l: 'W', s: q => 'https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(q) },
+  { id: 'news', n: 'BBC News', a: ['bbc', 'bbc news', 'the news', 'headlines'], u: 'https://www.bbc.com/news', c: '#bb1919', l: 'BB' },
+  { id: 'translate', n: 'Translate', a: ['google translate'], u: 'https://translate.google.com/', c: '#4285f4', l: 'TR' },
+  { id: 'photos', n: 'Google Photos', a: ['photos', 'gallery'], u: 'https://photos.google.com/', c: '#ea4335', l: 'PH' },
+  { id: 'calculator', n: 'Calculator', a: ['calc'], u: 'https://www.google.com/search?q=calculator', win: 'calculator:', c: '#ff7043', l: '÷' },
+  { id: 'settings', n: 'Device Settings', a: ['windows settings', 'system settings', 'pc settings'], win: 'ms-settings:', only: 'win', c: '#607d8b', l: 'ST' },
+  { id: 'camera', n: 'Camera', a: ['webcam'], win: 'microsoft.windows.camera:', only: 'win', c: '#455a64', l: 'CM' },
+  { id: 'clock', n: 'Clock & Alarms', a: ['alarms'], win: 'ms-clock:', only: 'win', c: '#546e7a', l: 'CK' }
+];
+const NOISE = /\b(the|my|app|application|website|site|please|for me|now|on my (phone|computer|pc|laptop))\b/g;
+function findApp(q) {
+  q = (q || '').toLowerCase().replace(/[^a-z0-9 .+]/g, ' ').replace(NOISE, ' ').replace(/\s+/g, ' ').trim();
+  if (!q) return null;
+  let hit = APPS.find(a => a.id === q || a.n.toLowerCase() === q || a.a.includes(q));
+  if (hit) return hit;
+  hit = APPS.find(a => q.includes(a.id) && a.id.length > 2) || APPS.find(a => a.n.toLowerCase().includes(q) && q.length > 2);
+  return hit || null;
+}
+function appUrl(app) {
+  if (app.win && IS_WIN) return app.win;
+  if (app.only === 'win' && !IS_WIN) return null;
+  return app.u;
+}
+function normUrl(u) {
+  u = String(u || '').trim();
+  if (!u) return null;
+  if (/^https?:\/\//i.test(u)) return u;
+  if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(u)) return 'https://' + u;
+  return null;
+}
+
+/* ---------- launching ---------- */
+function launch(url) {
+  try {
+    if (/^https?:/i.test(url)) {
+      const w = window.open(url, '_blank');
+      if (w) { try { w.opener = null; } catch (e) { } return true; }
+      return false;
+    }
+    const a = document.createElement('a');
+    a.href = url; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ---------- time helpers ---------- */
+function fmtClock(d) { return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+function fmtWhen(ms) {
+  const d = new Date(ms), n = new Date(), tm = new Date(n); tm.setDate(n.getDate() + 1);
+  if (d.toDateString() === n.toDateString()) return 'today at ' + fmtClock(d);
+  if (d.toDateString() === tm.toDateString()) return 'tomorrow at ' + fmtClock(d);
+  return d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + ' at ' + fmtClock(d);
+}
+function fmtDur(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return h ? h + 'h ' + pad(m) + 'm' : m ? m + 'm ' + pad(s) + 's' : s + 's';
+}
+function spokenDur(sec) {
+  sec = Math.round(sec);
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60, p = [];
+  if (h) p.push(h + (h === 1 ? ' hour' : ' hours'));
+  if (m) p.push(m + (m === 1 ? ' minute' : ' minutes'));
+  if (s && !h) p.push(s + (s === 1 ? ' second' : ' seconds'));
+  return p.join(' and ') || '0 seconds';
+}
+
+const NUMW = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, ninety: 90 };
+const NW = Object.keys(NUMW).join('|');
+const UNIT = '(?:seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)';
+const NUM = '(?:\\d+(?:\\.\\d+)?|a|an|' + NW + ')';
+const DUR1 = NUM + '\\s*' + UNIT;
+const DURRE = '(?:half an hour|(?:a )?quarter of an hour|an hour and a half|' + DUR1 + '(?:\\s*(?:and\\s*)?' + DUR1 + ')*)';
+function durToSec(s) {
+  s = s.toLowerCase();
+  if (/half an hour/.test(s)) return 1800;
+  if (/quarter of an hour/.test(s)) return 900;
+  if (/hour and a half/.test(s)) return 5400;
+  let tot = 0;
+  s.replace(new RegExp('(' + NUM + ')\\s*(' + UNIT + ')', 'g'), (m, n, u) => {
+    const v = /^\d/.test(n) ? parseFloat(n) : (/^an?$/.test(n) ? 1 : NUMW[n]);
+    const k = u[0] === 's' ? 1 : u[0] === 'm' ? 60 : u[0] === 'h' ? 3600 : 86400;
+    tot += v * k; return m;
+  });
+  return tot;
+}
+const WD = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+/* returns {at:Date, rest:string} or null */
+function parseWhen(str) {
+  let s = ' ' + str + ' ';
+  const now = new Date();
+  let m = new RegExp('\\b(?:in|after)\\s+(' + DURRE + ')(?=\\W|$)', 'i').exec(s);
+  if (m) {
+    const sec = durToSec(m[1]);
+    if (sec > 0) return { at: new Date(now.getTime() + sec * 1000), rest: tidy(s.replace(m[0], ' ')) };
+  }
+  let hh = null, mm = 0, mer = null, dayWord = null, off = null;
+  const strip = r => { s = s.replace(r, ' '); };
+  if ((m = /\bnoon\b/i.exec(s))) { hh = 12; strip(m[0]); }
+  else if ((m = /\bmidnight\b/i.exec(s))) { hh = 0; strip(m[0]); }
+  else if ((m = /\b(?:(?:at|by|around)\s+)?(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\b\.?/i.exec(s))) { hh = +m[1]; mm = +(m[2] || 0); mer = m[3].toLowerCase(); strip(m[0]); }
+  else if ((m = /\b(?:(?:at|by|around)\s+)?(\d{1,2}):(\d{2})\b/.exec(s))) { hh = +m[1]; mm = +m[2]; strip(m[0]); }
+  else if ((m = /\b(?:at|by|around)\s+(\d{1,2})(?=\W|$)/i.exec(s))) { hh = +m[1]; strip(m[0]); }
+  if (hh !== null && (hh > 23 || mm > 59)) return null;
+  const dm = /\b(today|tonight|tomorrow|this (?:morning|afternoon|evening)|(?:on |next )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday))\b/i.exec(s);
+  if (dm) { dayWord = dm[1].toLowerCase(); strip(dm[0]); if (dm[2]) off = dm[2].toLowerCase(); }
+  if (hh === null && !dayWord) return null;
+  const base = new Date(now); base.setSeconds(0, 0);
+  let dayAdd = 0;
+  if (/tomorrow/.test(dayWord || '')) dayAdd = 1;
+  else if (off) { dayAdd = (WD.indexOf(off) - now.getDay() + 7) % 7; }
+  const eve = /tonight|evening|afternoon/.test(dayWord || '');
+  if (hh === null) {
+    if (/tonight/.test(dayWord)) hh = 20; else if (/morning/.test(dayWord)) hh = 9; else if (/afternoon/.test(dayWord)) hh = 15; else if (/evening/.test(dayWord)) hh = 19;
+    else if (dayAdd > 0 || off) hh = 9; else return null;
+    mm = 0;
+  } else if (mer) {
+    if (mer === 'p' && hh < 12) hh += 12; if (mer === 'a' && hh === 12) hh = 0;
+  } else if (hh >= 1 && hh <= 12) {
+    if (eve && hh < 12) hh += 12;
+    else if (dayAdd > 0 || off) { if (hh < 7) hh += 12; }
+    else {
+      const c1 = new Date(base); c1.setHours(hh, mm);
+      const c2 = new Date(base); c2.setHours(hh % 12 + 12, mm);
+      if (c1 > now) { /* keep */ } else if (c2 > now) hh = hh % 12 + 12; else { hh = hh < 7 ? hh + 12 : hh; dayAdd = 1; }
+    }
+  }
+  const at = new Date(base); at.setDate(at.getDate() + dayAdd); at.setHours(hh, mm, 0, 0);
+  if (at <= now && !dayWord) at.setDate(at.getDate() + 1);
+  if (at <= now && dayWord === 'today') return { at: new Date(now.getTime() + 60000), rest: tidy(s), past: true };
+  return { at, rest: tidy(s) };
+}
+function tidy(s) {
+  return s.replace(/\s+/g, ' ').replace(/\b(?:at|on|by|in|around|next)\s*$/i, '').replace(/^\s*(?:at|on|by|in|and)\s+/i, '').replace(/[,.\s]+$/g, '').replace(/^[,.\s]+/g, '').trim();
+}
+
+/* ===== part 2: tasks, reminders, command brain, AI, actions ===== */
+
+/* ---------- tasks ---------- */
+function addTask(text) {
+  text = cap(String(text || '').trim().replace(/[.\s]+$/, ''));
+  if (!text) return null;
+  const t = { id: uid(), text, done: false, created: Date.now() };
+  S.tasks.unshift(t); save.tasks(); renderTasks(); return t;
+}
+function findTask(q, wantDone) {
+  q = String(q || '').toLowerCase().replace(/^(the|my|task|a)\s+/g, '').replace(/[.\s]+$/, '').trim();
+  if (!q) return null;
+  const pool = S.tasks.filter(t => wantDone === undefined ? true : t.done === wantDone);
+  return pool.find(t => t.text.toLowerCase() === q) || pool.find(t => t.text.toLowerCase().includes(q)) || pool.find(t => q.includes(t.text.toLowerCase())) ||
+    pool.find(t => { const w = q.split(' ').filter(x => x.length > 3); return w.length && w.every(x => t.text.toLowerCase().includes(x)); }) || null;
+}
+function setTaskDone(t, v) { t.done = v; save.tasks(); renderTasks(); }
+function removeTask(t) { S.tasks = S.tasks.filter(x => x !== t); save.tasks(); renderTasks(); }
+function openTasks() { return S.tasks.filter(t => !t.done); }
+
+/* ---------- reminders & timers ---------- */
+function addReminder(text, atMs, kind) {
+  const r = { id: uid(), text: cap(text || (kind === 'timer' ? 'Timer' : 'Reminder')), at: atMs, kind: kind || 'reminder', fired: false, created: Date.now() };
+  S.reminders.push(r); save.reminders(); renderReminders(); ensureNotifAsk(); return r;
+}
+function pendingRems() { return S.reminders.filter(r => !r.fired).sort((a, b) => a.at - b.at); }
+function findReminder(q) {
+  q = String(q || '').toLowerCase().replace(/^(the|my|a)\s+/g, '').trim();
+  const p = pendingRems();
+  if (!q || /^(all|everything)$/.test(q)) return null;
+  return p.find(r => r.text.toLowerCase().includes(q)) || null;
+}
+
+/* ---------- notifications ---------- */
+function notifSupported() { return 'Notification' in window; }
+function ensureNotifAsk() {
+  try { if (notifSupported() && Notification.permission === 'default') Notification.requestPermission().then(refreshNotifUI).catch(() => { }); } catch (e) { }
+}
+async function notify(title, body) {
+  try {
+    if (!notifSupported() || Notification.permission !== 'granted') return;
+    const opts = { body, tag: 'jarvis-' + Date.now(), icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', vibrate: [200, 100, 200], requireInteraction: true };
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg && reg.showNotification) { await reg.showNotification(title, opts); return; }
+    }
+    new Notification(title, opts);
+  } catch (e) { }
+}
+let AC = null;
+function audioCtx() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { } return AC; }
+function beep(times) {
+  const ac = audioCtx(); if (!ac) return;
+  for (let i = 0; i < (times || 3); i++) {
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * 0.38;
+    o.type = 'sine'; o.frequency.value = i % 2 ? 988 : 784;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.32);
+  }
+}
+function fireReminder(r, missed) {
+  r.fired = true; r.firedAt = Date.now(); save.reminders(); renderReminders();
+  const isT = r.kind === 'timer';
+  const title = isT ? 'Timer finished' : 'Reminder';
+  const line = isT ? (r.text === 'Timer' ? 'Your timer is done.' : r.text + ' — timer finished.') : (missed ? 'Missed while you were away: ' : '') + r.text;
+  showAlert(title, line, r);
+  beep(3);
+  notify('J.A.R.V.I.S. · ' + title, line);
+  addMsg('j', (isT ? '⏱ ' : '⏰ ') + '**' + title + ':** ' + (isT ? line : r.text), [], false);
+  speak((isT ? 'Timer finished' : 'Reminder') + ', ' + NAME() + '. ' + (isT && r.text === 'Timer' ? '' : r.text));
+}
+function showAlert(h, p, r) {
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = '<h4></h4><p></p><div class="bt2"><button class="btn sol" data-a="ok">Dismiss</button><button class="btn" data-a="sn">Snooze 5 min</button></div>';
+  el.querySelector('h4').textContent = '⏰ ' + h; el.querySelector('p').textContent = p;
+  el.querySelector('[data-a=ok]').onclick = () => { el.remove(); stopSpeak(); };
+  el.querySelector('[data-a=sn]').onclick = () => { addReminder(r.text, Date.now() + 300000, r.kind); el.remove(); stopSpeak(); toast('Snoozed for 5 minutes'); };
+  $('#toasts').appendChild(el);
+}
+function toast(msg, ms) {
+  const el = document.createElement('div'); el.className = 'toast info';
+  el.innerHTML = '<h4>J.A.R.V.I.S.</h4><p></p>'; el.querySelector('p').textContent = msg;
+  $('#toasts').appendChild(el); setTimeout(() => el.remove(), ms || 3200);
+}
+function tick() {
+  const now = Date.now();
+  S.reminders.filter(r => !r.fired && r.at <= now).forEach(r => fireReminder(r, now - r.at > 90000));
+  updateCountdowns();
+}
+
+/* ---------- weather (Open-Meteo, free, no key) ---------- */
+const WMO = { 0: 'clear skies', 1: 'mostly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'foggy', 48: 'foggy', 51: 'light drizzle', 53: 'drizzle', 55: 'heavy drizzle', 61: 'light rain', 63: 'rain', 65: 'heavy rain', 71: 'light snow', 73: 'snow', 75: 'heavy snow', 80: 'rain showers', 81: 'rain showers', 82: 'violent showers', 95: 'thunderstorms', 96: 'thunderstorms with hail', 99: 'thunderstorms with hail' };
+async function getWeather(place) {
+  let lat, lon, name = place;
+  const j = async u => { const r = await fetch(u); if (!r.ok) throw new Error('http ' + r.status); return r.json(); };
+  if (place) {
+    const g = await j('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(place));
+    if (!g.results || !g.results.length) return "I couldn't find a place called " + place + '.';
+    lat = g.results[0].latitude; lon = g.results[0].longitude; name = g.results[0].name;
+  } else {
+    const pos = await new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000 }) : rej(new Error('no geo'))).catch(() => null);
+    if (!pos) return 'I need a city — try “weather in Harare” — or allow location access.';
+    lat = pos.coords.latitude; lon = pos.coords.longitude; name = 'your location';
+  }
+  const w = await j('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1');
+  const c = w.current, d = w.daily;
+  const rain = d.precipitation_probability_max && d.precipitation_probability_max[0] != null ? ' Chance of rain ' + d.precipitation_probability_max[0] + ' percent.' : '';
+  return 'It is ' + Math.round(c.temperature_2m) + ' degrees Celsius with ' + (WMO[c.weather_code] || 'changing conditions') + ' in ' + name + ', feeling like ' + Math.round(c.apparent_temperature) + '. Today’s high is ' + Math.round(d.temperature_2m_max[0]) + ' and the low ' + Math.round(d.temperature_2m_min[0]) + '.' + rain;
+}
+
+/* ---------- local command brain (instant, works offline) ---------- */
+const R = (reply, actions) => ({ reply, actions: actions || [] });
+function listTasksReply() {
+  const o = openTasks();
+  if (!o.length) return 'Your task list is clear, ' + NAME() + '. Nothing outstanding.';
+  return 'You have ' + o.length + ' open ' + (o.length === 1 ? 'task' : 'tasks') + ': ' + o.slice(0, 8).map(t => t.text).join('; ') + '.';
+}
+function listRemsReply() {
+  const p = pendingRems();
+  if (!p.length) return 'No reminders or timers are pending.';
+  return 'You have ' + p.length + ' pending: ' + p.slice(0, 6).map(r => r.kind === 'timer' ? (r.text === 'Timer' ? 'a timer' : r.text) + ' in ' + spokenDur((r.at - Date.now()) / 1000) : r.text + ' ' + fmtWhen(r.at)).join('; ') + '.';
+}
+function briefing() {
+  const n = new Date(), h = n.getHours();
+  const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  let s = g + ', ' + NAME() + '. It is ' + fmtClock(n) + ' on ' + n.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }) + '. ';
+  s += listTasksReply() + ' ';
+  const p = pendingRems();
+  s += p.length ? 'Next up: ' + (p[0].kind === 'timer' ? 'a timer' : p[0].text) + ' ' + (p[0].kind === 'timer' ? 'in ' + spokenDur((p[0].at - Date.now()) / 1000) : fmtWhen(p[0].at)) + '.' : 'No reminders pending.';
+  return s;
+}
+const HELP = 'I can **open apps and websites** (“open YouTube”, “open WhatsApp”), **search** (“search for electric cars”, “play Burna Boy on YouTube”), **navigate** (“directions to Harare CBD”), **call / text / email**, manage **tasks** (“add task buy milk”, “complete buy milk”), set **reminders** (“remind me to call mum at 5pm”), **timers** (“set a 10 minute timer”), check the **weather**, do **quick maths**, give a **daily briefing** — and answer almost anything else.';
+
+function localCommand(raw) {
+  let t = raw.trim().replace(/\s+/g, ' ');
+  const cl = t.replace(/[!?]+$/g, '').replace(/^(?:hey |ok |okay |hi |yo )?jarvis[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim();
+  let low = cl.toLowerCase();
+  const og = s => { const i = low.indexOf(String(s).toLowerCase()); return i >= 0 ? cl.substr(i, String(s).length) : s; };
+  if (!low) return R('Yes, ' + NAME() + '?');
+  let m;
+
+  if (/^(stop|quiet|be quiet|shut up|silence|stop talking|enough)$/.test(low)) { stopSpeak(); return R('', [{ type: 'noop' }]); }
+  if (/^(clear (the )?(chat|screen|conversation)|new chat)$/.test(low)) { return R('Screen cleared.', [{ type: 'clear_chat' }]); }
+  if (/^(help|what can you do|what do you do|your (abilities|features|capabilities)|how do you work)$/.test(low)) return R(HELP);
+  if (/^(hello|hi|hey|good (morning|afternoon|evening)|howdy|sup|what'?s up)$/.test(low)) return R(rnd(['At your service, ' + NAME() + '.', 'Hello, ' + NAME() + '. How may I help?', 'Online and ready, ' + NAME() + '.']));
+  if (/^(thanks|thank you|cheers|thanks jarvis|much appreciated)$/.test(low)) return R(rnd(['My pleasure, ' + NAME() + '.', 'Anytime.', 'Happy to help.']));
+  if (/\b(who (made|created|built|developed|designed) you|who is your (creator|developer|maker)|who built jarvis|who created jarvis)\b/.test(low))
+    return R('I was created by Arnold Nedahwa — a passionate, hardworking software engineer and the CEO and Founder of ZimPro-Linkup. He also built the Fleet truck tracking system, the WiseBot AI for Wise Parrot Junior School, the Home-Link housing app, and several school management systems.');
+  if (/^(daily )?(briefing|brief me|my day|what'?s (on )?(my day|today)|morning briefing|status report)$/.test(low) || /^good morning$/.test(low)) return R(briefing());
+
+  if (/^(?:what(?:'s| is) the |what )?(time|date|day)(?: is it)?(?: today| now)?$/.test(low) || /^what (time|day) is it$/.test(low) || /^what'?s the (time|date)$/.test(low) || /^(tell me )?the (time|date)$/.test(low) || /^what is today'?s date$/.test(low)) {
+    const n = new Date();
+    if (/date|day/.test(low) && !/time/.test(low)) return R('Today is ' + n.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '.');
+    return R('It is ' + fmtClock(n) + ', ' + n.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }) + '.');
+  }
+
+  /* reminders (incl. time-first phrasing) */
+  let rr = low.replace(/^((?:in|after|at|by|tomorrow|tonight|today|this|on|next)\b.*?),?\s+(remind me\b.*)$/i, (a, b, c) => c + ' ' + b);
+  m = /^(?:set (?:me )?(?:a |an )?(?:reminder|alarm)|reminder|remind me|add (?:a )?reminder|wake me up|wake me)\b\s*(.*)$/i.exec(rr);
+  if (m) {
+    const alarm = /alarm|wake me/.test(rr.slice(0, 16));
+    let rest = m[1].replace(/^(?:to|that|about|for|me to)\s+/i, '');
+    const w = parseWhen(rest);
+    let what = og(tidy((w ? w.rest : rest)).replace(/^(?:to|that|about|for)\s+/i, '').trim());
+    if (!what) what = /wake me/.test(rr) ? 'Wake up' : alarm ? 'Alarm' : '';
+    if (!w) {
+      if (!what) return R('What would you like to be reminded about, and when?');
+      S.pending = { kind: 'remind', text: what };
+      return R('When should I remind you to ' + what.replace(/^[A-Z]/, c => c.toLowerCase()) + '?');
+    }
+    if (!what) what = alarm ? 'Alarm' : 'Reminder';
+    return R('', [{ type: 'reminder', text: what, at: w.at.toISOString(), past: w.past }]);
+  }
+  /* timers */
+  if (/\b(timer|countdown|stopwatch)\b/.test(low) && !/\b(cancel|stop|delete|remove|clear|list|show|what|how long)\b/.test(low)) {
+    const dm = new RegExp('(?:for\\s+)?(' + DURRE + ')(?=\\W|$)', 'i').exec(low);
+    if (dm) {
+      const lm = /(?:an?\s+)?([a-z ]{2,24}?)\s+timer/.exec(low.replace(new RegExp(DURRE, 'ig'), ' '));
+      let label = lm ? lm[1].replace(/^(set|start|make|create|a|an|me)\b\s*/g, '').replace(/\b(set|start|a|an)\b/g, '').trim() : '';
+      return R('', [{ type: 'timer', seconds: durToSec(dm[1]), label: label ? cap(label) : 'Timer' }]);
+    }
+    S.pending = { kind: 'timer' };
+    return R('For how long should I set the timer?');
+  }
+  if (/^(cancel|stop|delete|remove|clear)\s+(all\s+)?(my\s+)?(timers?|reminders?|alarms?)$/.test(low)) return R('', [{ type: 'cancel_reminder', all: true }]);
+  if ((m = /^(?:cancel|delete|remove)\s+(?:the\s+|my\s+)?(?:reminder|alarm|timer)\s+(?:to |about |for )?(.+)$/.exec(low))) return R('', [{ type: 'cancel_reminder', text: m[1] }]);
+  if (/\b(my |the |pending |upcoming )?(reminders|alarms|timers)\b/.test(low) && /^(what|show|list|read|any|do i have|how many|tell me)/.test(low)) return R(listRemsReply(), [{ type: 'show_pane', pane: 'remind' }]);
+
+  /* tasks */
+  if ((m = /^(?:add|create|new|make|put)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:task|to-?do|todo|item)\s*(?:to|:|called|named|for|-)?\s*(.+)$/.exec(low)) ||
+    (m = /^(?:add|put)\s+(.+?)\s+(?:to|on|onto)\s+(?:my\s+|the\s+)?(?:task|to-?do|todo)s?(?:\s+list)?$/.exec(low)) ||
+    (m = /^(?:task|todo|to-do)[: ]\s*(.+)$/.exec(low)) ||
+    (m = /^(?:i need to|i have to|i must|i should|don'?t let me forget to|remember to|note to self[: ]*)\s+(.+)$/.exec(low))) {
+    const txt = og(m[1].replace(/^(?:to)\s+/, ''));
+    return R('', [{ type: 'add_task', text: txt }]);
+  }
+  if ((m = /^(?:complete|finish|finished|done with|tick off|check off|mark)\s+(?:the\s+|my\s+)?(?:task\s+)?(.+?)(?:\s+(?:as\s+)?(?:done|complete|completed|finished))?$/.exec(low)) && !/reminder|timer|alarm/.test(low))
+    return R('', [{ type: 'complete_task', text: m[1] }]);
+  if ((m = /^(?:delete|remove|clear)\s+(?:the\s+|my\s+)?task\s+(.+)$/.exec(low))) return R('', [{ type: 'remove_task', text: m[1] }]);
+  if (/^(clear|delete|remove)\s+(all\s+)?(my\s+)?(completed|done|finished)\s+tasks?$/.test(low)) return R('', [{ type: 'clear_done' }]);
+  if (/^(clear|delete|remove)\s+(all\s+)?(my\s+)?tasks?$/.test(low)) return R('', [{ type: 'clear_tasks' }]);
+  if (/\b(tasks?|to-?do(?: list)?|todos?)\b/.test(low) && /^(what|show|list|read|any|do i have|how many|tell me|open|my)/.test(low) && !/^open (?!(my )?(tasks?|to-?do))/.test(low))
+    return R(listTasksReply(), [{ type: 'show_pane', pane: 'tasks' }]);
+
+  /* communication */
+  if ((m = /^(?:call|phone|dial|ring)\s+(\+?[\d][\d\s\-()]{4,})$/.exec(low))) return R('Calling ' + m[1].trim() + '.', [{ type: 'call', number: m[1] }]);
+  if ((m = /^(?:whatsapp|send (?:a )?whatsapp(?: message)? to|message)\s+(\+?[\d][\d\s\-()]{6,})\s*(?:saying|that says|that|:|-)?\s*(.*)$/.exec(low))) return R('Opening WhatsApp.', [{ type: 'whatsapp', number: m[1], body: m[2] }]);
+  if ((m = /^(?:text|sms|send (?:a )?(?:text|sms)(?: message)? to)\s+(\+?[\d][\d\s\-()]{4,})\s*(?:saying|that says|that|:|-)?\s*(.*)$/.exec(low))) return R('Preparing your message.', [{ type: 'sms', number: m[1], body: m[2] }]);
+  if ((m = /^(?:email|mail|send (?:an )?email to)\s+([^\s@]+@[^\s@]+\.[^\s@]+)\s*(?:saying|about|that|subject|:|-)?\s*(.*)$/.exec(t.replace(/^(?:hey |ok )?jarvis[, ]*/i, '').replace(/^(?:please|can you|could you)\s+/i, '')))) {
+    const msg = m[2] || ''; return R('Composing an email to ' + m[1] + '.', [{ type: 'email', to: m[1], subject: msg.slice(0, 60), body: msg }]);
+  }
+
+  /* maps */
+  if ((m = /^(?:directions? to|navigate to|route to|how (?:do i|can i) get to|take me to|where is|find|show me)\s+(.+?)(?:\s+on (?:the )?map)?$/.exec(low)) && (/^(directions?|navigate|route|how|where)/.test(low) || /\b(near|nearby|map|road|street|mall|hospital|restaurant|airport|station|hotel|city|cbd|school|church|clinic|bank|market|park)\b/.test(low)))
+    return R('Opening maps for ' + og(m[1]) + '.', [{ type: 'search', query: og(m[1]), site: 'maps' }]);
+
+  /* weather */
+  if (/\b(weather|temperature|forecast|is it (going to )?rain|will it rain)\b/.test(low)) {
+    const pm = /(?:in|for|at)\s+([a-z .'-]{2,40}?)(?:\s+(?:today|tomorrow|now|tonight))?$/.exec(low);
+    return R('', [{ type: 'weather', place: pm ? pm[1] : '' }]);
+  }
+
+  /* play / search */
+  if ((m = /^(?:play|put on|listen to)\s+(.+?)\s+on\s+(youtube|spotify)$/.exec(low))) return R('Playing ' + og(m[1]) + ' on ' + cap(m[2]) + '.', [{ type: 'search', query: og(m[1]), site: m[2] }]);
+  if ((m = /^(?:play|put on|listen to)\s+(.+)$/.exec(low)) && !/^play (a )?(game|chess|pool|tennis)/.test(low)) return R('Playing ' + og(m[1]) + ' on YouTube.', [{ type: 'search', query: og(m[1]), site: 'youtube' }]);
+  if ((m = /^(?:search|look up|google|find|lookup)\s+(youtube|wikipedia|amazon|spotify|maps|google)\s+for\s+(.+)$/.exec(low))) return R('Searching ' + cap(m[1]) + ' for ' + og(m[2]) + '.', [{ type: 'search', query: og(m[2]), site: m[1] }]);
+  if ((m = /^(?:search|look up|lookup|google)\s+(?:for\s+|up\s+)?(.+?)(?:\s+(?:on|in)\s+(youtube|wikipedia|amazon|spotify|maps|google))?$/.exec(low)))
+    return R('Searching for ' + og(m[1]) + '.', [{ type: 'search', query: og(m[1]), site: m[2] || 'google' }]);
+
+  /* open / launch */
+  if ((m = /^(?:open|launch|start|run|go to|visit|bring up|fire up|load)\s+(.+)$/.exec(low))) {
+    const what = m[1].replace(/\s+(?:app|please|for me|now)$/g, '').trim();
+    if (/^(?:my\s+)?(?:tasks?|to-?do(?: list)?)$/.test(what)) return R('Here are your tasks.', [{ type: 'show_pane', pane: 'tasks' }]);
+    if (/^(?:my\s+)?(?:reminders?|alarms?|timers?)$/.test(what)) return R('Here are your reminders.', [{ type: 'show_pane', pane: 'remind' }]);
+    if (/^(?:the\s+)?settings$/.test(what) && !IS_WIN) return R('', [{ type: 'show_settings' }]);
+    const app = findApp(what);
+    if (app) return R('Opening ' + app.n + '.', [{ type: 'open_app', name: app.id }]);
+    const u = normUrl(what.replace(/\s+/g, ''));
+    if (u) return R('Opening ' + what + '.', [{ type: 'open_url', url: u }]);
+    return R('I don’t have a shortcut for ' + what + ', so I’ll search the web for it.', [{ type: 'search', query: og(what), site: 'google' }]);
+  }
+
+  /* quick maths */
+  if ((m = /^(?:what(?:'s| is)\s+|calculate\s+|compute\s+|how much is\s+)?(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)$/.exec(low))) {
+    const v = (+m[1]) * (+m[2]) / 100; return R(m[1] + ' percent of ' + m[2] + ' is ' + +v.toFixed(4) + '.');
+  }
+  m = /^(?:what(?:'s| is)\s+|calculate\s+|compute\s+|how much is\s+|work out\s+)?([\d\s+\-*/().x×÷^]+?)\s*(?:=|equal)?$/.exec(low);
+  if (m && /\d\s*[+\-*/x×÷^]\s*[\d(]/.test(m[1])) {
+    const ex = m[1].replace(/[x×]/g, '*').replace(/÷/g, '/').replace(/\^/g, '**');
+    if (/^[\d\s+\-*/().]+$/.test(ex)) {
+      try { const v = Function('"use strict";return (' + ex + ')')(); if (typeof v === 'number' && isFinite(v)) return R(m[1].trim() + ' equals ' + +v.toFixed(8) + '.'); } catch (e) { }
+    }
+  }
+  return null;
+}
+
+/* ---------- AI brain (Cloudflare Worker) ---------- */
+const AI_ENDPOINT = () => (S.settings.endpoint || '').trim() || window.JARVIS_AI_ENDPOINT;
+const APP_NAMES = APPS.filter(a => !a.only).map(a => a.id).join(', ');
+function sysPrompt() {
+  const n = new Date();
+  const tasks = openTasks().map(t => '- ' + t.text).join('\n') || '(none)';
+  const rems = pendingRems().map(r => '- ' + r.text + ' (' + (r.kind === 'timer' ? 'timer ' : '') + fmtWhen(r.at) + ')').join('\n') || '(none)';
+  return 'You are J.A.R.V.I.S., a calm, witty, highly capable British-style AI butler assistant. The user is called ' + NAME() + '. Keep replies short (1-3 sentences), natural to speak aloud, with no markdown or emojis. If you truly do not know something, say so.\n' +
+    'If asked who created you: Arnold Nedahwa, a passionate, hardworking software engineer, CEO and Founder of ZimPro-Linkup, who also built the Fleet truck tracking system, WiseBot AI for Wise Parrot Junior School, the Home-Link housing app and several school management systems.\n' +
+    'Current local date and time: ' + n.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.\n' +
+    'Open tasks:\n' + tasks + '\nPending reminders:\n' + rems + '\n\n' +
+    'You can DO things by returning actions. Reply with ONE raw JSON object and nothing else (no code fences, no commentary):\n' +
+    '{"reply":"what you say aloud","actions":[ ... ]}\n' +
+    'Allowed action objects:\n' +
+    '{"type":"open_app","name":"<one of: ' + APP_NAMES + '>"}\n{"type":"open_url","url":"https://..."}\n' +
+    '{"type":"search","query":"...","site":"google|youtube|maps|wikipedia|amazon|spotify"}\n' +
+    '{"type":"call","number":"..."}\n{"type":"sms","number":"...","body":"..."}\n{"type":"whatsapp","number":"...","body":"..."}\n{"type":"email","to":"...","subject":"...","body":"..."}\n' +
+    '{"type":"add_task","text":"..."}\n{"type":"complete_task","text":"..."}\n{"type":"remove_task","text":"..."}\n' +
+    '{"type":"reminder","text":"what to remind","in_minutes":10}  (or "at":"YYYY-MM-DDTHH:MM" in local time)\n' +
+    '{"type":"timer","seconds":300,"label":"..."}\n{"type":"weather","place":"city"}\n' +
+    'Rules: only include an action when the user asks for it; use "actions":[] for ordinary conversation; the reply must match what the actions do and never claim an action you did not include; for reminders always compute the time from the current date/time above.';
+}
+function extractJSON(txt) {
+  txt = String(txt || '').replace(/```(?:json)?/gi, '').trim();
+  const i = txt.indexOf('{'); if (i < 0) return null;
+  let d = 0, str = false, esc2 = false;
+  for (let k = i; k < txt.length; k++) {
+    const c = txt[k];
+    if (str) { if (esc2) esc2 = false; else if (c === '\\') esc2 = true; else if (c === '"') str = false; continue; }
+    if (c === '"') str = true; else if (c === '{') d++; else if (c === '}') { d--; if (d === 0) { try { return JSON.parse(txt.slice(i, k + 1)); } catch (e) { return null; } } }
+  }
+  return null;
+}
+const OK_TYPES = ['open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
+function parseAI(text) {
+  const j = extractJSON(text);
+  if (j && (typeof j.reply === 'string' || Array.isArray(j.actions))) {
+    return { reply: String(j.reply || '').trim(), actions: (Array.isArray(j.actions) ? j.actions : []).filter(a => a && OK_TYPES.includes(a.type)).slice(0, 5) };
+  }
+  let t = String(text || '').trim();
+  const rm = /"reply"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(t);
+  if (rm) { try { t = JSON.parse('"' + rm[1] + '"'); } catch (e) { t = rm[1]; } }
+  else if (t.startsWith('{')) t = '';
+  return { reply: t.replace(/```/g, '').trim(), actions: [] };
+}
+async function askAI(userText) {
+  const hist = S.chat.filter(m => m.ai).slice(-8).map(m => ({ role: m.r === 'u' ? 'user' : 'assistant', content: m.ai }));
+  while (hist.length && hist[0].role !== 'user') hist.shift();
+  const msgs = hist.concat([{ role: 'user', content: userText }]);
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 30000);
+  try {
+    const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: sysPrompt(), messages: msgs }), signal: ctl.signal });
+    const raw = await r.text(); let j = null;
+    try { j = JSON.parse(raw); } catch (e) { }
+    if (!r.ok) throw new Error((j && (j.error || j.text)) || 'HTTP ' + r.status);
+    const text = j ? (j.text || j.response || (j.result && j.result.response) || '') : raw;
+    if (!String(text).trim()) throw new Error('empty');
+    setOnline(true);
+    return parseAI(text);
+  } catch (e) {
+    setOnline(false); throw e;
+  } finally { clearTimeout(to); }
+}
+function setOnline(v) {
+  S.online = v;
+  $('#aiDot').className = 'dot ' + (v ? 'on' : 'off');
+  $('#aiTxt').textContent = v ? 'Cloud brain online' : 'Offline mode';
+}
+
+/* ---------- action executor ---------- */
+function siteUrl(site, q) {
+  site = String(site || 'google').toLowerCase();
+  const a = APPS.find(x => x.id === (site === 'map' ? 'maps' : site)) || APPS.find(x => x.id === 'google');
+  return a.s ? a.s(q) : 'https://www.google.com/search?q=' + encodeURIComponent(q);
+}
+function digits(n) { return String(n || '').replace(/[^\d+]/g, ''); }
+const cardOpen = (label, url, sub) => ({ card: { label, url, sub } });
+async function execAction(a) {
+  switch (a.type) {
+    case 'noop': return {};
+    case 'clear_chat': S.chat = []; save.chat(); $('#log').innerHTML = ''; return {};
+    case 'show_pane': setPane(a.pane); if (window.innerWidth <= 900) setView(a.pane); return {};
+    case 'show_settings': openSettings(); return {};
+    case 'open_app': {
+      const app = findApp(a.name); if (!app) return { fail: 'No shortcut for ' + a.name, card: { label: 'Search “' + a.name + '”', url: siteUrl('google', a.name) } };
+      const u = appUrl(app);
+      if (!u) return { fail: app.n + ' can only be opened from Windows.', note: 'bad' };
+      return openCard('Open ' + app.n, u);
+    }
+    case 'open_url': { const u = normUrl(a.url); if (!u) return { fail: 'That link looks invalid.' }; return openCard('Open ' + u.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40), u); }
+    case 'search': { const q = String(a.query || '').trim(); if (!q) return { fail: 'Nothing to search for.' }; return openCard(cap(String(a.site || 'google')) + ': ' + q.slice(0, 40), siteUrl(a.site, q)); }
+    case 'call': { const n = digits(a.number); if (n.length < 4) return { fail: 'That number looks incomplete.' }; return openCard('Call ' + n, 'tel:' + n); }
+    case 'sms': { const n = digits(a.number); if (n.length < 4) return { fail: 'That number looks incomplete.' }; return openCard('Text ' + n, 'sms:' + n + (a.body ? '?body=' + encodeURIComponent(a.body) : '')); }
+    case 'whatsapp': { const n = digits(a.number).replace(/^\+/, ''); if (n.length < 6) return { fail: 'That number looks incomplete.' }; return openCard('WhatsApp ' + n, 'https://wa.me/' + n + (a.body ? '?text=' + encodeURIComponent(a.body) : '')); }
+    case 'email': { const to = String(a.to || '').trim(); if (!/.+@.+\..+/.test(to)) return { fail: 'That email address looks invalid.' }; return openCard('Email ' + to, 'mailto:' + to + '?subject=' + encodeURIComponent(a.subject || '') + '&body=' + encodeURIComponent(a.body || '')); }
+    case 'add_task': { const t = addTask(a.text); if (!t) return { fail: 'Empty task.' }; return { done: { label: 'Task added', sub: t.text }, say: 'Task added: ' + t.text + '.' }; }
+    case 'complete_task': { const t = findTask(a.text, false); if (!t) return { fail: 'No open task matches “' + a.text + '”.', say: 'I couldn’t find an open task matching ' + a.text + '.' }; setTaskDone(t, true); return { done: { label: 'Completed', sub: t.text }, say: 'Marked complete: ' + t.text + '.' }; }
+    case 'remove_task': { const t = findTask(a.text); if (!t) return { fail: 'No task matches “' + a.text + '”.', say: 'I couldn’t find a task matching ' + a.text + '.' }; removeTask(t); return { done: { label: 'Removed', sub: t.text }, say: 'Removed the task: ' + t.text + '.' }; }
+    case 'clear_done': { const n = S.tasks.filter(t => t.done).length; S.tasks = S.tasks.filter(t => !t.done); save.tasks(); renderTasks(); return { say: n ? 'Cleared ' + n + ' completed ' + (n === 1 ? 'task' : 'tasks') + '.' : 'No completed tasks to clear.' }; }
+    case 'clear_tasks': { const n = S.tasks.length; S.tasks = []; save.tasks(); renderTasks(); return { say: n ? 'All ' + n + ' tasks cleared.' : 'Your list was already empty.' }; }
+    case 'reminder': {
+      let at = null;
+      if (a.in_minutes != null && isFinite(+a.in_minutes)) at = Date.now() + Math.max(0.1, +a.in_minutes) * 60000;
+      else if (a.at) { const d = new Date(a.at); if (!isNaN(d)) at = d.getTime(); }
+      if (!at) return { fail: 'I couldn’t work out the time.', say: 'I couldn’t work out when. Try “remind me to … at 5 pm”.' };
+      if (at < Date.now() - 1000) return { fail: 'That time has already passed.', say: 'That time has already passed, ' + NAME() + '.' };
+      const r = addReminder(a.text, at, 'reminder');
+      return { done: { label: 'Reminder set', sub: r.text + ' · ' + fmtWhen(at) }, say: a.past ? undefined : 'Done. I will remind you to ' + r.text.charAt(0).toLowerCase() + r.text.slice(1) + ' ' + fmtWhen(at) + '.' };
+    }
+    case 'timer': {
+      const s = Math.round(+a.seconds); if (!(s > 0) || s > 86400 * 2) return { fail: 'I couldn’t work out the duration.', say: 'I couldn’t work out the duration.' };
+      const r = addReminder(a.label || 'Timer', Date.now() + s * 1000, 'timer');
+      return { done: { label: 'Timer started', sub: (a.label && a.label !== 'Timer' ? a.label + ' · ' : '') + spokenDur(s) }, say: 'Timer set for ' + spokenDur(s) + '.' };
+    }
+    case 'cancel_reminder': {
+      if (a.all) { const n = pendingRems().length; S.reminders = S.reminders.filter(r => r.fired); save.reminders(); renderReminders(); return { say: n ? 'Cancelled ' + n + ' pending.' : 'Nothing was pending.' }; }
+      const r = findReminder(a.text); if (!r) return { say: 'I couldn’t find a pending reminder matching ' + a.text + '.' };
+      S.reminders = S.reminders.filter(x => x !== r); save.reminders(); renderReminders(); return { done: { label: 'Cancelled', sub: r.text }, say: 'Cancelled: ' + r.text + '.' };
+    }
+    case 'weather': {
+      try { const w = await getWeather(String(a.place || '').trim()); return { say: w }; }
+      catch (e) { return { say: 'I couldn’t reach the weather service just now.' }; }
+    }
+  }
+  return {};
+}
+function openCard(label, url) {
+  const ok = launch(url);
+  return { card: { label, url, sub: ok ? '' : 'Tap to open' }, opened: ok };
+}
+
+/* ===== part 3: rendering, conversation flow, voice, orb, init ===== */
+
+function mdLite(s) {
+  s = esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  return s.replace(/\n/g, '<br>');
+}
+function addMsg(role, text, cards, persist, aiJson) {
+  const log = $('#log');
+  const el = document.createElement('div'); el.className = 'msg ' + (role === 'u' ? 'u' : 'j');
+  el.innerHTML = (role === 'j' ? '<div class="who">JARVIS</div>' : '') + '<div class="bub">' + mdLite(text) + '</div>';
+  if (cards && cards.length) {
+    const c = document.createElement('div'); c.className = 'cards';
+    cards.forEach(cd => {
+      let n;
+      if (cd.url) { n = document.createElement('a'); n.href = cd.url; n.target = '_blank'; n.rel = 'noopener'; n.className = 'card'; n.innerHTML = ic('ext') + '<span></span>'; }
+      else { n = document.createElement('div'); n.className = 'card ' + (cd.bad ? 'bad' : 'ok'); n.innerHTML = ic(cd.bad ? 'x' : 'check') + '<span></span>'; }
+      n.querySelector('span').innerHTML = esc(cd.label) + (cd.sub ? ' <small>' + esc(cd.sub) + '</small>' : '');
+      c.appendChild(n);
+    });
+    el.appendChild(c);
+  }
+  log.appendChild(el); log.scrollTop = log.scrollHeight;
+  if (persist !== false) { S.chat.push({ r: role, t: text, ai: aiJson || (role === 'u' ? text : JSON.stringify({ reply: text, actions: [] })) }); save.chat(); }
+  return el;
+}
+function showTyping() { const el = document.createElement('div'); el.className = 'msg j'; el.id = 'typing'; el.innerHTML = '<div class="bub typing"><i></i><i></i><i></i></div>'; $('#log').appendChild(el); $('#log').scrollTop = 1e9; }
+function hideTyping() { const t = $('#typing'); if (t) t.remove(); }
+
+async function handle(text, viaVoice) {
+  text = String(text || '').trim(); if (!text || S.busy) return;
+  audioCtx(); stopSpeak();
+  addMsg('u', text);
+  S.busy = true; refreshState(); showTyping();
+  let res;
+  try { res = await route(text); }
+  catch (e) {
+    console.warn('AI failed', e);
+    res = R('I can’t reach my cloud brain right now, ' + NAME() + '. I can still open apps, manage tasks, set reminders and timers — say “help” to see everything.');
+  }
+  hideTyping();
+  const cards = [], says = [], key = [];
+  for (const a of res.actions) {
+    let o; try { o = await execAction(a); } catch (e) { console.error(e); o = { fail: 'That action failed.' }; }
+    if (o.card) cards.push(o.card);
+    if (o.done) cards.push({ label: o.done.label, sub: o.done.sub });
+    if (o.fail) cards.push({ label: o.fail, bad: true });
+    if (o.say) { says.push(o.say); if (o.fail || a.type === 'weather') key.push(o.say); }
+  }
+  let reply = res.reply ? [res.reply].concat(key.filter(k => k !== res.reply)).join(' ') : says.join(' ');
+  if (!reply && !cards.length) reply = rnd(['Done.', 'Understood.', 'Consider it done.']);
+  if (!reply) reply = rnd(['Done, ' + NAME() + '.', 'Right away.', 'On it.']);
+  if (cards.some(c => c.url && c.sub === 'Tap to open')) reply += ' Your browser blocked the pop-up, so tap the button below.';
+  if (res.actions.length === 0 || res.actions.every(a => a.type === 'noop')) { if (res.reply === '') reply = ''; }
+  if (reply) addMsg('j', reply, cards, true, JSON.stringify({ reply: res.reply || reply, actions: res.actions }));
+  else if (cards.length) addMsg('j', '', cards, false);
+  S.busy = false; refreshState();
+  if (reply) speak(reply);
+}
+async function route(text) {
+  if (S.pending) {
+    const p = S.pending; S.pending = null;
+    if (p.kind === 'remind') {
+      const w = parseWhen(text.replace(/^(?:at|in|on)\s+(?=\d)/i, m => m));
+      if (w) return R('', [{ type: 'reminder', text: p.text, at: w.at.toISOString() }]);
+      if (/^(cancel|never ?mind|forget it|no)$/i.test(text)) return R('Very well, cancelled.');
+    } else if (p.kind === 'timer') {
+      const dm = new RegExp('(' + DURRE + ')', 'i').exec(text);
+      if (dm) return R('', [{ type: 'timer', seconds: durToSec(dm[1]), label: 'Timer' }]);
+      if (/^(cancel|never ?mind|forget it|no)$/i.test(text)) return R('Very well, cancelled.');
+    }
+  }
+  const lc = localCommand(text);
+  if (lc) return lc;
+  return await askAI(text);
+}
+
+/* ---------- renderers ---------- */
+function renderTasks() {
+  const L = $('#taskList'); L.innerHTML = '';
+  const open = S.tasks.filter(t => !t.done), done = S.tasks.filter(t => t.done);
+  if (!S.tasks.length) L.innerHTML = '<div class="empty">No tasks yet.<br>Say “add task buy milk”.</div>';
+  const mk = t => {
+    const r = document.createElement('div'); r.className = 'row' + (t.done ? ' done' : '');
+    r.innerHTML = '<button class="chk" aria-label="Toggle">' + ic('check') + '</button><div class="t"></div><button class="rm" aria-label="Delete">' + ic('trash') + '</button>';
+    r.querySelector('.t').textContent = t.text;
+    r.querySelector('.chk').onclick = () => setTaskDone(t, !t.done);
+    r.querySelector('.rm').onclick = () => removeTask(t);
+    return r;
+  };
+  open.forEach(t => L.appendChild(mk(t)));
+  if (done.length) { const h = document.createElement('div'); h.className = 'sec'; h.textContent = 'Completed'; L.appendChild(h); done.slice(0, 20).forEach(t => L.appendChild(mk(t))); }
+  $('#sT').textContent = open.length; $('#bT').textContent = open.length; $('#bT').style.display = open.length ? '' : 'none';
+}
+function renderReminders() {
+  const L = $('#remList'); L.innerHTML = '';
+  const p = pendingRems(), hist = S.reminders.filter(r => r.fired).sort((a, b) => b.at - a.at).slice(0, 6);
+  if (!p.length && !hist.length) L.innerHTML = '<div class="empty">No reminders or timers.<br>Say “remind me to call mum at 5 pm”<br>or “set a 10 minute timer”.</div>';
+  p.forEach(r => {
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = '<span style="color:var(--am)">' + ic(r.kind === 'timer' ? 'timer' : 'bell') + '</span><div class="t"></div><span class="cd" data-id="' + r.id + '"></span><button class="rm" aria-label="Cancel">' + ic('x') + '</button>';
+    row.querySelector('.t').innerHTML = esc(r.text) + '<small>' + (r.kind === 'timer' ? 'Timer' : fmtWhen(r.at)) + '</small>';
+    row.querySelector('.rm').onclick = () => { S.reminders = S.reminders.filter(x => x !== r); save.reminders(); renderReminders(); };
+    L.appendChild(row);
+  });
+  if (hist.length) {
+    const h = document.createElement('div'); h.className = 'sec'; h.textContent = 'Recent'; L.appendChild(h);
+    hist.forEach(r => { const row = document.createElement('div'); row.className = 'row done'; row.innerHTML = '<span style="color:var(--mu2)">' + ic('check') + '</span><div class="t"></div>'; row.querySelector('.t').textContent = r.text; L.appendChild(row); });
+  }
+  $('#sR').textContent = p.filter(r => r.kind !== 'timer').length; $('#sM').textContent = p.filter(r => r.kind === 'timer').length;
+  $('#bR').textContent = p.length; $('#bR').style.display = p.length ? '' : 'none';
+  updateCountdowns();
+}
+function updateCountdowns() {
+  const now = Date.now();
+  $$('.cd').forEach(el => { const r = S.reminders.find(x => x.id === el.dataset.id); if (r) el.textContent = fmtDur((r.at - now) / 1000); });
+  const p = pendingRems(), chip = $('#nextChip');
+  if (p.length) { chip.hidden = false; $('#nextTxt').textContent = 'Next · ' + fmtDur((p[0].at - now) / 1000) + ' · ' + p[0].text.slice(0, 22); } else chip.hidden = true;
+  const d = new Date();
+  $('#clock').innerHTML = fmtClock(d) + '<small>' + d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }) + '</small>';
+}
+function renderApps() {
+  const G = $('#appGrid'); G.innerHTML = '';
+  APPS.filter(a => appUrl(a)).forEach(a => {
+    const b = document.createElement('button'); b.className = 'app-t'; b.innerHTML = '<i style="background:' + a.c + '"></i><span></span>';
+    b.querySelector('i').textContent = a.l; b.querySelector('span').textContent = a.n;
+    b.onclick = () => { const u = appUrl(a); if (!launch(u)) toast('Pop-up blocked — allow pop-ups for this page.'); else toast('Opening ' + a.n); };
+    G.appendChild(b);
+  });
+}
+const QUICK = ['Daily briefing', 'Open YouTube', 'Remind me in 10 minutes to stretch', 'Set a 5 minute timer', 'What’s the weather?', 'What can you do?'];
+
+/* ---------- views ---------- */
+function setPane(p) {
+  $('#app').dataset.pane = p;
+  $$('.tab').forEach(t => t.classList.toggle('act', t.dataset.pane === p));
+}
+function setView(v) {
+  const app = $('#app');
+  if (v !== 'chat') setPane(v);
+  app.dataset.view = v;
+  $$('#tabbar button').forEach(b => b.classList.toggle('act', b.dataset.view === v));
+}
+
+/* ---------- speech out ---------- */
+let spTok = 0, voices = [];
+function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } fillVoiceSel(); }
+function pickVoice() {
+  if (!voices.length) loadVoices();
+  const want = S.settings.voice;
+  if (want) { const v = voices.find(v => v.name === want); if (v) return v; }
+  const en = voices.filter(v => /^en/i.test(v.lang));
+  const pref = [/google uk english male/i, /daniel/i, /george/i, /arthur/i, /ryan/i, /uk english/i, /en-gb/i, /david/i, /mark/i, /male/i];
+  for (const p of pref) { const v = en.find(v => p.test(v.name) || p.test(v.lang)); if (v) return v; }
+  return en[0] || voices[0] || null;
+}
+function chunkText(t) {
+  const parts = t.match(/[^.!?;:\n]+[.!?;:]*\s*/g) || [t], out = []; let cur = '';
+  parts.forEach(p => { if ((cur + p).length > 170 && cur) { out.push(cur.trim()); cur = p; } else cur += p; });
+  if (cur.trim()) out.push(cur.trim());
+  return out.flatMap(c => c.length > 220 ? c.match(/.{1,200}(\s|$)/g).map(x => x.trim()) : [c]).filter(Boolean);
+}
+function speakable(s) {
+  return String(s).replace(/\*\*/g, '').replace(/https?:\/\/\S+/g, 'link').replace(/[`#_~|<>]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function speak(text) {
+  return new Promise(res => {
+    if (!S.settings.autoSpeak || !('speechSynthesis' in window)) { res(); return; }
+    const tok = ++spTok;
+    try { speechSynthesis.cancel(); } catch (e) { }
+    const chunks = chunkText(speakable(text)); if (!chunks.length) { res(); return; }
+    S.speaking = true; refreshState();
+    if (recObj) { try { recObj.abort(); } catch (e) { } }
+    let i = 0;
+    const done = () => { if (tok !== spTok) { res(); return; } S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 450); res(); };
+    const next = () => {
+      if (tok !== spTok) { res(); return; }
+      if (i >= chunks.length) { done(); return; }
+      const u = new SpeechSynthesisUtterance(chunks[i++]); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; }
+      u.rate = +S.settings.rate || 1; u.pitch = 0.92; u.onend = next; u.onerror = next;
+      try { speechSynthesis.speak(u); } catch (e) { done(); }
+    };
+    setTimeout(next, 80);
+  });
+}
+function stopSpeak() {
+  spTok++; try { speechSynthesis.cancel(); } catch (e) { }
+  if (S.speaking) { S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 400); }
+}
+
+/* ---------- speech in ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recObj = null, hf = false, oneShot = false, awakeUntil = 0;
+const WAKE = /\b(?:hey|ok|okay|hi|yo|hello)?\s*(?:jarvis|jarvas|jarvus|service|travis)\b[\s,.:!-]*/i;
+function startRec() {
+  if (!SR || recObj || S.speaking || (!hf && !oneShot)) return;
+  const r = new SR(); recObj = r;
+  r.lang = 'en-US'; r.continuous = hf && !oneShot; r.interimResults = true; r.maxAlternatives = 1;
+  r.onstart = () => { S.listening = true; refreshState(); };
+  r.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const res = e.results[i], t = res[0].transcript.trim();
+      if (!res.isFinal) { $('#interim').textContent = '“' + t + '”'; continue; }
+      $('#interim').textContent = '';
+      onHeard(t);
+    }
+  };
+  r.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { hf = false; oneShot = false; toast('Microphone blocked — allow mic access for this page.', 4500); syncHf(); }
+  };
+  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (oneShot && !S.busy) { /* no result */ oneShot = false; refreshMic(); } if (hf && !S.speaking) setTimeout(startRec, 300); };
+  try { r.start(); } catch (e) { recObj = null; }
+}
+function onHeard(t) {
+  if (!t) return;
+  if (oneShot) { oneShot = false; try { recObj && recObj.stop(); } catch (e) { } refreshMic(); handle(t, true); return; }
+  if (!hf) return;
+  const awake = Date.now() < awakeUntil;
+  const m = WAKE.exec(t);
+  if (m && /jarvis|jarvas|jarvus/i.test(m[0]) || (m && m.index === 0 && /^(hey|ok|okay)\s+(service|travis)/i.test(m[0]))) {
+    const cmd = t.slice(m.index + m[0].length).trim();
+    if (cmd.length > 1) { awakeUntil = 0; handle(cmd, true); }
+    else { awakeUntil = Date.now() + 9000; addMsg('j', 'Yes, ' + NAME() + '?', [], false); speak('Yes, ' + NAME() + '?'); }
+    return;
+  }
+  if (awake) { awakeUntil = 0; handle(t, true); }
+}
+function refreshMic() { $('#micBtn').classList.toggle('act', oneShot || (S.listening && !hf)); }
+function syncHf() { $('#hfBtn').classList.toggle('act', hf); $('#sHands').classList.toggle('on', hf); S.settings.hands = hf; save.settings(); }
+function setHf(v) {
+  if (!SR) { toast('Voice input is not supported in this browser. Try Chrome or Edge.', 4500); return; }
+  hf = v; syncHf();
+  if (hf) { audioCtx(); startRec(); toast('Hands-free on. Say “Hey Jarvis”.'); }
+  else { try { recObj && recObj.abort(); } catch (e) { } toast('Hands-free off.'); }
+}
+
+/* ---------- state + orb ---------- */
+function refreshState() {
+  S.state = S.busy ? 'thinking' : S.speaking ? 'speaking' : (oneShot || S.listening) ? 'listening' : 'idle';
+  const L = { idle: hf ? 'Say “Hey Jarvis”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: 'Listening' };
+  $('#stateLbl').textContent = L[S.state]; refreshMic();
+}
+const cv = $('#orb'), cx = cv.getContext('2d'); let OW = 0, OH = 0;
+function fit() { const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); OW = r.width; OH = r.height; cv.width = Math.max(1, OW * d); cv.height = Math.max(1, OH * d); cx.setTransform(d, 0, 0, d, 0, 0); }
+const PC = { idle: [70, 224, 240], listening: [90, 240, 160], thinking: [255, 178, 56], speaking: [120, 190, 255] };
+let col = [70, 224, 240], lvl = 0;
+function drawOrb(now) {
+  const t = now / 1000, st = S.state, tg = PC[st] || PC.idle;
+  col = col.map((c, i) => c + (tg[i] - c) * 0.07);
+  const en = st === 'speaking' ? 0.5 + 0.5 * Math.abs(Math.sin(t * 7.3) * Math.sin(t * 2.9 + 1)) : st === 'listening' ? 0.4 + 0.25 * Math.sin(t * 3.2) : st === 'thinking' ? 0.5 : 0.14 + 0.05 * Math.sin(t * 1.3);
+  lvl += (en - lvl) * 0.14;
+  if (!OW) fit();
+  cx.clearRect(0, 0, OW, OH);
+  const c = `${col[0] | 0},${col[1] | 0},${col[2] | 0}`, X = OW / 2, Y = OH / 2, Rr = Math.min(OW, OH) / 2 * 0.94;
+  const g = cx.createRadialGradient(X, Y, 0, X, Y, Rr * (0.75 + lvl * 0.2));
+  g.addColorStop(0, `rgba(${c},${0.28 + lvl * 0.3})`); g.addColorStop(0.5, `rgba(${c},0.08)`); g.addColorStop(1, `rgba(${c},0)`);
+  cx.fillStyle = g; cx.beginPath(); cx.arc(X, Y, Rr, 0, 7); cx.fill();
+  cx.lineWidth = 1;
+  const rings = [[0.96, 0.18, 40, [2, 10]], [0.84, 0.28, -26, [1, 6]], [0.62, 0.4, 18, [30, 14]]];
+  rings.forEach(([k, a, sp, dash], i) => {
+    cx.save(); cx.translate(X, Y); cx.rotate(t * (sp * Math.PI / 180) * (st === 'thinking' ? 3 : 1));
+    cx.strokeStyle = `rgba(${c},${a + lvl * 0.2})`; cx.setLineDash(dash); cx.beginPath(); cx.arc(0, 0, Rr * k, 0, 7); cx.stroke(); cx.restore();
+  });
+  if (st === 'thinking') { cx.strokeStyle = `rgba(${c},.9)`; cx.lineWidth = 2.5; cx.setLineDash([]); cx.beginPath(); cx.arc(X, Y, Rr * 0.72, t * 4, t * 4 + 1.2); cx.stroke(); cx.beginPath(); cx.arc(X, Y, Rr * 0.72, t * 4 + 3.14, t * 4 + 4.3); cx.stroke(); }
+  if (st === 'listening') for (let k = 0; k < 3; k++) { const p = (t * 0.7 + k / 3) % 1; cx.strokeStyle = `rgba(${c},${(1 - p) * 0.5})`; cx.lineWidth = 1.5; cx.setLineDash([]); cx.beginPath(); cx.arc(X, Y, Rr * (0.35 + p * 0.6), 0, 7); cx.stroke(); }
+  cx.setLineDash([]);
+  const N = 96;
+  for (let i = 0; i < N; i++) {
+    const a = i / N * 6.2832 + t * 0.15, w = Math.sin(i * 3 + t * 2) * 0.04 + Math.sin(i * 7 + t * 5.5) * lvl * 0.13;
+    const r = Rr * (0.72 + w), px = X + Math.cos(a) * r, py = Y + Math.sin(a) * r;
+    cx.fillStyle = `rgba(${c},${0.35 + lvl * 0.5})`; cx.beginPath(); cx.arc(px, py, 1.2 + lvl * 1.4, 0, 7); cx.fill();
+  }
+  const cr = Rr * 0.26 * (1 + lvl * 0.28), cg = cx.createRadialGradient(X - cr * 0.3, Y - cr * 0.35, 0, X, Y, cr);
+  cg.addColorStop(0, '#ecfdff'); cg.addColorStop(0.45, `rgba(${c},1)`); cg.addColorStop(1, `rgba(${c},.55)`);
+  cx.shadowColor = `rgba(${c},.9)`; cx.shadowBlur = 24 + lvl * 30; cx.fillStyle = cg; cx.beginPath(); cx.arc(X, Y, cr, 0, 7); cx.fill(); cx.shadowBlur = 0;
+  requestAnimationFrame(drawOrb);
+}
+
+/* ---------- settings ---------- */
+function fillVoiceSel() {
+  const sel = $('#sVoice'); if (!sel) return;
+  const en = voices.filter(v => /^en/i.test(v.lang));
+  sel.innerHTML = '<option value="">Auto (best British male)</option>' + (en.length ? en : voices).map(v => '<option value="' + esc(v.name) + '">' + esc(v.name) + ' (' + v.lang + ')</option>').join('');
+  sel.value = S.settings.voice || '';
+}
+function refreshNotifUI() {
+  const st = $('#nSt'), b = $('#nBtn');
+  if (!notifSupported()) { st.textContent = 'Not supported in this browser'; b.style.display = 'none'; return; }
+  const p = Notification.permission;
+  st.textContent = p === 'granted' ? 'On — alerts appear even when the tab is hidden' : p === 'denied' ? 'Blocked — enable in your browser’s site settings' : 'Off — tap Enable';
+  b.style.display = p === 'granted' ? 'none' : ''; b.disabled = p === 'denied';
+}
+function openSettings() {
+  $('#sName').value = S.settings.name; $('#sRate').value = S.settings.rate; $('#sEp').value = S.settings.endpoint || '';
+  $('#sSpeak').classList.toggle('on', S.settings.autoSpeak); $('#sHands').classList.toggle('on', hf);
+  fillVoiceSel(); refreshNotifUI(); $('#sheet').classList.add('open');
+}
+function closeSettings() { $('#sheet').classList.remove('open'); }
+
+function greeting() {
+  const h = new Date().getHours(), g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  const o = openTasks().length, p = pendingRems().length;
+  let s = g + ', ' + NAME() + '. All systems are online.';
+  if (o) s += ' You have ' + o + ' open ' + (o === 1 ? 'task' : 'tasks') + '.';
+  if (p) s += ' ' + p + ' ' + (p === 1 ? 'reminder is' : 'reminders are') + ' pending.';
+  return s + ' How may I assist?';
+}
+
+/* ---------- init ---------- */
+function init() {
+  hydrateIcons();
+  $('#quick').innerHTML = ''; QUICK.forEach(q => { const b = document.createElement('button'); b.className = 'q'; b.textContent = q; b.onclick = () => handle(q); $('#quick').appendChild(b); });
+  renderApps(); renderTasks(); renderReminders();
+  S.chat.slice(-30).forEach(m => {
+    const el = document.createElement('div'); el.className = 'msg ' + (m.r === 'u' ? 'u' : 'j');
+    el.innerHTML = (m.r === 'j' ? '<div class="who">JARVIS</div>' : '') + '<div class="bub">' + mdLite(m.t) + '</div>'; $('#log').appendChild(el);
+  });
+  $('#log').scrollTop = 1e9;
+  $('#form').onsubmit = e => { e.preventDefault(); const v = $('#txt').value; $('#txt').value = ''; handle(v); };
+  $('#micBtn').onclick = () => {
+    if (!SR) { toast('Voice input needs Chrome, Edge or Safari. You can still type.', 4500); return; }
+    audioCtx();
+    if (oneShot || (S.listening && !hf)) { oneShot = false; try { recObj && recObj.abort(); } catch (e) { } refreshState(); return; }
+    stopSpeak(); oneShot = true;
+    if (recObj) { try { recObj.abort(); } catch (e) { } recObj = null; }
+    refreshState(); setTimeout(startRec, 120);
+  };
+  if (!SR) $('#micBtn').title = 'Voice input not supported here — type instead';
+  $('#hfBtn').onclick = () => setHf(!hf);
+  $('#setBtn').onclick = openSettings; $('#sClose').onclick = closeSettings;
+  $('#sheet').onclick = e => { if (e.target.id === 'sheet') closeSettings(); };
+  $('#sName').oninput = e => { S.settings.name = e.target.value.trim() || 'Sir'; save.settings(); };
+  $('#sRate').oninput = e => { S.settings.rate = +e.target.value; save.settings(); };
+  $('#sVoice').onchange = e => { S.settings.voice = e.target.value; save.settings(); };
+  $('#sEp').onchange = e => { S.settings.endpoint = e.target.value.trim(); save.settings(); };
+  $('#sSpeak').onclick = e => { S.settings.autoSpeak = !S.settings.autoSpeak; e.currentTarget.classList.toggle('on', S.settings.autoSpeak); save.settings(); if (!S.settings.autoSpeak) stopSpeak(); };
+  $('#sHands').onclick = () => setHf(!hf);
+  $('#nBtn').onclick = () => { try { Notification.requestPermission().then(refreshNotifUI); } catch (e) { } };
+  $('#sTest').onclick = () => { const was = S.settings.autoSpeak; S.settings.autoSpeak = true; speak('Voice check complete. I am J.A.R.V.I.S., at your service, ' + NAME() + '.').then(() => { S.settings.autoSpeak = was; }); };
+  $('#sClear').onclick = () => { S.chat = []; save.chat(); $('#log').innerHTML = ''; closeSettings(); };
+  $('#sReset').onclick = () => { if (confirm('Erase all tasks, reminders, chat and settings?')) { store.wipe(); location.reload(); } };
+  $$('.tab').forEach(t => t.onclick = () => setPane(t.dataset.pane));
+  $$('#tabbar button').forEach(b => b.onclick = () => setView(b.dataset.view));
+  $$('.stat').forEach(s => s.onclick = () => { setPane(s.dataset.go); });
+  $('#taskForm').onsubmit = e => { e.preventDefault(); const v = $('#taskIn').value; if (addTask(v)) $('#taskIn').value = ''; };
+  const d0 = new Date(Date.now() + 600000); $('#remAt').value = d0.getFullYear() + '-' + pad(d0.getMonth() + 1) + '-' + pad(d0.getDate()) + 'T' + pad(d0.getHours()) + ':' + pad(d0.getMinutes());
+  $('#remForm').onsubmit = e => {
+    e.preventDefault(); const txt = $('#remText').value.trim(), at = new Date($('#remAt').value);
+    if (!txt) { toast('Type what to remind you about.'); return; }
+    if (isNaN(at) || at.getTime() < Date.now()) { toast('Pick a time in the future.'); return; }
+    addReminder(txt, at.getTime(), 'reminder'); $('#remText').value = ''; toast('Reminder set for ' + fmtWhen(at.getTime()));
+  };
+  $('#tmGo').onclick = () => { const s = +$('#tmSel').value; if (!s) { toast('Choose a duration first.'); return; } addReminder('Timer', Date.now() + s * 1000, 'timer'); $('#tmSel').value = ''; toast('Timer started'); };
+  window.addEventListener('resize', fit); new ResizeObserver(fit).observe(cv);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSettings(); stopSpeak(); } });
+  if ('speechSynthesis' in window) { loadVoices(); try { speechSynthesis.onvoiceschanged = loadVoices; } catch (e) { } }
+  if (!SR) { $('#hfBtn').hidden = true; }
+  fit(); requestAnimationFrame(drawOrb); refreshState();
+  setInterval(tick, 1000); tick();
+  /* PWA install button */
+  let dip = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); dip = e; $('#instBtn').hidden = false; });
+  window.addEventListener('appinstalled', () => { $('#instBtn').hidden = true; toast('Installed. Open Jarvis from your apps.'); });
+  $('#instBtn').onclick = async () => { if (dip) { dip.prompt(); try { await dip.userChoice; } catch (e) { } dip = null; $('#instBtn').hidden = true; } };
+  setOnline(null); $('#aiDot').className = 'dot am'; $('#aiTxt').textContent = 'Ready';
+  boot();
+}
+function boot() {
+  const lines = ['Neural core', 'Voice synthesis', 'Voice recognition', 'Task engine', 'Reminder scheduler', 'Cloud link'];
+  const ok = ['online', ('speechSynthesis' in window) ? 'online' : 'unavailable', SR ? 'online' : 'unavailable', 'online', notifSupported() ? 'online' : 'limited', 'standing by'];
+  const box = $('#bootChecks'); let i = 0;
+  const step = () => {
+    if (i >= lines.length) { $('#bootSub').textContent = 'All systems ready'; $('#bootGo').classList.add('show'); return; }
+    box.innerHTML += lines[i] + ' … <b>' + ok[i] + '</b><br>'; i++; setTimeout(step, 230);
+  };
+  step();
+  const go = () => {
+    audioCtx(); $('#boot').classList.add('hide');
+    const g = greeting(); addMsg('j', g, [], false); speak(g);
+    if (S.settings.hands && SR) setTimeout(() => setHf(true), 500);
+    const q = new URLSearchParams(location.search).get('q'); if (q) setTimeout(() => handle(q), 800);
+  };
+  $('#bootGo').onclick = go;
+  window.addEventListener('keydown', function k(e) { if (e.key === 'Enter' && !$('#boot').classList.contains('hide') && $('#bootGo').classList.contains('show')) { go(); window.removeEventListener('keydown', k); } });
+}
+init();
+</script><script>if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body></html>

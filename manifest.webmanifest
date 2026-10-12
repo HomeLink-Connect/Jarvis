@@ -1,0 +1,58 @@
+{
+ "id": "/",
+ "name": "J.A.R.V.I.S. Assistant",
+ "short_name": "Jarvis",
+ "description": "Voice AI assistant that opens apps, manages tasks, sets reminders and timers.",
+ "start_url": "./?source=pwa",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#04070c",
+ "theme_color": "#04070c",
+ "categories": [
+  "productivity",
+  "utilities"
+ ],
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Daily briefing",
+   "url": "./?q=daily%20briefing",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Set a 10 minute timer",
+   "url": "./?q=set%20a%2010%20minute%20timer",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  }
+ ]
+}

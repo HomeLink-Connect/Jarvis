@@ -1,0 +1,8 @@
+J.A.R.V.I.S. — install guide
+1. Upload this whole folder to Cloudflare Pages (free): dash.cloudflare.com > Workers & Pages > Create > Pages > Upload assets.
+2. Open the https address you get in Chrome or Edge (Android Chrome too). Click the Install button in the top bar.
+3. iPhone: open in Safari > Share > Add to Home Screen.
+4. First run: tap INITIALIZE, allow Microphone and Notifications when asked.
+Notes: browsers cannot launch every native program. Jarvis opens websites and app links (WhatsApp, YouTube, Maps, mail, phone, SMS...) and Windows system apps (Calculator, Settings, Camera).
+Reminders alert while Jarvis is open or installed and running; fully closed apps cannot ring without a push server.
+AI brain: the free Cloudflare Worker already used by OntechBot. Change it in Settings > AI endpoint.
