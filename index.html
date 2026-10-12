@@ -208,6 +208,20 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 @media(max-width:520px){#colCore{padding:6px 14px}.bn{font-size:13px;letter-spacing:.2em}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+.vtag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--gr);text-transform:uppercase;margin-right:4px}
+.vtag.g{color:var(--am)}
+.chip.convo{border-color:rgba(90,240,160,.45);color:var(--gr)}
+.app.convo #orbWrap{filter:drop-shadow(0 0 22px rgba(90,240,160,.28))}
+#enroll{position:fixed;inset:0;z-index:130;background:rgba(2,5,9,.78);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+#enroll[hidden]{display:none}
+.ebox{width:min(460px,100%);background:var(--panel-s);border:1px solid var(--cy2);border-radius:20px;padding:24px;text-align:center;display:flex;flex-direction:column;gap:14px;box-shadow:0 0 50px rgba(70,224,240,.18)}
+.ehead{font-family:var(--disp);letter-spacing:.24em;font-size:13px;color:var(--cy)}
+.estep{font-family:var(--mono);font-size:11px;color:var(--mu);letter-spacing:.14em;text-transform:uppercase}
+.eline{font-size:19px;font-weight:600;line-height:1.4}
+.ebarw{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+#enBar{height:100%;width:0;background:var(--gr);transition:width .1s}
+.enote{color:var(--mu);font-size:12.5px;min-height:18px}
 </style></head><body>
 <div class="bg"></div>
 
@@ -220,11 +234,13 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 </div>
 
 <div id="toasts"></div>
+<div id="enroll" hidden><div class="ebox"><div class="ehead">LEARNING YOUR VOICE</div><div id="enStep" class="estep"></div><div id="enLine" class="eline"></div><div class="ebarw"><div id="enBar"></div></div><div id="enNote" class="enote"></div><button type="button" class="btn dn" id="enCancel">Cancel</button></div></div>
 
 <div class="app" id="app" data-view="chat" data-pane="tasks">
   <header>
     <div class="brand"><div class="mark"></div><div class="bn">J.A.R.V.I.S.<small>PERSONAL AI ASSISTANT</small></div></div>
     <div class="chip" id="nextChip" hidden><span class="dot am"></span><span id="nextTxt"></span></div>
+    <div class="chip convo" id="convoChip" hidden><span class="dot on"></span><span>In conversation · say “stop” to end</span></div>
     <div class="chip" id="aiChip" title="Cloud brain status"><span class="dot" id="aiDot"></span><span class="lbl" id="aiTxt">Ready</span></div>
     <button class="ib" id="hfBtn" title="Hands-free: say “Hey Jarvis”" aria-label="Hands-free wake word"><svg class="i" data-i="bolt"></svg></button>
     <button class="ib" id="instBtn" title="Install app" aria-label="Install app" hidden><svg class="i" data-i="download"></svg></button>
@@ -302,7 +318,9 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
     <div class="fld"><label for="sVoice">Voice</label><select id="sVoice"></select></div>
     <div class="fld"><label for="sRate">Speaking speed</label><input type="range" id="sRate" min="0.7" max="1.4" step="0.05"></div>
     <div class="tg"><span>Speak replies<small>Jarvis reads every answer aloud</small></span><button type="button" class="sw" id="sSpeak" aria-label="Speak replies"></button></div>
-    <div class="tg"><span>Hands-free “Hey Jarvis”<small>Keeps the mic open for the wake word (needs the page open)</small></span><button type="button" class="sw" id="sHands" aria-label="Hands-free"></button></div>
+    <div class="tg"><span>Always listening<small>Say “Hi Jarvis”, “Buddy” or “Partner”. Then talk freely until you say “stop”.</small></span><button type="button" class="sw" id="sHands" aria-label="Hands-free"></button></div>
+    <div class="tg"><span>Founder voice<small id="vSt">…</small></span><span style="display:flex;gap:6px"><button type="button" class="btn" id="vEnroll">Learn my voice</button><button type="button" class="btn dn" id="vForget">Forget</button></span></div>
+    <div class="fld"><label for="sSens">Voice match strictness (left = stricter)</label><input type="range" id="sSens" min="0.7" max="1.6" step="0.05"></div>
     <div class="tg"><span>Reminder notifications<small id="nSt">Checking…</small></span><button type="button" class="btn" id="nBtn">Enable</button></div>
     <div class="fld" style="margin-top:14px"><label for="sEp">AI endpoint (advanced)</label><input type="text" id="sEp" placeholder="Cloudflare Worker URL"></div>
     <div class="sbtns">
@@ -358,7 +376,7 @@ const store = {
 
 /* state */
 const S = {
-  settings: Object.assign({ name: 'Sir', voice: '', rate: 1, autoSpeak: true, hands: false, endpoint: '' }, store.get('settings', {})),
+  settings: Object.assign({ name: 'boss', voice: '', rate: 1, autoSpeak: true, hands: true, endpoint: '', sens: 1 }, store.get('settings', {})),
   tasks: store.get('tasks', []),
   reminders: store.get('reminders', []),
   chat: store.get('chat', []),
@@ -370,7 +388,11 @@ const save = {
   reminders: () => store.set('reminders', S.reminders),
   chat: () => store.set('chat', S.chat.slice(-60))
 };
-const NAME = () => (S.settings.name || 'Sir').trim() || 'Sir';
+if (S.settings.name === 'Sir') S.settings.name = 'boss';
+const NAME = () => (S.settings.name || 'boss').trim() || 'boss';
+const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/* guests (a voice that is not the founder) never get the title */
+function forGuest(t) { const n = escRe(NAME()); return String(t).replace(new RegExp(',?\\s*\\b' + n + '\\b(?=[\\s.,!?]|$)', 'gi'), '').replace(/\s+([.,!?])/g, '$1').replace(/\s{2,}/g, ' ').trim(); }
 
 /* platform */
 const UA = navigator.userAgent || '';
@@ -672,17 +694,28 @@ function briefing() {
   s += p.length ? 'Next up: ' + (p[0].kind === 'timer' ? 'a timer' : p[0].text) + ' ' + (p[0].kind === 'timer' ? 'in ' + spokenDur((p[0].at - Date.now()) / 1000) : fmtWhen(p[0].at)) + '.' : 'No reminders pending.';
   return s;
 }
+const JOKES = ['Why don’t scientists trust atoms? Because they make up everything.', 'Why do programmers prefer dark mode? Because light attracts bugs.', 'There are only 10 kinds of people in the world: those who understand binary, and those who don’t.', 'Why did the developer go broke? He used up all his cache.', 'I would tell you a UDP joke, but you might not get it.', 'How do you comfort a JavaScript bug? You console it.', 'Why was the laptop so cold? It left its Windows open.', 'A SQL query walks into a bar, sees two tables and asks: can I join you?', 'I asked the server for a raise. It said: four hundred and three, forbidden.', 'Debugging is like being the detective in a crime movie where you are also the murderer.', 'Why did the cloud break up with the server? It needed more space.', 'I told my computer I needed a break, and now it keeps sending me chocolate bar adverts.', 'Why did the CEO bring a ladder to the meeting? To reach the next level.', 'Investors asked about my business model. I said: coffee in, code out.', 'Why did the app go to school? To improve its interface.', 'What do you call a fake noodle? An impasta.', 'My Wi-Fi and I have a lot in common. We both drop out when things get serious.', 'Why did the smartphone go to therapy? Too many unresolved issues and not enough battery.'];
+let jokeBag = [];
+function jokeLine() {
+  if (!jokeBag.length) jokeBag = JOKES.map((_, i) => i).sort(() => Math.random() - 0.5);
+  const j = JOKES[jokeBag.pop()];
+  return rnd(['Here is one for you, ' + NAME() + '. ', 'Right, ' + NAME() + ', brace yourself. ', 'This one is fresh, ' + NAME() + '. ', 'Alright ' + NAME() + ', you asked for it. ']) + j + ' ' + rnd(['Ba dum tss.', 'I will be here all week.', 'I have more where that came from.', 'Shall I go again?']);
+}
 const HELP = 'I can **open apps and websites** (“open YouTube”, “open WhatsApp”), **search** (“search for electric cars”, “play Burna Boy on YouTube”), **navigate** (“directions to Harare CBD”), **call / text / email**, manage **tasks** (“add task buy milk”, “complete buy milk”), set **reminders** (“remind me to call mum at 5pm”), **timers** (“set a 10 minute timer”), check the **weather**, do **quick maths**, give a **daily briefing** — and answer almost anything else.';
 
 function localCommand(raw) {
   let t = raw.trim().replace(/\s+/g, ' ');
-  const cl = t.replace(/[!?]+$/g, '').replace(/^(?:hey |ok |okay |hi |yo )?jarvis[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim();
+  const cl = t.replace(/[!?]+$/g, '').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim();
   let low = cl.toLowerCase();
   const og = s => { const i = low.indexOf(String(s).toLowerCase()); return i >= 0 ? cl.substr(i, String(s).length) : s; };
   if (!low) return R('Yes, ' + NAME() + '?');
   let m;
 
   if (/^(stop|quiet|be quiet|shut up|silence|stop talking|enough)$/.test(low)) { stopSpeak(); return R('', [{ type: 'noop' }]); }
+  if (/\b(joke|make me laugh|something funny|cheer me up|funny story|another one|one more)\b/.test(low) && !/\b(remind|task|timer)\b/.test(low)) return R(jokeLine());
+  if (/\b(enrol+|enroll|learn|remember|register|train|record|save|set up|setup)\b.*\bvoice\b|\bvoice\b.*\b(enrol+|enroll|learn|register|train)\b/.test(low)) return R('Of course. I will learn your voice now.', [{ type: 'enroll_voice' }]);
+  if (/\b(forget|delete|erase|remove|reset)\b.*\bvoice\b/.test(low)) return R('', [{ type: 'forget_voice' }]);
+  if (/^(who am i|do you know (me|who i am)|am i your (boss|founder|creator)|do you recognise me|do you recognize me)$/.test(low)) return R(S.guest ? 'I do not recognise your voice, but you are very welcome here. How can I help?' : 'You are ' + NAME() + ', my founder and creator, Arnold Nedahwa. I would know that voice anywhere.');
   if (/^(clear (the )?(chat|screen|conversation)|new chat)$/.test(low)) { return R('Screen cleared.', [{ type: 'clear_chat' }]); }
   if (/^(help|what can you do|what do you do|your (abilities|features|capabilities)|how do you work)$/.test(low)) return R(HELP);
   if (/^(hello|hi|hey|good (morning|afternoon|evening)|howdy|sup|what'?s up)$/.test(low)) return R(rnd(['At your service, ' + NAME() + '.', 'Hello, ' + NAME() + '. How may I help?', 'Online and ready, ' + NAME() + '.']));
@@ -804,7 +837,7 @@ function sysPrompt() {
   const n = new Date();
   const tasks = openTasks().map(t => '- ' + t.text).join('\n') || '(none)';
   const rems = pendingRems().map(r => '- ' + r.text + ' (' + (r.kind === 'timer' ? 'timer ' : '') + fmtWhen(r.at) + ')').join('\n') || '(none)';
-  return 'You are J.A.R.V.I.S., a calm, witty, highly capable British-style AI butler assistant. The user is called ' + NAME() + '. Keep replies short (1-3 sentences), natural to speak aloud, with no markdown or emojis. If you truly do not know something, say so.\n' +
+  return 'You are J.A.R.V.I.S., a calm, witty, highly capable British-style AI butler assistant. ' + (S.guest ? 'You are speaking with a guest who is NOT your founder. Be warm, polite and helpful, but never call them boss, sir or any title.' : 'You are speaking with your founder and creator, Arnold Nedahwa. Address him as ' + NAME() + ', with warmth and real respect, like a loyal partner. Add a short clean joke or witty remark now and then (roughly one reply in four), never at his expense.') + ' Keep replies short (1-3 sentences), natural to speak aloud, with no markdown or emojis. If you truly do not know something, say so. This is a continuous voice conversation, so answer directly and keep the flow going.\n' +
     'If asked who created you: Arnold Nedahwa, a passionate, hardworking software engineer, CEO and Founder of ZimPro-Linkup, who also built the Fleet truck tracking system, WiseBot AI for Wise Parrot Junior School, the Home-Link housing app and several school management systems.\n' +
     'Current local date and time: ' + n.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.\n' +
     'Open tasks:\n' + tasks + '\nPending reminders:\n' + rems + '\n\n' +
@@ -877,6 +910,8 @@ const cardOpen = (label, url, sub) => ({ card: { label, url, sub } });
 async function execAction(a) {
   switch (a.type) {
     case 'noop': return {};
+    case 'enroll_voice': setTimeout(enrollVoice, 1500); return {};
+    case 'forget_voice': VID.forget(); syncVoiceUI(); return { say: 'Done. I have forgotten your voice, and every voice will now be treated as the founder.' };
     case 'clear_chat': S.chat = []; save.chat(); $('#log').innerHTML = ''; return {};
     case 'show_pane': setPane(a.pane); if (window.innerWidth <= 900) setView(a.pane); return {};
     case 'show_settings': openSettings(); return {};
@@ -956,10 +991,12 @@ function addMsg(role, text, cards, persist, aiJson) {
 function showTyping() { const el = document.createElement('div'); el.className = 'msg j'; el.id = 'typing'; el.innerHTML = '<div class="bub typing"><i></i><i></i><i></i></div>'; $('#log').appendChild(el); $('#log').scrollTop = 1e9; }
 function hideTyping() { const t = $('#typing'); if (t) t.remove(); }
 
-async function handle(text, viaVoice) {
+async function handle(text, who) {
   text = String(text || '').trim(); if (!text || S.busy) return;
   audioCtx(); stopSpeak();
-  addMsg('u', text);
+  S.guest = !!(who && who.guest);
+  const um = addMsg('u', text);
+  if (who && typeof who === 'object' && VID.profile) { const tg = document.createElement('div'); tg.className = 'vtag' + (S.guest ? ' g' : ''); tg.textContent = S.guest ? 'Guest voice' : NAME() + ' ✓ voice matched'; um.appendChild(tg); }
   S.busy = true; refreshState(); showTyping();
   let res;
   try { res = await route(text); }
@@ -981,9 +1018,10 @@ async function handle(text, viaVoice) {
   if (!reply) reply = rnd(['Done, ' + NAME() + '.', 'Right away.', 'On it.']);
   if (cards.some(c => c.url && c.sub === 'Tap to open')) reply += ' Your browser blocked the pop-up, so tap the button below.';
   if (res.actions.length === 0 || res.actions.every(a => a.type === 'noop')) { if (res.reply === '') reply = ''; }
+  if (S.guest) reply = forGuest(reply);
   if (reply) addMsg('j', reply, cards, true, JSON.stringify({ reply: res.reply || reply, actions: res.actions }));
   else if (cards.length) addMsg('j', '', cards, false);
-  S.busy = false; refreshState();
+  S.busy = false; S.guest = false; refreshState();
   if (reply) speak(reply);
 }
 async function route(text) {
@@ -1117,12 +1155,133 @@ function stopSpeak() {
   if (S.speaking) { S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 400); }
 }
 
-/* ---------- speech in ---------- */
+/* ---------- founder voice recognition (on-device voiceprint) ---------- */
+const NB = 24;
+const VID = {
+  on: false, stream: null, an: null, timer: null, frames: [], nf: 0.004, sr: 48000, fail: false, level: 0, td: null, fd: null, edges: null,
+  profile: store.get('voiceprint', null),
+  async start() {
+    if (this.on) return true;
+    if (this.fail || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false } });
+      const ac = audioCtx(); if (!ac) throw new Error('no audio');
+      this.sr = ac.sampleRate;
+      const src = ac.createMediaStreamSource(this.stream); this.an = ac.createAnalyser(); this.an.fftSize = 2048; this.an.smoothingTimeConstant = 0;
+      src.connect(this.an);
+      this.td = new Float32Array(this.an.fftSize); this.fd = new Float32Array(this.an.frequencyBinCount);
+      const mel = f => 2595 * Math.log10(1 + f / 700), imel = m => 700 * (Math.pow(10, m / 2595) - 1);
+      const lo = mel(100), hi = mel(5000); this.edges = [];
+      for (let i = 0; i <= NB; i++) this.edges.push(imel(lo + (hi - lo) * i / NB) / (this.sr / this.an.fftSize));
+      this.on = true; this.timer = setInterval(() => this.tickFrame(), 32);
+      return true;
+    } catch (e) { this.fail = true; return false; }
+  },
+  stop() { this.on = false; clearInterval(this.timer); try { this.stream && this.stream.getTracks().forEach(t => t.stop()); } catch (e) { } this.stream = null; },
+  pitch(td, rms) {
+    const sr = this.sr, minL = Math.floor(sr / 400), maxL = Math.min(Math.floor(sr / 70), td.length >> 1);
+    let e0 = 0; const N = td.length - maxL; for (let i = 0; i < N; i += 2) e0 += td[i] * td[i]; if (e0 < 1e-9) return 0;
+    let best = 0, bl = 0;
+    for (let l = minL; l <= maxL; l += 1) { let c = 0, e1 = 0; for (let i = 0; i < N; i += 2) { c += td[i] * td[i + l]; e1 += td[i + l] * td[i + l]; } const r = c / Math.sqrt(e0 * e1 + 1e-12); if (r > best) { best = r; bl = l; } }
+    return best > 0.6 ? sr / bl : 0;
+  },
+  tickFrame() {
+    if (!this.on || !this.an) return;
+    this.an.getFloatTimeDomainData(this.td);
+    let s = 0; for (let i = 0; i < this.td.length; i++) s += this.td[i] * this.td[i];
+    const rms = Math.sqrt(s / this.td.length); this.level = rms;
+    if (rms < this.nf * 2) this.nf = this.nf * 0.97 + rms * 0.03;
+    const voiced = rms > Math.max(0.01, this.nf * 4);
+    this.lastVoiced = voiced ? Date.now() : (this.lastVoiced || 0);
+    if (!voiced) return;
+    const f0 = this.pitch(this.td, rms); if (!f0) return;
+    this.an.getFloatFrequencyData(this.fd);
+    const v = new Float32Array(NB);
+    for (let b = 0; b < NB; b++) {
+      const a = Math.max(1, Math.floor(this.edges[b])), z = Math.max(a + 1, Math.ceil(this.edges[b + 1])); let p = 0, n = 0;
+      for (let k = a; k < z && k < this.fd.length; k++) { p += Math.pow(10, this.fd[k] / 10); n++; }
+      v[b] = 10 * Math.log10(p / Math.max(1, n) + 1e-12);
+    }
+    let m = 0; for (let b = 0; b < NB; b++) m += v[b]; m /= NB; for (let b = 0; b < NB; b++) v[b] -= m;
+    this.frames.push({ v, f0 }); if (this.frames.length > 700) this.frames.shift();
+    this.voicedFrames = (this.voicedFrames || 0) + 1;
+  },
+  take() { const f = this.frames; this.frames = []; return f; },
+  vec(frames) {
+    if (!frames || frames.length < 8) return null;
+    const v = new Float32Array(NB); frames.forEach(f => { for (let b = 0; b < NB; b++) v[b] += f.v[b]; }); for (let b = 0; b < NB; b++) v[b] /= frames.length;
+    const fs = frames.map(f => f.f0).sort((a, b) => a - b);
+    return { v, f0: fs[fs.length >> 1] };
+  },
+  dist(a, b) { let s = 0; for (let i = 0; i < NB; i++) { const d = a.v[i] - b.v[i]; s += d * d; } return Math.sqrt(s / NB) + 6 * Math.abs(Math.log2(a.f0 / b.f0)); },
+  buildProfile(samples) {
+    const mean = { v: new Float32Array(NB), f0: 0 };
+    samples.forEach(s => { for (let i = 0; i < NB; i++) mean.v[i] += s.v[i] / samples.length; mean.f0 += Math.log2(s.f0) / samples.length; });
+    mean.f0 = Math.pow(2, mean.f0);
+    const ds = samples.map(s => this.dist(s, mean)), m = ds.reduce((a, b) => a + b, 0) / ds.length, sd = Math.sqrt(ds.reduce((a, b) => a + (b - m) * (b - m), 0) / ds.length);
+    const thr = Math.min(9, Math.max(4.8, m + 3 * sd, m * 2.2));
+    return { mean: { v: Array.from(mean.v), f0: mean.f0 }, thr, n: samples.length };
+  },
+  saveProfile(p) { this.profile = p; store.set('voiceprint', p); },
+  forget() { this.profile = null; store.set('voiceprint', null); },
+  /* returns {boss:true|false|null, d} ; null = could not tell */
+  classify(frames) {
+    if (!this.profile) return { boss: true, d: 0, enrolled: false };
+    const vv = this.vec(frames); if (!vv) return { boss: null, d: null, enrolled: true };
+    const d = this.dist(vv, { v: this.profile.mean.v, f0: this.profile.mean.f0 });
+    return { boss: d <= this.profile.thr * (+S.settings.sens || 1), d, enrolled: true };
+  }
+};
+const ENROLL_LINES = ['Hi Jarvis, this is your founder speaking.', 'Buddy, open YouTube and play some music.', 'Partner, remind me about my meeting tomorrow morning.', 'Good morning, today is going to be a great day.', 'Tell me a joke, then give me the weather report.'];
+let enrolling = false;
+async function enrollVoice() {
+  if (enrolling) return;
+  if (!(await VID.start())) { toast('I need microphone access to learn your voice.', 4500); return; }
+  enrolling = true; const wasHf = hf; try { recObj && recObj.abort(); } catch (e) { } stopSpeak();
+  const box = $('#enroll'); box.hidden = false; const samples = [];
+  const setUI = (i, txt, ok) => { $('#enStep').textContent = 'Step ' + (i + 1) + ' of ' + ENROLL_LINES.length; $('#enLine').textContent = txt; $('#enNote').textContent = ok || 'Speak naturally, at your normal volume.'; };
+  let cancel = false; $('#enCancel').onclick = () => { cancel = true; };
+  for (let i = 0; i < ENROLL_LINES.length && !cancel; i++) {
+    let got = null;
+    for (let tr = 0; tr < 3 && !got && !cancel; tr++) {
+      setUI(i, '“' + ENROLL_LINES[i] + '”', tr ? 'I did not catch enough of that. Please say it again.' : '');
+      got = await captureSample(cancel);
+    }
+    if (got) samples.push(got);
+  }
+  box.hidden = true; enrolling = false;
+  if (cancel || samples.length < 3) { toast('Voice learning cancelled. Nothing was saved.', 3500); if (wasHf) setTimeout(startRec, 300); return; }
+  VID.saveProfile(VID.buildProfile(samples)); syncVoiceUI();
+  const msg = 'Voice saved, ' + NAME() + '. I will recognise you and call you ' + NAME() + '. Anyone else gets a polite reply without the title.';
+  addMsg('j', msg); await speak(msg); if (wasHf) startRec();
+}
+function captureSample() {
+  return new Promise(res => {
+    VID.take(); let voiced = 0, lastV = Date.now(), t0 = Date.now(), started = false;
+    const iv = setInterval(() => {
+      const lv = Math.min(1, VID.level * 14); $('#enBar').style.width = (lv * 100) + '%';
+      const now = Date.now(), n = VID.frames.length;
+      if (n > voiced) { voiced = n; lastV = now; started = true; }
+      if (started && voiced >= 24 && now - lastV > 800) { clearInterval(iv); res(VID.vec(VID.take())); }
+      else if (now - t0 > 20000 || !$('#enroll') || $('#enroll').hidden) { clearInterval(iv); res(null); }
+    }, 100);
+  });
+}
+function syncVoiceUI() {
+  const p = VID.profile; $('#vSt').textContent = p ? 'Learned (' + p.n + ' samples). Only this voice is called ' + NAME() + '.' : 'Not set — every voice is treated as the founder.';
+  $('#vEnroll').textContent = p ? 'Re-learn' : 'Learn my voice'; $('#vForget').style.display = p ? '' : 'none';
+}
+
+/* ---------- speech in: always listening, conversation mode ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recObj = null, hf = false, oneShot = false, awakeUntil = 0;
-const WAKE = /\b(?:hey|ok|okay|hi|yo|hello)?\s*(?:jarvis|jarvas|jarvus|service|travis)\b[\s,.:!-]*/i;
+let recObj = null, hf = false, oneShot = false, lastGuest = false;
+const WAKE = /\b(?:(?:hey|hi|hello|ok|okay|yo)\s+)?(?:jarvis|jarvas|jarvus|jervis|buddy|partner)\b[\s,.:!?-]*/i;
+const STOPRE = /^(?:(?:ok|okay|hey|hi)[, ]+)?(?:(?:jarvis|buddy|partner)[, ]*)?(?:please )?(stop|stop listening|stop talking|stop it|goodbye|good bye|bye|bye bye|that'?s all|that is all|go to sleep|end (?:the )?conversation|end chat|we are done|we'?re done)(?: now| please| jarvis| buddy| partner)*[\s.!?]*$/i;
+function setConvo(v) {
+  S.convo = v; $('#convoChip').hidden = !v; $('#app').classList.toggle('convo', v); refreshState();
+}
 function startRec() {
-  if (!SR || recObj || S.speaking || (!hf && !oneShot)) return;
+  if (!SR || recObj || S.speaking || enrolling || (!hf && !oneShot)) return;
   const r = new SR(); recObj = r;
   r.lang = 'en-US'; r.continuous = hf && !oneShot; r.interimResults = true; r.maxAlternatives = 1;
   r.onstart = () => { S.listening = true; refreshState(); };
@@ -1135,38 +1294,56 @@ function startRec() {
     }
   };
   r.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { hf = false; oneShot = false; toast('Microphone blocked — allow mic access for this page.', 4500); syncHf(); }
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { hf = false; oneShot = false; setConvo(false); toast('Microphone blocked — allow mic access for this page.', 4500); syncHf(); }
   };
-  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (oneShot && !S.busy) { /* no result */ oneShot = false; refreshMic(); } if (hf && !S.speaking) setTimeout(startRec, 300); };
+  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (oneShot && !S.busy) { oneShot = false; refreshMic(); } if (hf && !S.speaking && !enrolling) setTimeout(startRec, 300); };
   try { r.start(); } catch (e) { recObj = null; }
 }
+function voiceWho() {
+  const fr = VID.on ? VID.take() : [];
+  const c = VID.classify(fr);
+  if (c.boss === null) return lastGuest ? { guest: true, d: null } : { guest: false, d: null };
+  lastGuest = !c.boss; return { guest: !c.boss, d: c.d, enrolled: c.enrolled };
+}
 function onHeard(t) {
-  if (!t) return;
-  if (oneShot) { oneShot = false; try { recObj && recObj.stop(); } catch (e) { } refreshMic(); handle(t, true); return; }
+  if (!t || enrolling) return;
+  const who = voiceWho();
+  if (oneShot) { oneShot = false; try { recObj && recObj.stop(); } catch (e) { } refreshMic(); handle(t, who); return; }
   if (!hf) return;
-  const awake = Date.now() < awakeUntil;
-  const m = WAKE.exec(t);
-  if (m && /jarvis|jarvas|jarvus/i.test(m[0]) || (m && m.index === 0 && /^(hey|ok|okay)\s+(service|travis)/i.test(m[0]))) {
-    const cmd = t.slice(m.index + m[0].length).trim();
-    if (cmd.length > 1) { awakeUntil = 0; handle(cmd, true); }
-    else { awakeUntil = Date.now() + 9000; addMsg('j', 'Yes, ' + NAME() + '?', [], false); speak('Yes, ' + NAME() + '?'); }
+  const stopM = STOPRE.test(t.trim());
+  if (stopM) {
+    stopSpeak();
+    if (S.convo && (!who.guest)) { setConvo(false); const m = rnd(['Understood, ' + NAME() + '. Standing by. Just call me when you need me.', 'As you wish, ' + NAME() + '. I will be right here.', 'Very good, ' + NAME() + '. Say Hi Jarvis whenever you need me.']); addMsg('j', m, [], false); speak(m); }
     return;
   }
-  if (awake) { awakeUntil = 0; handle(t, true); }
+  const m = WAKE.exec(t);
+  if (!S.convo) {
+    if (m && m.index <= 12) {
+      setConvo(true);
+      const cmd = t.slice(m.index + m[0].length).trim();
+      if (cmd.length > 1) handle(cmd, who);
+      else { const g = who.guest ? rnd(['Yes? How can I help?', 'Hello. I am listening.']) : rnd(['Yes, ' + NAME() + '?', 'At your service, ' + NAME() + '.', 'I am listening, ' + NAME() + '.', 'Ready when you are, ' + NAME() + '.']); addMsg('j', g, [], false); speak(g); }
+    }
+    return;
+  }
+  /* in conversation: every phrase is for me; strip a leading name */
+  const cmd = (m && m.index <= 2) ? t.slice(m.index + m[0].length).trim() : t;
+  if (cmd.length > 1) handle(cmd, who);
+  else if (m) { const g = who.guest ? 'Yes?' : rnd(['Yes, ' + NAME() + '?', 'I am here, ' + NAME() + '.']); addMsg('j', g, [], false); speak(g); }
 }
 function refreshMic() { $('#micBtn').classList.toggle('act', oneShot || (S.listening && !hf)); }
 function syncHf() { $('#hfBtn').classList.toggle('act', hf); $('#sHands').classList.toggle('on', hf); S.settings.hands = hf; save.settings(); }
-function setHf(v) {
+async function setHf(v, quiet) {
   if (!SR) { toast('Voice input is not supported in this browser. Try Chrome or Edge.', 4500); return; }
   hf = v; syncHf();
-  if (hf) { audioCtx(); startRec(); toast('Hands-free on. Say “Hey Jarvis”.'); }
-  else { try { recObj && recObj.abort(); } catch (e) { } toast('Hands-free off.'); }
+  if (hf) { audioCtx(); startRec(); if (VID.profile) VID.start(); if (!quiet) toast('Always listening. Say “Hi Jarvis”, “Buddy” or “Partner”.'); }
+  else { setConvo(false); try { recObj && recObj.abort(); } catch (e) { } VID.stop(); if (!quiet) toast('Listening is off. Tap the mic or turn it back on.'); }
 }
 
 /* ---------- state + orb ---------- */
 function refreshState() {
   S.state = S.busy ? 'thinking' : S.speaking ? 'speaking' : (oneShot || S.listening) ? 'listening' : 'idle';
-  const L = { idle: hf ? 'Say “Hey Jarvis”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: 'Listening' };
+  const L = { idle: S.convo ? 'In conversation' : hf ? 'Say “Hi Jarvis”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: S.convo ? 'Listening · say stop to end' : 'Listening' };
   $('#stateLbl').textContent = L[S.state]; refreshMic();
 }
 const cv = $('#orb'), cx = cv.getContext('2d'); let OW = 0, OH = 0;
@@ -1264,6 +1441,10 @@ function init() {
   $('#sEp').onchange = e => { S.settings.endpoint = e.target.value.trim(); save.settings(); };
   $('#sSpeak').onclick = e => { S.settings.autoSpeak = !S.settings.autoSpeak; e.currentTarget.classList.toggle('on', S.settings.autoSpeak); save.settings(); if (!S.settings.autoSpeak) stopSpeak(); };
   $('#sHands').onclick = () => setHf(!hf);
+  $('#vEnroll').onclick = () => { closeSettings(); enrollVoice(); };
+  $('#vForget').onclick = () => { VID.forget(); syncVoiceUI(); toast('Voice forgotten.'); };
+  $('#sSens').value = S.settings.sens || 1; $('#sSens').oninput = e => { S.settings.sens = +e.target.value; save.settings(); };
+  syncVoiceUI();
   $('#nBtn').onclick = () => { try { Notification.requestPermission().then(refreshNotifUI); } catch (e) { } };
   $('#sTest').onclick = () => { const was = S.settings.autoSpeak; S.settings.autoSpeak = true; speak('Voice check complete. I am J.A.R.V.I.S., at your service, ' + NAME() + '.').then(() => { S.settings.autoSpeak = was; }); };
   $('#sClear').onclick = () => { S.chat = []; save.chat(); $('#log').innerHTML = ''; closeSettings(); };
@@ -1306,8 +1487,8 @@ function boot() {
   step();
   const go = () => {
     audioCtx(); $('#boot').classList.add('hide');
-    const g = greeting(); addMsg('j', g, [], false); speak(g);
-    if (S.settings.hands && SR) setTimeout(() => setHf(true), 500);
+    const g = greeting() + (SR && S.settings.hands !== false ? ' I am listening. Say Hi Jarvis, Buddy or Partner, and say stop when you are done.' : ''); addMsg('j', g, [], false); speak(g);
+    if (S.settings.hands !== false && SR) setTimeout(() => setHf(true, true), 600);
     const q = new URLSearchParams(location.search).get('q'); if (q) setTimeout(() => handle(q), 800);
   };
   $('#bootGo').onclick = go;
