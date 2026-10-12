@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>J.A.R.V.I.S. Assistant</title>
 <meta name="theme-color" content="#04070c"><meta name="description" content="J.A.R.V.I.S. — voice AI assistant that opens apps, manages tasks, sets reminders and timers.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2304070c'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2346e0f0' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='10' fill='%2346e0f0'/%3E%3C/svg%3E"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Jarvis"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2304070c'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2346e0f0' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='10' fill='%2346e0f0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>:root{
   --bg:#04070c;--bg2:#070d15;--panel:rgba(14,22,34,.72);--panel-s:#0c1420;--line:rgba(120,190,255,.14);--line2:rgba(120,190,255,.07);
@@ -249,6 +249,30 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
 .chip.convo,.app.convo #orbWrap{}
 @media(max-height:830px) and (min-width:901px){.quick{flex-wrap:nowrap;overflow-x:auto;justify-content:center;scrollbar-width:none}.q{white-space:nowrap}#stage{min-height:76px}}
 @media(max-width:900px){.mpane .plist{max-height:none}}
+
+/* HUD-only mode (default): only the orb, the words and a small input are on screen */
+#menuBtn{opacity:.4}#menuBtn:hover,#menuBtn.on{opacity:1;color:var(--cy)}
+.app:not(.drawer) header{position:absolute;top:env(safe-area-inset-top,0px);left:0;right:0;border:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;justify-content:flex-end;z-index:5;pointer-events:none}
+.app:not(.drawer) header>*{display:none}
+.app:not(.drawer) header>#menuBtn{display:flex;pointer-events:auto}
+.app:not(.drawer) main{grid-template-columns:minmax(0,1fr)}
+.app:not(.drawer) #colChat,.app:not(.drawer) #colSide{display:none}
+.app:not(.drawer) #clock,.app:not(.drawer) .quick{display:none}
+.app:not(.drawer) #tabbar{display:none}
+.app:not(.drawer) #colCore{padding-top:10px}
+#orbWrap{cursor:pointer}
+#stage{max-height:34vh;overflow-y:auto;scrollbar-width:thin}
+#caption{display:block;-webkit-line-clamp:unset;font-size:clamp(18px,2vw,26px);white-space:pre-wrap;overflow:visible}
+#stageCards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
+#stageCards .work{text-align:left;max-width:720px}
+#interim{font-size:15px}
+.dock{opacity:.85}
+#cam{position:fixed;inset:0;z-index:140;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#cam video{max-width:100%;max-height:calc(100% - 90px);transform:scaleX(-1)}
+#cam .cb{display:flex;gap:12px;padding:16px}
+#cam .cb button{border:1px solid var(--cy);background:rgba(70,224,240,.12);color:var(--cy);padding:11px 22px;border-radius:999px;font-size:15px}
+#cam.flash{background:#fff}
+@media(max-width:900px){.app:not(.drawer) #colCore{padding-bottom:12px}}
 </style></head><body>
 <div class="bg"></div>
 
@@ -271,6 +295,7 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
     <div class="chip" id="aiChip" title="Cloud brain status"><span class="dot" id="aiDot"></span><span class="lbl" id="aiTxt">Ready</span></div>
     <button class="chip btnchip" id="hfBtn" title="Tap to turn listening on or off" aria-label="Listening status"><span class="dot" id="hfDot"></span><span class="lbl" id="hfTxt">Mic off</span></button>
     <button class="ib" id="instBtn" title="Install app" aria-label="Install app" hidden><svg class="i" data-i="download"></svg></button>
+    <button class="ib" id="menuBtn" title="Panels" aria-label="Show or hide panels"><svg class="i" data-i="grid"></svg></button>
     <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="i" data-i="sliders"></svg></button>
   </header>
 
@@ -292,6 +317,7 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
       <div id="stage">
         <div id="interim"></div>
         <div id="caption"></div>
+        <div id="stageCards"></div>
       </div>
       <div class="quick" id="quick"></div>
       <form class="dock" id="form" autocomplete="off">
@@ -402,7 +428,7 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
 
 <script>'use strict';
 /* ===== J.A.R.V.I.S. — part 1: core, storage, apps, time parsing ===== */
-window.JARVIS_AI_ENDPOINT = window.JARVIS_AI_ENDPOINT || 'https://ontechbot.softwareengineerarno.workers.dev/';
+window.JARVIS_AI_ENDPOINT = window.JARVIS_AI_ENDPOINT || 'https://jarvis-brain.softwareengineerarno.workers.dev/';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const pad = n => String(n).padStart(2, '0');
@@ -473,55 +499,82 @@ const IS_WIN = /Windows/i.test(UA);
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(UA);
 
 /* ---------- app registry ---------- */
+/* u = website, d = desktop-app link (any desktop OS), dw = Windows-only link, pref:'desk' = open the desktop app first */
 const APPS = [
   { id: 'youtube', n: 'YouTube', a: ['yt', 'you tube'], u: 'https://www.youtube.com/', c: '#e02b20', l: 'YT', s: q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q) },
-  { id: 'whatsapp', n: 'WhatsApp', a: ['whats app', 'wa'], u: 'https://web.whatsapp.com/', c: '#1fa855', l: 'WA' },
-  { id: 'gmail', n: 'Gmail', a: ['email', 'mail', 'google mail'], u: 'https://mail.google.com/', c: '#d44638', l: 'GM' },
+  { id: 'whatsapp', n: 'WhatsApp', a: ['whats app', 'wa'], u: 'https://web.whatsapp.com/', d: 'whatsapp://', pref: 'desk', c: '#1fa855', l: 'WA' },
+  { id: 'gmail', n: 'Gmail', a: ['email', 'mail', 'google mail', 'inbox'], u: 'https://mail.google.com/', c: '#d44638', l: 'GM' },
   { id: 'maps', n: 'Google Maps', a: ['maps', 'map', 'google maps'], u: 'https://www.google.com/maps', c: '#2f9e5b', l: 'MP', s: q => 'https://www.google.com/maps/search/' + encodeURIComponent(q) },
-  { id: 'google', n: 'Google', a: ['search', 'browser', 'chrome', 'web'], u: 'https://www.google.com/', c: '#4285f4', l: 'G', s: q => 'https://www.google.com/search?q=' + encodeURIComponent(q) },
-  { id: 'spotify', n: 'Spotify', a: ['music', 'songs'], u: 'https://open.spotify.com/', c: '#1db954', l: 'SP', s: q => 'https://open.spotify.com/search/' + encodeURIComponent(q) },
+  { id: 'google', n: 'Google', a: ['search', 'browser', 'chrome', 'web', 'internet'], u: 'https://www.google.com/', c: '#4285f4', l: 'G', s: q => 'https://www.google.com/search?q=' + encodeURIComponent(q) },
+  { id: 'spotify', n: 'Spotify', a: ['music', 'songs'], u: 'https://open.spotify.com/', d: 'spotify:', pref: 'desk', c: '#1db954', l: 'SP', s: q => 'https://open.spotify.com/search/' + encodeURIComponent(q) },
   { id: 'netflix', n: 'Netflix', a: ['movies'], u: 'https://www.netflix.com/', c: '#e50914', l: 'NF' },
   { id: 'facebook', n: 'Facebook', a: ['fb'], u: 'https://www.facebook.com/', c: '#1877f2', l: 'FB' },
   { id: 'instagram', n: 'Instagram', a: ['insta', 'ig'], u: 'https://www.instagram.com/', c: '#c13584', l: 'IG' },
   { id: 'x', n: 'X (Twitter)', a: ['twitter', 'x'], u: 'https://x.com/', c: '#222a33', l: 'X' },
   { id: 'tiktok', n: 'TikTok', a: ['tik tok'], u: 'https://www.tiktok.com/', c: '#111', l: 'TT' },
-  { id: 'telegram', n: 'Telegram', a: [], u: 'https://web.telegram.org/', c: '#2aabee', l: 'TG' },
+  { id: 'telegram', n: 'Telegram', a: [], u: 'https://web.telegram.org/', d: 'tg://', pref: 'desk', c: '#2aabee', l: 'TG' },
   { id: 'linkedin', n: 'LinkedIn', a: ['linked in'], u: 'https://www.linkedin.com/', c: '#0a66c2', l: 'in' },
   { id: 'github', n: 'GitHub', a: ['git hub'], u: 'https://github.com/', c: '#2b3137', l: 'GH' },
   { id: 'chatgpt', n: 'ChatGPT', a: ['chat gpt', 'openai'], u: 'https://chatgpt.com/', c: '#10a37f', l: 'CG' },
   { id: 'claude', n: 'Claude', a: ['claude ai'], u: 'https://claude.ai/', c: '#d97757', l: 'CL' },
   { id: 'drive', n: 'Google Drive', a: ['drive'], u: 'https://drive.google.com/', c: '#1fa463', l: 'DR' },
-  { id: 'docs', n: 'Google Docs', a: ['docs', 'google doc', 'document'], u: 'https://docs.google.com/document/u/0/', c: '#4285f4', l: 'DC' },
-  { id: 'sheets', n: 'Google Sheets', a: ['sheets', 'spreadsheet'], u: 'https://docs.google.com/spreadsheets/u/0/', c: '#0f9d58', l: 'SH' },
+  { id: 'docs', n: 'Google Docs', a: ['docs', 'google doc', 'document', 'notepad'], u: 'https://docs.new', c: '#4285f4', l: 'DC' },
+  { id: 'sheets', n: 'Google Sheets', a: ['sheets', 'spreadsheet'], u: 'https://sheets.new', c: '#0f9d58', l: 'SH' },
+  { id: 'slides', n: 'Google Slides', a: ['slides', 'presentation'], u: 'https://slides.new', c: '#f4b400', l: 'SL' },
   { id: 'calendar', n: 'Calendar', a: ['google calendar', 'schedule'], u: 'https://calendar.google.com/', c: '#4285f4', l: 'CA' },
   { id: 'meet', n: 'Google Meet', a: ['meet', 'video call'], u: 'https://meet.google.com/', c: '#00897b', l: 'ME' },
-  { id: 'zoom', n: 'Zoom', a: [], u: 'https://zoom.us/join', c: '#2d8cff', l: 'ZM' },
-  { id: 'teams', n: 'Microsoft Teams', a: ['teams', 'microsoft teams'], u: 'https://teams.microsoft.com/', c: '#5b5fc7', l: 'MT' },
+  { id: 'zoom', n: 'Zoom', a: [], u: 'https://zoom.us/join', d: 'zoommtg://', pref: 'desk', c: '#2d8cff', l: 'ZM' },
+  { id: 'teams', n: 'Microsoft Teams', a: ['teams', 'microsoft teams'], u: 'https://teams.microsoft.com/', d: 'msteams:', pref: 'desk', c: '#5b5fc7', l: 'MT' },
   { id: 'outlook', n: 'Outlook', a: ['outlook mail'], u: 'https://outlook.live.com/mail/', c: '#0078d4', l: 'OL' },
+  { id: 'word', n: 'Microsoft Word', a: ['word', 'ms word'], u: 'https://word.new', dw: 'ms-word:', pref: 'desk', c: '#2b579a', l: 'W' },
+  { id: 'excel', n: 'Microsoft Excel', a: ['excel', 'ms excel'], u: 'https://excel.new', dw: 'ms-excel:', pref: 'desk', c: '#217346', l: 'X' },
+  { id: 'powerpoint', n: 'PowerPoint', a: ['power point', 'ms powerpoint'], u: 'https://powerpoint.new', dw: 'ms-powerpoint:', pref: 'desk', c: '#d24726', l: 'P' },
+  { id: 'onenote', n: 'OneNote', a: ['one note'], u: 'https://www.onenote.com/notebooks', dw: 'onenote:', pref: 'desk', c: '#7719aa', l: 'ON' },
+  { id: 'discord', n: 'Discord', a: [], u: 'https://discord.com/app', d: 'discord://', pref: 'desk', c: '#5865f2', l: 'DS' },
+  { id: 'slack', n: 'Slack', a: [], u: 'https://app.slack.com/', d: 'slack://open', pref: 'desk', c: '#611f69', l: 'SK' },
+  { id: 'steam', n: 'Steam', a: ['steam games'], u: 'https://store.steampowered.com/', d: 'steam://open/main', pref: 'desk', c: '#1b2838', l: 'ST' },
+  { id: 'epic', n: 'Epic Games', a: ['epic games launcher', 'fortnite'], u: 'https://store.epicgames.com/', d: 'com.epicgames.launcher://', pref: 'desk', c: '#2a2a2a', l: 'EG' },
+  { id: 'xbox', n: 'Xbox', a: ['xbox app', 'game pass'], u: 'https://www.xbox.com/play', dw: 'xbox:', pref: 'desk', c: '#107c10', l: 'XB' },
+  { id: 'minecraft', n: 'Minecraft', a: [], u: 'https://classic.minecraft.net/', dw: 'minecraft:', pref: 'desk', c: '#5b8731', l: 'MC' },
+  { id: 'vscode', n: 'VS Code', a: ['visual studio code', 'code editor', 'vs code'], u: 'https://vscode.dev/', d: 'vscode://', pref: 'desk', c: '#007acc', l: '</>' },
+  { id: 'notion', n: 'Notion', a: [], u: 'https://www.notion.so/', d: 'notion://', pref: 'desk', c: '#2b2b2b', l: 'NO' },
+  { id: 'obsidian', n: 'Obsidian', a: [], u: 'https://obsidian.md/', d: 'obsidian://', pref: 'desk', c: '#7c3aed', l: 'OB' },
+  { id: 'skype', n: 'Skype', a: [], u: 'https://web.skype.com/', d: 'skype:', pref: 'desk', c: '#00aff0', l: 'SY' },
   { id: 'amazon', n: 'Amazon', a: ['shopping'], u: 'https://www.amazon.com/', c: '#ff9900', l: 'AZ', s: q => 'https://www.amazon.com/s?k=' + encodeURIComponent(q) },
   { id: 'wikipedia', n: 'Wikipedia', a: ['wiki'], u: 'https://www.wikipedia.org/', c: '#555', l: 'W', s: q => 'https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(q) },
   { id: 'news', n: 'BBC News', a: ['bbc', 'bbc news', 'the news', 'headlines'], u: 'https://www.bbc.com/news', c: '#bb1919', l: 'BB' },
   { id: 'translate', n: 'Translate', a: ['google translate'], u: 'https://translate.google.com/', c: '#4285f4', l: 'TR' },
-  { id: 'photos', n: 'Google Photos', a: ['photos', 'gallery'], u: 'https://photos.google.com/', c: '#ea4335', l: 'PH' },
-  { id: 'calculator', n: 'Calculator', a: ['calc'], u: 'https://www.google.com/search?q=calculator', win: 'calculator:', c: '#ff7043', l: '÷' },
-  { id: 'settings', n: 'Device Settings', a: ['windows settings', 'system settings', 'pc settings'], win: 'ms-settings:', only: 'win', c: '#607d8b', l: 'ST' },
-  { id: 'camera', n: 'Camera', a: ['webcam'], win: 'microsoft.windows.camera:', only: 'win', c: '#455a64', l: 'CM' },
-  { id: 'clock', n: 'Clock & Alarms', a: ['alarms'], win: 'ms-clock:', only: 'win', c: '#546e7a', l: 'CK' }
+  { id: 'photos', n: 'Photos', a: ['google photos', 'gallery', 'pictures'], u: 'https://photos.google.com/', dw: 'ms-photos:', pref: 'desk', c: '#ea4335', l: 'PH' },
+  { id: 'calculator', n: 'Calculator', a: ['calc'], u: 'https://www.google.com/search?q=calculator', dw: 'calculator:', pref: 'desk', c: '#ff7043', l: '÷' },
+  { id: 'paint', n: 'Paint', a: ['ms paint', 'drawing'], dw: 'ms-paint:', only: 'win', c: '#0ea5e9', l: 'PT' },
+  { id: 'snip', n: 'Snipping Tool', a: ['screenshot', 'snip', 'screen clip', 'snipping tool', 'screen capture'], dw: 'ms-screenclip:', only: 'win', c: '#64748b', l: 'SN' },
+  { id: 'store', n: 'Microsoft Store', a: ['windows store', 'app store'], dw: 'ms-windows-store:', only: 'win', c: '#0078d4', l: 'MS' },
+  { id: 'weather', n: 'Weather', a: ['weather app'], u: 'https://www.google.com/search?q=weather', dw: 'msnweather:', pref: 'desk', c: '#38bdf8', l: 'WX' },
+  { id: 'settings', n: 'Device Settings', a: ['windows settings', 'system settings', 'pc settings'], dw: 'ms-settings:', only: 'win', c: '#607d8b', l: 'ST' },
+  { id: 'clock', n: 'Clock & Alarms', a: ['alarms', 'alarm clock', 'windows clock'], dw: 'ms-clock:', only: 'win', c: '#546e7a', l: 'CK' }
 ];
-const NOISE = /\b(the|my|app|application|website|site|please|for me|now|on my (phone|computer|pc|laptop))\b/g;
+const SETTINGS_PAGES = { wifi: 'network-wifi', 'wi-fi': 'network-wifi', network: 'network', bluetooth: 'bluetooth', display: 'display', screen: 'display', sound: 'sound', volume: 'sound', audio: 'sound', battery: 'batterysaver', power: 'powersleep', apps: 'appsfeatures', privacy: 'privacy', update: 'windowsupdate', updates: 'windowsupdate', personalization: 'personalization', background: 'personalization-background', accounts: 'yourinfo', time: 'dateandtime', date: 'dateandtime', language: 'regionlanguage', notifications: 'notifications', storage: 'storagesense', printers: 'printers', mouse: 'mousetouchpad', keyboard: 'typing', camera: 'privacy-webcam', microphone: 'privacy-microphone', vpn: 'network-vpn', hotspot: 'network-mobilehotspot', 'dark mode': 'colors', colors: 'colors', theme: 'themes', startup: 'startupapps', default: 'defaultapps' };
+let SHORT = store.get('shortcuts', []);
+const NOISE = /\b(the|my|app|application|website|site|please|for me|now|desktop|on my (phone|computer|pc|laptop))\b/g;
 function findApp(q) {
   q = (q || '').toLowerCase().replace(/[^a-z0-9 .+]/g, ' ').replace(NOISE, ' ').replace(/\s+/g, ' ').trim();
   if (!q) return null;
+  const sc = SHORT.find(x => x.k === q || q.includes(x.k)); if (sc) return { id: 'sc-' + sc.k, n: cap(sc.k), a: [], u: /^https?:/i.test(sc.v) ? sc.v : undefined, d: /^https?:/i.test(sc.v) ? undefined : sc.v, pref: /^https?:/i.test(sc.v) ? undefined : 'desk', c: '#475569', l: sc.k.slice(0, 2).toUpperCase(), custom: true };
   let hit = APPS.find(a => a.id === q || a.n.toLowerCase() === q || a.a.includes(q));
   if (hit) return hit;
   hit = APPS.find(a => q.includes(a.id) && a.id.length > 2) || APPS.find(a => a.n.toLowerCase().includes(q) && q.length > 2);
   return hit || null;
 }
-function appUrl(app) {
-  if (app.win && IS_WIN) return app.win;
-  if (app.only === 'win' && !IS_WIN) return null;
-  return app.u;
+/* decide what to open: {primary, alt, altLabel} — or null when this device cannot open it */
+function appTargets(app, wantDesk) {
+  const desk = (IS_WIN && app.dw) ? app.dw : (!IS_MOBILE && app.d) ? app.d : null;
+  const web = app.u || null;
+  if (!desk && !web) return null;
+  const preferDesk = desk && !IS_MOBILE && (wantDesk || app.pref === 'desk' || !web);
+  if (preferDesk) return { primary: desk, alt: web, altLabel: 'Open ' + app.n + ' on the web', desk: true };
+  return { primary: web, alt: desk, altLabel: 'Open the ' + app.n + ' desktop app', desk: false };
 }
+function appUrl(app) { const t = appTargets(app, false); return t ? t.primary : null; }
 function normUrl(u) {
   u = String(u || '').trim();
   if (!u) return null;
@@ -715,7 +768,8 @@ function showAlert(h, p, r) {
   el.querySelector('[data-a=sn]').onclick = () => { addReminder(r.text, Date.now() + 300000, r.kind); el.remove(); stopSpeak(); toast('Snoozed for 5 minutes'); };
   $('#toasts').appendChild(el);
 }
-function toast(msg, ms) {
+function toast(msg, ms, force) {
+  if (!force && !S.drawer) return;
   const ex = $$('#toasts .toast.info p'); if (ex.some(p => p.textContent === msg)) return; if (ex.length >= 3) ex[0].parentNode.remove();
   const el = document.createElement('div'); el.className = 'toast info';
   el.innerHTML = '<h4>J.A.R.V.I.S.</h4><p></p>'; el.querySelector('p').textContent = msg;
@@ -839,6 +893,7 @@ function localCommand(raw) {
   if (/\b(my |the |pending |upcoming )?(reminders|alarms|timers)\b/.test(low) && /^(what|show|list|read|any|do i have|how many|tell me)/.test(low)) return R(listRemsReply(), [{ type: 'show_pane', pane: 'remind' }]);
 
   const mc = moneyCommand(low, cl, og); if (mc) return mc;
+  const xc = extraCommand(low, cl, og); if (xc) return xc;
 
   /* tasks */
   if ((m = /^(?:add|create|new|make|put)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:task|to-?do|todo|item)\s*(?:to|:|called|named|for|-)?\s*(.+)$/.exec(low)) ||
@@ -883,15 +938,19 @@ function localCommand(raw) {
 
   /* open / launch */
   if ((m = /^(?:open|launch|start|run|go to|visit|bring up|fire up|load)\s+(.+)$/.exec(low))) {
-    const what = m[1].replace(/\s+(?:app|please|for me|now)$/g, '').trim();
+    const wantDesk = /\b(?:app|desktop|application|program)\b/.test(m[1]);
+    const what = m[1].replace(/\s+(?:app|application|please|for me|now)$/g, '').trim();
+    const sp = /^(?:the\s+|my\s+)?(.+?)\s+settings$/.exec(what); if (sp && SETTINGS_PAGES[sp[1]]) return R('Opening ' + sp[1] + ' settings.', [{ type: 'win_settings', page: SETTINGS_PAGES[sp[1]], label: sp[1] }]);
+    if (/^(?:camera|webcam|my camera)$/.test(what)) return R('Opening the camera. Say cheese.', [{ type: 'camera' }]);
     if (/^(?:my\s+)?(?:tasks?|to-?do(?: list)?)$/.test(what)) return R('Here are your tasks.', [{ type: 'show_pane', pane: 'tasks' }]);
     if (/^(?:my\s+)?(?:reminders?|alarms?|timers?)$/.test(what)) return R('Here are your reminders.', [{ type: 'show_pane', pane: 'remind' }]);
     if (/^(?:the\s+)?settings$/.test(what) && !IS_WIN) return R('', [{ type: 'show_settings' }]);
     const app = findApp(what);
-    if (app) return R('Opening ' + app.n + '.', [{ type: 'open_app', name: app.id }]);
+    if (app) return R('Opening ' + app.n + '.', [{ type: 'open_app', name: app.id, desk: wantDesk }]);
+    const gm = findGame(what); if (gm) return R('Opening ' + gm.n + '. Enjoy, ' + NAME() + '.', [{ type: 'open_url', url: gm.u }]);
     const u = normUrl(what.replace(/\s+/g, ''));
     if (u) return R('Opening ' + what + '.', [{ type: 'open_url', url: u }]);
-    return R('I don’t have a shortcut for ' + what + ', so I’ll search the web for it.', [{ type: 'search', query: og(what), site: 'google' }]);
+    return R('I do not have a shortcut for ' + og(what) + ', so I am taking you to its official site.', [{ type: 'open_url', url: 'https://www.google.com/search?btnI=1&q=' + encodeURIComponent(og(what) + ' official site') }]);
   }
 
   /* quick maths */
@@ -922,7 +981,7 @@ function sysPrompt() {
     'You can DO things by returning actions. Reply with ONE raw JSON object and nothing else (no code fences, no commentary):\n' +
     '{"reply":"what you say aloud","actions":[ ... ]}\n' +
     'Allowed action objects:\n' +
-    '{"type":"open_app","name":"<one of: ' + APP_NAMES + '>"}\n{"type":"open_url","url":"https://..."}\n' +
+    '{"type":"open_app","name":"<any app or website name; known ones: ' + APP_NAMES + '>"}\n{"type":"camera"}\n{"type":"game","name":"chess|2048|tetris|snake|sudoku|solitaire|pool|..."}\n{"type":"download","name":"software name"}\n{"type":"news"}\n{"type":"open_url","url":"https://..."}\n' +
     '{"type":"search","query":"...","site":"google|youtube|maps|wikipedia|amazon|spotify"}\n' +
     '{"type":"call","number":"..."}\n{"type":"sms","number":"...","body":"..."}\n{"type":"whatsapp","number":"...","body":"..."}\n{"type":"email","to":"...","subject":"...","body":"..."}\n' +
     '{"type":"add_task","text":"..."}\n{"type":"complete_task","text":"..."}\n{"type":"remove_task","text":"..."}\n' +
@@ -942,7 +1001,7 @@ function extractJSON(txt) {
   }
   return null;
 }
-const OK_TYPES = ['log_income', 'log_expense', 'add_lead', 'lead_status', 'invoice', 'work', 'open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
+const OK_TYPES = ['camera', 'game', 'download', 'news', 'battery', 'log_income', 'log_expense', 'add_lead', 'lead_status', 'invoice', 'work', 'open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
 function parseAI(text) {
   const j = extractJSON(text);
   if (j && (typeof j.reply === 'string' || Array.isArray(j.actions))) {
@@ -992,13 +1051,20 @@ async function execAction(a) {
     case 'enroll_voice': setTimeout(enrollVoice, 1500); return {};
     case 'forget_voice': VID.forget(); syncVoiceUI(); return { say: 'Done. I have forgotten your voice, and every voice will now be treated as the founder.' };
     case 'clear_chat': S.chat = []; save.chat(); $('#log').innerHTML = ''; return {};
-    case 'show_pane': { const pn = (a.pane === 'tasks' || a.pane === 'remind') ? 'plan' : a.pane; setPane(pn); if (window.innerWidth <= 900) setView(pn); return {}; }
+    case 'show_pane': { setDrawer(true); const pn = (a.pane === 'tasks' || a.pane === 'remind') ? 'plan' : a.pane; setPane(pn); if (window.innerWidth <= 900) setView(pn); return {}; }
     case 'show_settings': openSettings(); return {};
     case 'open_app': {
-      const app = findApp(a.name); if (!app) return { fail: 'No shortcut for ' + a.name, card: { label: 'Search “' + a.name + '”', url: siteUrl('google', a.name) } };
-      const u = appUrl(app);
-      if (!u) return { fail: app.n + ' can only be opened from Windows.', note: 'bad' };
-      return openCard('Open ' + app.n, u);
+      const app = findApp(a.name); if (!app) return openCard('Open ' + a.name, 'https://www.google.com/search?btnI=1&q=' + encodeURIComponent(a.name + ' official site'));
+      const t = appTargets(app, !!a.desk);
+      if (!t) return { fail: app.n + ' can only be opened on Windows.' };
+      const o = openCard('Open ' + app.n, t.primary);
+      if (t.alt) { o.card2 = { label: t.altLabel, url: t.alt }; }
+      if (t.desk && !o.card.sub) o.card.sub = 'desktop app';
+      return o;
+    }
+    case 'win_settings': {
+      if (!IS_WIN) return { fail: 'Windows settings can only be opened from a Windows PC.', say: 'That needs a Windows computer, ' + NAME() + '.' };
+      return openCard('Open ' + (a.label || 'Windows') + ' settings', 'ms-settings:' + a.page);
     }
     case 'open_url': { const u = normUrl(a.url); if (!u) return { fail: 'That link looks invalid.' }; return openCard('Open ' + u.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40), u); }
     case 'search': { const q = String(a.query || '').trim(); if (!q) return { fail: 'Nothing to search for.' }; return openCard(cap(String(a.site || 'google')) + ': ' + q.slice(0, 40), siteUrl(a.site, q)); }
@@ -1035,6 +1101,7 @@ async function execAction(a) {
       catch (e) { return { say: 'I couldn’t reach the weather service just now.' }; }
     }
   }
+  { const xo = await execExtra(a); if (xo) return xo; }
   return await execMoney(a);
 }
 function openCard(label, url) {
@@ -1087,7 +1154,10 @@ function leadsReply() {
   return 'You have ' + open.length + ' open ' + (open.length === 1 ? 'lead' : 'leads') + (val ? ' worth about ' + money(val) : '') + ': ' + open.slice(0, 5).map(l => l.name + ' (' + l.status + ')').join(', ') + '. ' + S.leads.filter(l => l.status === 'won').length + ' won so far.';
 }
 const WORK_RE = /\b(proposal|pitch|cold (?:email|message|dm|call)|outreach|business (?:idea|plan|name)|side hustles?|content (?:calendar|plan|ideas)|social media (?:plan|posts?|calendar|strategy|content)|marketing (?:plan|strategy|ideas)|sales (?:script|letter|page|copy)|cover letter|ad copy|advert|product description|quotation|price list|slogan|elevator pitch|follow[- ]?up (?:email|message)|testimonial request)\b/;
+const WRITE_RE = /\b(poem|story|essay|speech|letter|email|e-mail|message|post|caption|script|song|lyrics|report|summary|article|blog|bio|resume|cv|toast|joke ?book|plan|itinerary|menu|workout|schedule|routine|lesson plan)\b/;
 function workIntent(low) {
+  if (/^(?:write|draft|compose|generate|create)\s+(?:me\s+)?(?:an?\s+|the\s+|my\s+)?/.test(low) && WRITE_RE.test(low) && !/\b(?:task|reminder|timer|lead|invoice)\b/.test(low)) return true;
+  if (/\b(?:brainstorm|ideas? (?:for|on|about)|give me (?:some )?ideas|suggest (?:some )?ideas|(?:name|title|gift|project|app|youtube|content|startup|business|birthday|party) ideas|any ideas|think of)\b/.test(low)) return true;
   if (/^(?:add|set|create|new)\s+(?:a\s+)?(?:task|reminder|timer|lead|invoice)/.test(low)) return false;
   if (/\b(?:write|draft|create|generate|give me|suggest|prepare|make me|help me|plan|come up with|need|i want)\b/.test(low) && WORK_RE.test(low)) return true;
   if (/\b(?:ways?|ideas?|how (?:can|do|should) (?:i|we)|how to)\b.*\b(?:make money|earn money|earn (?:more )?income|get (?:more )?(?:clients|customers|sales)|find (?:clients|customers)|grow (?:my|the) business|start a business|raise funds|get funding|attract investors)\b/.test(low)) return true;
@@ -1218,6 +1288,190 @@ const JOBS = [
   ['Create an invoice', 'Ready to print or save as PDF', 'Create invoice for ']
 ];
 
+/* ===== part 2c: games, camera, downloads, reading, news, system helpers ===== */
+const GAMES = [
+  { n: 'Chess', a: ['chess'], u: 'https://lichess.org/' },
+  { n: 'Chess against the computer', a: ['chess vs computer', 'chess against computer', 'chess against the computer', 'chess with computer'], u: 'https://lichess.org/setup/ai' },
+  { n: '2048', a: ['2048'], u: 'https://play2048.co/' },
+  { n: 'Tetris', a: ['tetris'], u: 'https://tetris.com/play-tetris' },
+  { n: 'Wordle', a: ['wordle'], u: 'https://www.nytimes.com/games/wordle/index.html' },
+  { n: 'Pac-Man', a: ['pacman', 'pac man', 'pac-man'], u: 'https://www.google.com/logos/2010/pacman10-i.html' },
+  { n: 'Snake', a: ['snake'], u: 'https://www.google.com/search?q=snake+game' },
+  { n: 'Minesweeper', a: ['minesweeper', 'mine sweeper'], u: 'https://minesweeper.online/' },
+  { n: 'Sudoku', a: ['sudoku'], u: 'https://sudoku.com/' },
+  { n: 'Solitaire', a: ['solitaire', 'cards', 'card game'], u: 'https://www.google.com/search?q=solitaire' },
+  { n: 'Tic-tac-toe', a: ['tic tac toe', 'tictactoe', 'noughts and crosses'], u: 'https://www.google.com/search?q=tic+tac+toe' },
+  { n: 'Crossword', a: ['crossword', 'crosswords'], u: 'https://www.nytimes.com/crosswords/game/mini' },
+  { n: 'Slither.io', a: ['slither', 'slither io'], u: 'https://slither.io/' },
+  { n: 'Agar.io', a: ['agar', 'agar io'], u: 'https://agar.io/' },
+  { n: '8 Ball Pool', a: ['pool', '8 ball pool', 'eight ball', 'snooker'], u: 'https://www.miniclip.com/games/8-ball-pool-multiplayer/en/' },
+  { n: 'Football games', a: ['football', 'soccer'], u: 'https://poki.com/en/soccer' },
+  { n: 'Racing games', a: ['racing', 'car racing', 'car games', 'cars'], u: 'https://poki.com/en/racing' },
+  { n: 'Shooting games', a: ['shooting', 'shooter', 'shooter games'], u: 'https://poki.com/en/shooting' },
+  { n: 'Puzzle games', a: ['puzzle', 'puzzles'], u: 'https://poki.com/en/puzzle' },
+  { n: 'Crazy Games', a: ['crazy games', 'crazygames'], u: 'https://www.crazygames.com/' },
+  { n: 'Poki games', a: ['games', 'game', 'online games', 'free games', 'arcade', 'poki'], u: 'https://poki.com/' }
+];
+function findGame(q) {
+  q = String(q || '').toLowerCase().replace(/[^a-z0-9 .\-]/g, ' ').replace(/\b(a|an|some|the|game of|games of|game|games|please|online|free)\b/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!q) return null;
+  return GAMES.find(g => g.a.includes(q)) || GAMES.find(g => g.a.some(x => x.length > 3 && q.includes(x))) || null;
+}
+const DOWNLOADS = {
+  chrome: 'https://www.google.com/chrome/', firefox: 'https://www.mozilla.org/firefox/new/', edge: 'https://www.microsoft.com/edge/download', brave: 'https://brave.com/download/', opera: 'https://www.opera.com/download',
+  vlc: 'https://www.videolan.org/vlc/', whatsapp: 'https://www.whatsapp.com/download', zoom: 'https://zoom.us/download', spotify: 'https://www.spotify.com/download/', telegram: 'https://desktop.telegram.org/',
+  '7zip': 'https://www.7-zip.org/download.html', '7 zip': 'https://www.7-zip.org/download.html', 'notepad++': 'https://notepad-plus-plus.org/downloads/', 'notepad plus plus': 'https://notepad-plus-plus.org/downloads/',
+  vscode: 'https://code.visualstudio.com/download', 'vs code': 'https://code.visualstudio.com/download', 'visual studio code': 'https://code.visualstudio.com/download', python: 'https://www.python.org/downloads/', node: 'https://nodejs.org/en/download', nodejs: 'https://nodejs.org/en/download',
+  git: 'https://git-scm.com/downloads', obs: 'https://obsproject.com/download', 'obs studio': 'https://obsproject.com/download', discord: 'https://discord.com/download', steam: 'https://store.steampowered.com/about/', winrar: 'https://www.win-rar.com/download.html',
+  anydesk: 'https://anydesk.com/en/downloads', teamviewer: 'https://www.teamviewer.com/en/download/', 'android studio': 'https://developer.android.com/studio', filezilla: 'https://filezilla-project.org/download.php?type=client',
+  audacity: 'https://www.audacityteam.org/download/', gimp: 'https://www.gimp.org/downloads/', blender: 'https://www.blender.org/download/', libreoffice: 'https://www.libreoffice.org/download/download-libreoffice/', 'libre office': 'https://www.libreoffice.org/download/download-libreoffice/',
+  skype: 'https://www.skype.com/get-skype/', teams: 'https://www.microsoft.com/microsoft-teams/download-app', slack: 'https://slack.com/downloads', notion: 'https://www.notion.so/desktop', obsidian: 'https://obsidian.md/download', postman: 'https://www.postman.com/downloads/',
+  docker: 'https://www.docker.com/products/docker-desktop/', putty: 'https://www.putty.org/', wireshark: 'https://www.wireshark.org/download.html', handbrake: 'https://handbrake.fr/downloads.php', itunes: 'https://www.apple.com/itunes/', 'adobe reader': 'https://get.adobe.com/reader/', 'acrobat reader': 'https://get.adobe.com/reader/',
+  'epic games': 'https://store.epicgames.com/download', 'google earth': 'https://earth.google.com/web/', 'google drive': 'https://www.google.com/drive/download/', dropbox: 'https://www.dropbox.com/install', 'microsoft office': 'https://www.microsoft365.com/', office: 'https://www.microsoft365.com/', 'android emulator': 'https://developer.android.com/studio/run/emulator'
+};
+function saveFile(name, mime, text) {
+  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  try { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { }
+  return { card: { label: 'Saved ' + name, url, dl: name, sub: 'tap if it did not download' } };
+}
+const csvq = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+function exportData(what) {
+  const d = new Date().toISOString().slice(0, 10);
+  if (/task|to-?do/.test(what)) return saveFile('jarvis-tasks-' + d + '.txt', 'text/plain', S.tasks.map(t => (t.done ? '[x] ' : '[ ] ') + t.text).join('\n') || 'No tasks.');
+  if (/ledger|income|expense|money|sales/.test(what)) return saveFile('jarvis-ledger-' + d + '.csv', 'text/csv', 'Date,Type,Amount,Note\n' + S.ledger.map(e => [new Date(e.ts).toISOString().slice(0, 10), e.type === 'in' ? 'Income' : 'Expense', e.amount, e.note].map(csvq).join(',')).join('\n'));
+  if (/lead|client|pipeline/.test(what)) return saveFile('jarvis-leads-' + d + '.csv', 'text/csv', 'Name,Contact,Status,Value,Note\n' + S.leads.map(l => [l.name, l.contact, l.status, l.value, l.note].map(csvq).join(',')).join('\n'));
+  if (/remind/.test(what)) return saveFile('jarvis-reminders-' + d + '.txt', 'text/plain', S.reminders.map(r => new Date(r.at).toLocaleString() + ' — ' + r.text + (r.fired ? ' (done)' : '')).join('\n') || 'No reminders.');
+  if (/chat|conversation|transcript/.test(what)) return saveFile('jarvis-conversation-' + d + '.txt', 'text/plain', S.chat.map(m => (m.r === 'u' ? 'You: ' : 'Jarvis: ') + m.t).join('\n\n') || 'Empty.');
+  if (S.lastWork) return saveFile('jarvis-draft-' + d + '.txt', 'text/plain', S.lastWork);
+  return { fail: 'I do not have anything like that to save yet.' };
+}
+
+/* ---------- camera ---------- */
+let camEl = null, camStream = null;
+async function openCamera(snapAfter) {
+  if (camEl) { if (snapAfter) setTimeout(camSnap, 300); return {}; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return { fail: 'This browser cannot open the camera.' };
+  try { camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false }); }
+  catch (e) { return { fail: 'Camera blocked. Allow the camera in the address bar and ask again.' }; }
+  camEl = document.createElement('div'); camEl.id = 'cam';
+  camEl.innerHTML = '<video autoplay playsinline muted></video><div class="cb"><button type="button" data-a="snap">Take photo</button><button type="button" data-a="close">Close</button></div>';
+  document.body.appendChild(camEl);
+  const v = camEl.querySelector('video'); v.srcObject = camStream;
+  camEl.querySelector('[data-a=snap]').onclick = camSnap; camEl.querySelector('[data-a=close]').onclick = closeCamera;
+  if (snapAfter) setTimeout(camSnap, 3200);
+  return { done: { label: 'Camera on', sub: snapAfter ? 'photo in 3 seconds' : 'say “take a photo”' } };
+}
+function camSnap() {
+  if (!camEl) return; const v = camEl.querySelector('video'); if (!v.videoWidth) return;
+  const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0);
+  c.toBlob(b => { if (!b) return; const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'jarvis-photo-' + Date.now() + '.png'; document.body.appendChild(a); a.click(); a.remove(); camEl && camEl.classList.add('flash'); setTimeout(() => camEl && camEl.classList.remove('flash'), 300); }, 'image/png');
+}
+function closeCamera() { try { camStream && camStream.getTracks().forEach(t => t.stop()); } catch (e) { } camStream = null; if (camEl) camEl.remove(); camEl = null; }
+
+/* ---------- reading: news + wikipedia ---------- */
+async function readNews() {
+  const j = async u => { const r = await fetch(u); if (!r.ok) throw new Error('http'); return r.json(); };
+  const ids = (await j('https://hacker-news.firebaseio.com/v0/topstories.json')).slice(0, 6);
+  const items = await Promise.all(ids.map(i => j('https://hacker-news.firebaseio.com/v0/item/' + i + '.json').catch(() => null)));
+  const t = items.filter(x => x && x.title).slice(0, 5).map(x => x.title);
+  if (!t.length) throw new Error('none');
+  return 'Here are the top technology headlines. ' + t.map((x, i) => (i + 1) + '. ' + x + '.').join(' ');
+}
+async function wikiSummary(q) {
+  const j = async u => { const r = await fetch(u); if (!r.ok) throw new Error('http'); return r.json(); };
+  const s = await j('https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&format=json&origin=*&search=' + encodeURIComponent(q));
+  const title = s && s[1] && s[1][0]; if (!title) return null;
+  const d = await j('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title));
+  const ex = String(d.extract || '').trim(); if (!ex) return null;
+  return { title, text: ex.split(/(?<=[.!?])\s+/).slice(0, 3).join(' '), url: d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page };
+}
+const TL = { french: 'fr', spanish: 'es', german: 'de', portuguese: 'pt', italian: 'it', shona: 'sn', zulu: 'zu', swahili: 'sw', afrikaans: 'af', arabic: 'ar', chinese: 'zh-CN', hindi: 'hi', japanese: 'ja', russian: 'ru', xhosa: 'xh', english: 'en', ndebele: 'zu', sesotho: 'st', tswana: 'tn', korean: 'ko' };
+
+function extraCommand(low, cl, og) {
+  let m;
+  if (/^(?:show|open|bring up|reveal)\s+(?:me\s+)?(?:the\s+|my\s+)?(?:panels?|menu|dashboard|controls?|control panel|tools|side ?bar|everything|all)$/.test(low)) return R('Showing the panels.', [{ type: 'drawer', open: true }]);
+  if (/^(?:hide|close|dismiss|clear)\s+(?:the\s+|all\s+)?(?:panels?|menu|dashboard|controls?|control panel|tools|side ?bar|everything)$/.test(low) || /^(?:hud|full) ?(?:only|mode|view)$/.test(low)) return R('Back to the HUD.', [{ type: 'drawer', open: false }]);
+  if (/^(?:open|show)\s+(?:jarvis\s+|your\s+|assistant\s+)settings$/.test(low) || /^(?:jarvis\s+)?settings$/.test(low) && !IS_WIN) return R('', [{ type: 'show_settings' }]);
+  if (/^(?:repeat that|say that again|what did you say|say it again|come again|repeat)$/.test(low)) return R(S.lastReply || 'I have not said anything yet.');
+  if ((m = /^(?:read|say|speak|pronounce|repeat after me)(?:\s+(?:this|aloud|out loud|it))?\s*[:\-,]?\s+(.{3,})$/.exec(cl)) && !/^(?:my\s+|the\s+)?(?:tasks?|to-?do|reminders?|news|headlines|leads|ledger|income|messages?|emails?)\b/i.test(m[1]) && !/^(?:that|this|it)$/i.test(m[1])) return R(m[1]);
+  /* camera */
+  if (/^(?:take|snap|capture)\s+(?:a\s+|me a\s+|my\s+)?(?:photo|picture|selfie|pic|photograph)(?: of me)?$|^(?:selfie|say cheese)$/.test(low)) return R(camEl ? 'Smile.' : 'Opening the camera. Smile.', [{ type: 'camera', snap: true }]);
+  if (/^(?:open|start|turn on|launch|show)\s+(?:the\s+|my\s+)?(?:camera|webcam|cam)$|^camera$/.test(low)) return R('Opening the camera.', [{ type: 'camera' }]);
+  if (/^(?:close|stop|turn off|exit|shut)\s+(?:the\s+|my\s+)?(?:camera|webcam|cam)$/.test(low)) return R('Camera closed.', [{ type: 'camera_close' }]);
+  /* games */
+  if (/^(?:i(?:'| a)?m bored|i am bored|entertain me|surprise me|play something|play a game|let'?s play(?: a game)?|game time|play games?)$/.test(low)) { const g = rnd(GAMES.slice(0, 15)); return R('Let us play ' + g.n + ', ' + NAME() + '.', [{ type: 'open_url', url: g.u }]); }
+  if ((m = /^(?:play|start|launch|let'?s play|open)\s+(?:a\s+|an\s+|some\s+)?(?:game of\s+|games? of\s+)?(.+?)(?:\s+games?)?$/.exec(low)) && !/\bon (youtube|spotify)\b/.test(low) && !findApp(m[1])) { const g = findGame(m[1]); if (g) return R('Opening ' + g.n + '. Enjoy, ' + NAME() + '.', [{ type: 'open_url', url: g.u }]); }
+  /* downloads & saving */
+  if ((m = /^(?:download|install|get me)\s+(?:the\s+|a\s+|an\s+|my\s+)?(.+?)(?:\s+(?:app|installer|for windows|for pc|setup))?$/.exec(low))) {
+    const what = m[1].trim();
+    if (/^(?:tasks?|to-?do(?: list)?|ledger|income|expenses?|money|sales|leads?|clients?|chat|conversation|transcript|reminders?|that|this|it|draft|proposal|document|answer)(?: (?:list|history|report|sheet))?$/.test(what)) return R('Saving that for you.', [{ type: 'export', what }]);
+    const u = normUrl(what.replace(/\s+/g, '')); if (u) return R('Starting that download.', [{ type: 'open_url', url: u }]);
+    return R('Taking you to the official download page for ' + og(what) + '.', [{ type: 'download', name: og(what) }]);
+  }
+  if (/^(?:save|export)\s+(?:that|this|it|the (?:draft|document|proposal|answer|text))(?:\s+(?:as|to)\s+(?:a\s+)?(?:file|text|txt|document))?$/.test(low)) return R('Saving it as a file.', [{ type: 'export', what: 'that' }]);
+  if ((m = /^(?:export|save|backup)\s+(?:my\s+)?(tasks?|ledger|income|leads?|chat|conversation|reminders?)(?: (?:to|as) (?:a )?(?:file|csv|text))?$/.exec(low))) return R('Exporting your ' + m[1] + '.', [{ type: 'export', what: m[1] }]);
+  /* news + encyclopaedia */
+  if (/\b(?:news|headlines)\b/.test(low) && /^(?:read|tell|what|give|any|show|latest|top|the|news|headlines|play|get)/.test(low) && !/\b(open|bbc)\b/.test(low)) return R('', [{ type: 'news' }]);
+  if ((m = /^(?:wikipedia|wiki)\s+(.+)$/.exec(low)) || (m = /^(?:look up|search)\s+(.+?)\s+on\s+wikipedia$/.exec(low))) return R('', [{ type: 'wiki', q: og(m[1]) }]);
+  /* device helpers */
+  if (/\b(?:battery|charge level|how much charge)\b/.test(low) && /^(?:how|what|check|my|battery|is)/.test(low)) return R('', [{ type: 'battery' }]);
+  if (/^(?:go |enter |make it |switch to )?full ?screen(?: mode)?$/.test(low)) return R('Going full screen.', [{ type: 'fullscreen', on: true }]);
+  if (/^(?:exit|leave|stop|close|end)\s+full ?screen$/.test(low)) return R('Leaving full screen.', [{ type: 'fullscreen', on: false }]);
+  if (/\b(?:flip|toss)\b.*\bcoin\b/.test(low)) return R(Math.random() < 0.5 ? 'Heads.' : 'Tails.');
+  if (/\b(?:roll|throw)\b.*\b(?:dice|die)\b/.test(low)) return R('You rolled a ' + (1 + Math.floor(Math.random() * 6)) + '.');
+  if ((m = /random number(?: between (\d+) and (\d+))?/.exec(low))) { const a = +(m[1] || 1), b = +(m[2] || 100); return R('Your number is ' + (Math.min(a, b) + Math.floor(Math.random() * (Math.abs(b - a) + 1))) + '.'); }
+  if ((m = /^translate\s+(.+?)\s+(?:in)?to\s+([a-z]+)$/.exec(low)) && TL[m[2]]) return R('Opening Google Translate for ' + cap(m[2]) + '.', [{ type: 'open_url', url: 'https://translate.google.com/?sl=auto&tl=' + TL[m[2]] + '&op=translate&text=' + encodeURIComponent(og(m[1])) }]);
+  if ((m = /^(?:add|save|create|learn|remember)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:shortcut|app)\s+(?:called\s+|named\s+)?(.+?)\s+(?:as|for|to|=|is)\s+(\S+)$/.exec(cl))) return R('', [{ type: 'add_shortcut', name: m[1], target: m[2] }]);
+  /* things a browser cannot do */
+  if (/\b(?:shut ?down|power off|restart|reboot|log ?off|sign out|hibernate|sleep)\b.*\b(?:computer|pc|laptop|windows|system|machine)\b|^(?:shut ?down|restart|reboot|power off)$/.test(low)) return R('I cannot switch your computer off or restart it from a web page, ' + NAME() + '. That is blocked for your safety.');
+  if ((m = /\b(volume|brightness|mute|unmute|wi-?fi|bluetooth|airplane mode)\b/.exec(low)) && /^(?:turn|set|increase|decrease|raise|lower|change|mute|unmute|switch|make|volume|brightness|toggle|put)/.test(low)) {
+    const pg = { volume: 'sound', mute: 'sound', unmute: 'sound', brightness: 'display', wifi: 'network-wifi', 'wi-fi': 'network-wifi', bluetooth: 'bluetooth', 'airplane mode': 'network-airplanemode' }[m[1]];
+    return IS_WIN ? R('I cannot change that directly, ' + NAME() + ', but I am opening the right settings page.', [{ type: 'win_settings', page: pg, label: m[1] }]) : R('A web page cannot change your ' + m[1] + ', ' + NAME() + '. Use your device controls.');
+  }
+  if ((m = /^(?:close|quit|exit|kill|end)\s+(.+)$/.exec(low)) && !/^(?:the\s+)?(?:camera|webcam|cam|panels?|menu|settings|chat|conversation|full ?screen)/.test(m[1])) return R('I cannot close other programs from a web page, ' + NAME() + '. You can close ' + og(m[1]) + ' yourself.');
+  return null;
+}
+
+async function execExtra(a) {
+  switch (a.type) {
+    case 'drawer': setDrawer(!!a.open); return {};
+    case 'camera': return await openCamera(!!a.snap);
+    case 'camera_close': closeCamera(); return {};
+    case 'export': return exportData(String(a.what || ''));
+    case 'game': { const g = findGame(a.name); if (!g) return { fail: 'I do not know that game.' }; return openCard('Play ' + g.n, g.u); }
+    case 'download': {
+      const k = String(a.name || '').toLowerCase().replace(/[^a-z0-9+ ]/g, ' ').replace(/\s+/g, ' ').trim();
+      const key = Object.keys(DOWNLOADS).sort((x, y) => y.length - x.length).find(x => k === x || k.includes(x));
+      if (key) return openCard('Download ' + cap(key), DOWNLOADS[key]);
+      return openCard('Download ' + a.name, 'https://www.google.com/search?btnI=1&q=' + encodeURIComponent(a.name + ' official download'));
+    }
+    case 'news': {
+      try { const t = await readNews(); return { say: t, card: { label: 'More news: BBC', url: 'https://www.bbc.com/news' } }; }
+      catch (e) { return Object.assign(openCard('BBC News', 'https://www.bbc.com/news'), { say: 'I could not fetch the headlines directly, so I am opening BBC News for you.' }); }
+    }
+    case 'wiki': {
+      try { const w = await wikiSummary(a.q); if (!w) return { say: 'I could not find a Wikipedia page for ' + a.q + '.' }; return { say: w.text, card: w.url ? { label: 'Wikipedia: ' + w.title, url: w.url } : undefined }; }
+      catch (e) { return { say: 'I could not reach Wikipedia just now.' }; }
+    }
+    case 'battery': {
+      try { const b = await navigator.getBattery(); return { say: 'Your battery is at ' + Math.round(b.level * 100) + ' percent' + (b.charging ? ' and charging.' : '.') }; }
+      catch (e) { return { say: 'This browser does not let me read the battery level.' }; }
+    }
+    case 'fullscreen': {
+      try { if (a.on) await document.documentElement.requestFullscreen(); else if (document.fullscreenElement) await document.exitFullscreen(); return {}; }
+      catch (e) { return { fail: 'Full screen was blocked. Press F11 instead.' }; }
+    }
+    case 'add_shortcut': {
+      const k = String(a.name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); let v = String(a.target || '').trim();
+      if (!k || !v) return { fail: 'I need a name and a link.' };
+      if (!/^[a-z][a-z0-9+.\-]*:/i.test(v)) { const u = normUrl(v); if (!u) return { fail: 'That link does not look right.' }; v = u; }
+      SHORT = SHORT.filter(x => x.k !== k).concat([{ k, v }]); store.set('shortcuts', SHORT);
+      return { done: { label: 'Shortcut saved', sub: k }, say: 'Done. Say “open ' + k + '” any time.' };
+    }
+  }
+  return null;
+}
+
 /* ===== part 3: rendering, conversation flow, voice, orb, init ===== */
 
 function mdLite(s) {
@@ -1233,7 +1487,7 @@ function addMsg(role, text, cards, persist, aiJson) {
     cards.forEach(cd => {
       let n;
       if (cd.work) { c.appendChild(workCard(cd.work)); return; }
-      if (cd.url) { n = document.createElement('a'); n.href = cd.url; n.target = '_blank'; n.rel = 'noopener'; n.className = 'card'; n.innerHTML = ic('ext') + '<span></span>'; }
+      if (cd.url) { n = document.createElement('a'); n.href = cd.url; if (cd.dl) n.download = cd.dl; else n.target = '_blank'; n.rel = 'noopener'; n.className = 'card'; n.innerHTML = ic(cd.dl ? 'download' : 'ext') + '<span></span>'; }
       else { n = document.createElement('div'); n.className = 'card ' + (cd.bad ? 'bad' : 'ok'); n.innerHTML = ic(cd.bad ? 'x' : 'check') + '<span></span>'; }
       n.querySelector('span').innerHTML = esc(cd.label) + (cd.sub ? ' <small>' + esc(cd.sub) + '</small>' : '');
       c.appendChild(n);
@@ -1241,12 +1495,24 @@ function addMsg(role, text, cards, persist, aiJson) {
     el.appendChild(c);
   }
   log.appendChild(el); log.scrollTop = log.scrollHeight;
-  if (role === 'j' && text) setCaption(text); else if (role === 'u') $('#interim').textContent = '“' + text + '”';
+  if (role === 'j') { if (text) setCaption(text); stageCards(cards); } else if (role === 'u') { $('#interim').textContent = '“' + text + '”'; stageCards([]); }
   if (persist !== false) { S.chat.push({ r: role, t: text, ai: aiJson || (role === 'u' ? text : JSON.stringify({ reply: text, actions: [] })) }); save.chat(); }
   return el;
 }
+function stageCards(cards) {
+  const sc = $('#stageCards'); if (!sc) return; sc.innerHTML = '';
+  (cards || []).forEach(cd => {
+    if (cd.work) { sc.appendChild(workCard(cd.work)); return; }
+    let n;
+    if (cd.url) { n = document.createElement('a'); n.href = cd.url; if (cd.dl) n.download = cd.dl; else n.target = '_blank'; n.rel = 'noopener'; n.className = 'card'; n.innerHTML = ic(cd.dl ? 'download' : 'ext') + '<span></span>'; }
+    else { n = document.createElement('div'); n.className = 'card ' + (cd.bad ? 'bad' : 'ok'); n.innerHTML = ic(cd.bad ? 'x' : 'check') + '<span></span>'; }
+    n.querySelector('span').innerHTML = esc(cd.label) + (cd.sub ? ' <small>' + esc(cd.sub) + '</small>' : '');
+    sc.appendChild(n);
+  });
+}
 function setCaption(t) { $('#caption').textContent = String(t).replace(/\*\*/g, ''); }
 function workCard(w) {
+  S.lastWork = w.text;
   const d = document.createElement('div'); d.className = 'work';
   d.innerHTML = '<pre></pre><div class="wb"><button type="button" data-a="copy">Copy</button><a data-a="mail" target="_blank" rel="noopener">Email</a><a data-a="wa" target="_blank" rel="noopener">WhatsApp</a></div>';
   d.querySelector('pre').textContent = w.text;
@@ -1274,7 +1540,8 @@ async function handle(text, who) {
   try { res = await route(text); }
   catch (e) {
     console.warn('AI failed', e);
-    res = R('I can’t reach my cloud brain right now, ' + NAME() + '. I can still open apps, manage tasks, set reminders and timers — say “help” to see everything.');
+    let wk = null; if (/^(?:who|what|when|where|tell me about|define|explain|why|how)\b/i.test(text)) { try { wk = await wikiSummary(text.replace(/^(?:who|what|when|where|why|how)\s+(?:is|was|are|were|does|do|did|to)?\s*(?:an?\s+|the\s+)?/i, '').replace(/^tell me about\s+|^define\s+|^explain\s+/i, '').replace(/[?.!]+$/, '')); } catch (e2) { } }
+    res = wk ? R(wk.text) : R('I can’t reach my cloud brain right now, ' + NAME() + '. I can still open apps, manage tasks, set reminders and timers — say “help” to see everything.');
   }
   hideTyping();
   const cards = [], says = [], key = [];
@@ -1282,6 +1549,7 @@ async function handle(text, who) {
     let o; try { o = await execAction(a); } catch (e) { console.error(e); o = { fail: 'That action failed.' }; }
     if (o.work) cards.push({ work: o.work });
     if (o.card) cards.push(o.card);
+    if (o.card2) cards.push(o.card2);
     if (o.done) cards.push({ label: o.done.label, sub: o.done.sub });
     if (o.fail) cards.push({ label: o.fail, bad: true });
     if (o.say) { says.push(o.say); if (o.fail || a.type === 'weather') key.push(o.say); }
@@ -1295,7 +1563,7 @@ async function handle(text, who) {
   if (reply) addMsg('j', reply, cards, true, JSON.stringify({ reply: res.reply || reply, actions: res.actions }));
   else if (cards.length) addMsg('j', '', cards, false);
   S.busy = false; S.guest = false; refreshState();
-  if (reply) speak(reply);
+  if (reply) { S.lastReply = reply; speak(reply); }
 }
 async function route(text) {
   if (S.pending) {
@@ -1371,6 +1639,12 @@ function renderApps() {
 const QUICK = ['Daily briefing', 'Open YouTube', 'Remind me in 10 minutes to stretch', 'Set a 5 minute timer', 'What’s the weather?', 'What can you do?'];
 
 /* ---------- views ---------- */
+function setDrawer(v) {
+  S.drawer = !!v; const app = $('#app'); app.classList.toggle('drawer', S.drawer);
+  if (!S.drawer && window.innerWidth <= 900) app.dataset.view = 'jarvis';
+  else if (S.drawer && window.innerWidth <= 900 && app.dataset.view === 'jarvis') setView('plan');
+  $('#menuBtn').classList.toggle('on', S.drawer); setTimeout(fit, 50);
+}
 function setPane(p) {
   if (p === 'tasks' || p === 'remind') p = 'plan';
   $('#app').dataset.pane = p;
@@ -1413,7 +1687,7 @@ function speak(text) {
     S.speaking = true; refreshState();
     if (recObj) { try { recObj.abort(); } catch (e) { } }
     let i = 0;
-    const done = () => { if (tok !== spTok) { res(); return; } S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 450); res(); };
+    const done = () => { if (tok !== spTok) { res(); return; } S.speaking = false; S.speakEnd = Date.now(); refreshState(); if (hf) setTimeout(startRec, 450); res(); };
     const next = () => {
       S.lastChunk = Date.now();
       if (tok !== spTok) { res(); return; }
@@ -1427,7 +1701,7 @@ function speak(text) {
 }
 function stopSpeak() {
   spTok++; try { speechSynthesis.cancel(); } catch (e) { }
-  if (S.speaking) { S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 400); }
+  if (S.speaking) { S.speaking = false; S.speakEnd = Date.now(); refreshState(); if (hf) setTimeout(startRec, 400); }
 }
 
 /* ---------- founder voice recognition (on-device voiceprint) ---------- */
@@ -1547,33 +1821,107 @@ function syncVoiceUI() {
   $('#vEnroll').textContent = p ? 'Re-learn' : 'Learn my voice'; $('#vForget').style.display = p ? '' : 'none';
 }
 
-/* ---------- speech in: always listening, conversation mode ---------- */
+/* ---------- speech in: always listening (browser engine, with cloud fallback) ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recObj = null, hf = false, oneShot = false, lastGuest = false;
+let recObj = null, hf = false, lastGuest = false, engine = SR ? 'web' : 'cloud', netErr = 0, backoff = 800, voiceNote = '', micBlocked = false;
 const WAKE = /\b(?:(?:hey|hi|hello|ok|okay|yo|hay|he)\s+)?(?:jarvis|jarvas|jarvus|jervis|jarvice|jarves|javis|travis|jarvi|buddy|buddie|partner|pardner)\b[\s,.:!?-]*/i;
 const STOPRE = /^(?:(?:ok|okay|hey|hi)[, ]+)?(?:(?:jarvis|buddy|partner)[, ]*)?(?:please )?(stop|stop listening|stop talking|stop it|goodbye|good bye|bye|bye bye|that'?s all|that is all|go to sleep|end (?:the )?conversation|end chat|we are done|we'?re done)(?: now| please| jarvis| buddy| partner)*[\s.!?]*$/i;
-function setConvo(v) {
-  S.convo = v; $('#app').classList.toggle('convo', v); refreshState();
+function setConvo(v) { S.convo = v; $('#app').classList.toggle('convo', v); refreshState(); }
+
+/* cloud engine: records speech in the browser and sends short clips to the Cloudflare worker (Whisper) */
+const CloudSTT = {
+  on: false, ctx: null, stream: null, proc: null, src: null, pre: [], buf: [], inSpeech: false, speechMs: 0, silMs: 0, totMs: 0, nf: 0.003, sr: 48000, busy: false, queued: null, fails: 0, loud: 0,
+  async start() {
+    if (this.on) return true;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      const ac = audioCtx(); if (!ac) throw new Error('no audio');
+      this.ctx = ac; this.sr = ac.sampleRate;
+      this.src = ac.createMediaStreamSource(this.stream); this.proc = ac.createScriptProcessor(4096, 1, 1);
+      const z = ac.createGain(); z.gain.value = 0; this.src.connect(this.proc); this.proc.connect(z); z.connect(ac.destination);
+      this.proc.onaudioprocess = e => this.chunk(new Float32Array(e.inputBuffer.getChannelData(0)));
+      this.on = true; S.listening = true; micBlocked = false; refreshState(); return true;
+    } catch (e) { this.stop(); micBlocked = true; refreshState(); return false; }
+  },
+  stop() { this.on = false; S.listening = false; try { this.proc && (this.proc.onaudioprocess = null, this.proc.disconnect()); this.src && this.src.disconnect(); this.stream && this.stream.getTracks().forEach(t => t.stop()); } catch (e) { } this.proc = this.src = this.stream = null; this.reset(); refreshState(); },
+  reset() { this.pre = []; this.buf = []; this.inSpeech = false; this.speechMs = this.silMs = this.totMs = 0; },
+  chunk(d) {
+    if (!this.on) return;
+    if (S.speaking || Date.now() - (S.speakEnd || 0) < 600 || enrolling) { this.reset(); return; }
+    let s = 0, pk = 0; for (let i = 0; i < d.length; i++) { const v = d[i]; s += v * v; if (Math.abs(v) > pk) pk = Math.abs(v); }
+    const rms = Math.sqrt(s / d.length), ms = d.length / this.sr * 1000;
+    if (!this.inSpeech && rms < this.nf * 2.5) this.nf = this.nf * 0.95 + rms * 0.05;
+    const voiced = rms > Math.max(0.012, this.nf * 3.2);
+    if (!this.inSpeech) {
+      this.pre.push(d); if (this.pre.length > 4) this.pre.shift();
+      if (voiced) { this.inSpeech = true; this.buf = this.pre.slice(); this.pre = []; this.speechMs = ms; this.silMs = 0; this.totMs = this.buf.length * ms; this.loud = rms; $('#interim').textContent = '…'; }
+      return;
+    }
+    this.buf.push(d); this.totMs += ms;
+    if (voiced) { this.speechMs += ms; this.silMs = 0; this.loud = Math.max(this.loud, rms); } else this.silMs += ms;
+    const limit = S.convo ? 14000 : 7000;
+    if (this.silMs >= 850 || this.totMs >= limit) {
+      const keep = this.speechMs >= 380 && (S.convo || this.totMs <= 7000);
+      const buf = this.buf, dur = this.speechMs; this.reset(); $('#interim').textContent = '';
+      if (keep) this.submit(buf, dur);
+    }
+  },
+  wav(chunks) {
+    let n = 0; chunks.forEach(c => n += c.length); const all = new Float32Array(n); let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
+    const ratio = this.sr / 16000, len = Math.floor(n / ratio), pcm = new Int16Array(len);
+    for (let i = 0; i < len; i++) { const a = Math.floor(i * ratio), b = Math.min(n, Math.floor((i + 1) * ratio)); let t = 0; for (let k = a; k < b; k++) t += all[k]; const v = Math.max(-1, Math.min(1, t / Math.max(1, b - a))); pcm[i] = v < 0 ? v * 32768 : v * 32767; }
+    const buf = new ArrayBuffer(44 + len * 2), dv = new DataView(buf), w = (p, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(p + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); dv.setUint32(4, 36 + len * 2, true); w(8, 'WAVE'); w(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); w(36, 'data'); dv.setUint32(40, len * 2, true);
+    new Int16Array(buf, 44).set(pcm); return new Uint8Array(buf);
+  },
+  b64(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); },
+  async submit(chunks, dur) {
+    if (this.busy) { this.queued = [chunks, dur]; return; }
+    this.busy = true; const wasConvo = S.convo;
+    try {
+      const b64 = this.b64(this.wav(chunks));
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 25000);
+      const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio: b64 }), signal: ctl.signal }); clearTimeout(to);
+      const raw = await r.text(); let j = null; try { j = JSON.parse(raw); } catch (e) { }
+      if (!r.ok || !j || typeof j.text !== 'string') throw new Error('stt ' + r.status);
+      this.fails = 0; voiceNote = ''; refreshState();
+      const t = j.text.replace(/\s+/g, ' ').trim();
+      if (t.length < 2 || /^[\W_]*$/.test(t) || /^\[.*\]$|^\(.*\)$/.test(t)) return;
+      if (dur < 1400 && /^(thank you|thanks for watching|thanks|you|bye|okay|uh|um|hmm|oh|yeah)[.!? ]*$/i.test(t) && !WAKE.test(t)) return;
+      onHeard(t, [t]);
+    } catch (e) {
+      if (++this.fails >= 3) { voiceNote = 'Voice service unreachable — type for now'; refreshState(); this.stop(); engine = 'web'; netErr = 0; setTimeout(() => { voiceNote = ''; refreshState(); startRec(); }, 60000); }
+    } finally { this.busy = false; if (this.queued) { const q = this.queued; this.queued = null; this.submit(q[0], q[1]); } }
+  }
+};
+function switchEngine(to) {
+  if (engine === to) return; engine = to; netErr = 0; backoff = 800;
+  try { recObj && recObj.abort(); } catch (e) { }
+  if (to === 'cloud') { voiceNote = 'Switching voice engine…'; refreshState(); startRec(); setTimeout(() => { if (voiceNote === 'Switching voice engine…') { voiceNote = ''; refreshState(); } }, 2500); }
 }
 function startRec() {
-  if (!SR || recObj || S.speaking || enrolling || (!hf && !oneShot)) return;
+  if (!hf || S.speaking || enrolling || micBlocked) return;
+  if (engine === 'cloud') { if (!CloudSTT.on) CloudSTT.start(); return; }
+  if (!SR || recObj) return;
   const r = new SR(); recObj = r;
   r.lang = 'en-US'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 3;
   r.onstart = () => { S.listening = true; refreshState(); };
   r.onresult = e => {
+    netErr = 0; backoff = 800; micBlocked = false; if (voiceNote) { voiceNote = ''; refreshState(); }
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i], t = res[0].transcript.trim();
-      micBlocked = false;
       if (!res.isFinal) { $('#interim').textContent = '“' + t + '”'; continue; }
       $('#interim').textContent = '';
       onHeard(t, Array.from(res).map(a => String(a.transcript || '').trim()).filter(Boolean));
     }
   };
   r.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { const first = !micBlocked; micBlocked = true; setConvo(false); if (first) toast('The microphone is blocked. Click the lock icon in the address bar, allow Microphone, then tap the mic chip at the top.', 7000); micChip(); }
-    else if (e.error === 'network') { toast('Voice recognition needs an internet connection.', 3500); }
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { const first = !micBlocked; micBlocked = true; setConvo(false); if (first) toast('The microphone is blocked. Click the lock icon in the address bar, allow Microphone, then tap the orb.', 7000, true); micChip(); refreshState(); }
+    else if (e.error === 'network') { netErr++; backoff = Math.min(8000, backoff * 2); if (netErr >= 3) switchEngine('cloud'); }
+    else if (e.error === 'audio-capture') { voiceNote = 'No microphone found'; refreshState(); }
   };
-  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (hf && !S.speaking && !enrolling && !micBlocked) setTimeout(startRec, 300); };
+  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (hf && !S.speaking && !enrolling && !micBlocked && engine === 'web') setTimeout(startRec, netErr ? backoff : 300); };
   try { r.start(); } catch (e) { recObj = null; }
 }
 function voiceWho() {
@@ -1603,17 +1951,14 @@ function onHeard(t, alts) {
     }
     return;
   }
-  /* in conversation: every phrase is for me; strip a leading name */
   const cmd = (m && m.index <= 2) ? t.slice(m.index + m[0].length).trim() : t;
   if (cmd.length > 1) handle(cmd, who);
   else if (m) { const g = who.guest ? 'Yes?' : rnd(['Yes, ' + NAME() + '?', 'I am here, ' + NAME() + '.']); addMsg('j', g, [], false); speak(g); }
 }
-let micBlocked = false;
 function micChip() {
   const c = $('#hfBtn'), d = $('#hfDot'), t = $('#hfTxt'); if (!c) return;
   let k = 'off', txt = 'Mic off';
-  if (!SR) { k = 'bad'; txt = 'Voice not supported'; }
-  else if (micBlocked) { k = 'bad'; txt = 'Mic blocked · tap'; }
+  if (micBlocked) { k = 'bad'; txt = 'Mic blocked · tap'; }
   else if (hf && S.speaking) { k = 'live'; txt = 'Speaking'; }
   else if (hf && S.listening) { k = 'live'; txt = S.convo ? 'Listening' : 'Say “Hi Jarvis”'; }
   else if (hf) { k = 'wait'; txt = 'Starting mic…'; }
@@ -1623,17 +1968,17 @@ function micChip() {
 }
 function syncHf() { micChip(); $('#sHands').classList.toggle('on', hf); S.settings.hands = hf; save.settings(); }
 async function setHf(v, quiet) {
-  if (!SR) { toast('Voice input is not supported in this browser. Try Chrome or Edge.', 4500); return; }
   hf = v; syncHf();
   if (hf) { micBlocked = false; audioCtx(); startRec(); if (VID.profile) VID.start(); if (!quiet) toast('Listening. Say “Hi Jarvis”, “Buddy” or “Partner”.'); }
-  else { setConvo(false); try { recObj && recObj.abort(); } catch (e) { } VID.stop(); if (!quiet) toast('Listening is off. Tap the mic or turn it back on.'); }
+  else { setConvo(false); try { recObj && recObj.abort(); } catch (e) { } CloudSTT.stop(); VID.stop(); if (!quiet) toast('Listening is off.'); }
+  refreshState();
 }
 
 /* ---------- state + orb ---------- */
 function refreshState() {
-  S.state = S.busy ? 'thinking' : S.speaking ? 'speaking' : (oneShot || S.listening) ? 'listening' : 'idle';
+  S.state = S.busy ? 'thinking' : S.speaking ? 'speaking' : S.listening ? 'listening' : 'idle';
   const L = { idle: S.convo ? 'Listening' : hf ? 'Say “Hi Jarvis”, “Buddy” or “Partner”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: 'Listening' };
-  $('#stateLbl').textContent = L[S.state]; micChip();
+  $('#stateLbl').textContent = voiceNote || (micBlocked ? 'Microphone blocked — tap the orb to retry' : L[S.state]); micChip();
 }
 const cv = $('#orb'), cx = cv.getContext('2d'); let OW = 0, OH = 0;
 function fit() { const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); OW = r.width; OH = r.height; cv.width = Math.max(1, OW * d); cv.height = Math.max(1, OH * d); cx.setTransform(d, 0, 0, d, 0, 0); }
@@ -1715,7 +2060,9 @@ function init() {
   });
   $('#log').scrollTop = 1e9;
   $('#form').onsubmit = e => { e.preventDefault(); const v = $('#txt').value; $('#txt').value = ''; handle(v); };
-  $('#hfBtn').onclick = () => { if (!SR) { toast('Voice input needs Chrome or Edge. You can still type.', 4500); return; } if (micBlocked) { micBlocked = false; setHf(true); } else setHf(!hf); };
+  $('#hfBtn').onclick = () => { if (micBlocked) { micBlocked = false; setHf(true); } else setHf(!hf); };
+  $('#orbWrap').onclick = () => { if (!hf || micBlocked) { micBlocked = false; setHf(true, true); } else if (S.speaking) stopSpeak(); };
+  $('#menuBtn').onclick = () => setDrawer(!S.drawer);
   $('#setBtn').onclick = openSettings; $('#sClose').onclick = closeSettings;
   $('#sheet').onclick = e => { if (e.target.id === 'sheet') closeSettings(); };
   $('#sName').oninput = e => { S.settings.name = e.target.value.trim() || 'boss'; save.settings(); };
@@ -1763,13 +2110,13 @@ function init() {
     try {
       if (S.speaking && 'speechSynthesis' in window && !speechSynthesis.speaking && !speechSynthesis.pending && Date.now() - (S.lastChunk || 0) > 3500) { stopSpeak(); }
     } catch (e) { }
-    if (hf && SR && !recObj && !S.speaking && !enrolling && !micBlocked) startRec();
+    if (hf && !S.speaking && !enrolling && !micBlocked && ((engine === 'web' && !recObj) || (engine === 'cloud' && !CloudSTT.on))) startRec();
   }, 2500);
   /* first tap or key anywhere (re)starts listening, in case the browser wanted a gesture */
-  const kick = () => { audioCtx(); if (hf && !recObj && !micBlocked) startRec(); };
+  const kick = () => { audioCtx(); if (hf && !micBlocked && ((engine === 'web' && !recObj) || (engine === 'cloud' && !CloudSTT.on))) startRec(); };
   window.addEventListener('pointerdown', kick, { passive: true }); window.addEventListener('keydown', kick);
   /* if the mic is already allowed, start listening straight away */
-  try { if (SR && S.settings.hands !== false && navigator.permissions) navigator.permissions.query({ name: 'microphone' }).then(p => { if (p.state === 'granted') { hf = true; syncHf(); startRec(); if (VID.profile) VID.start(); } }).catch(() => { }); } catch (e) { }
+  try { if (S.settings.hands !== false && navigator.permissions) navigator.permissions.query({ name: 'microphone' }).then(p => { if (p.state === 'granted') { hf = true; syncHf(); startRec(); if (VID.profile) VID.start(); refreshState(); } }).catch(() => { }); } catch (e) { }
   boot();
 }
 function boot() {
@@ -1784,7 +2131,7 @@ function boot() {
   const go = () => {
     audioCtx(); $('#boot').classList.add('hide');
     const g = greeting(); addMsg('j', g, [], false); speak(g);
-    if (S.settings.hands !== false && SR) setTimeout(() => setHf(true, true), 600);
+    if (S.settings.hands !== false) setTimeout(() => setHf(true, true), 600);
     const q = new URLSearchParams(location.search).get('q'); if (q) setTimeout(() => handle(q), 800);
   };
   $('#bootGo').onclick = go;
@@ -1833,5 +2180,5 @@ function initMoneyUI() {
 }
 
 init();
-</script><script>if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</script>
 </body></html>
