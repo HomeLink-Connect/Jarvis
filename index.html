@@ -42,106 +42,132 @@ svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;st
 
 /* layout */
 .app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
-header{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-shrink:0}
+header{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--line2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-shrink:0}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .mark{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--cy);position:relative;box-shadow:0 0 14px rgba(70,224,240,.35)}
 .mark::after{content:'';position:absolute;inset:7px;border-radius:50%;background:var(--cy);box-shadow:0 0 10px var(--cy)}
 .bn{font-family:var(--disp);font-weight:800;letter-spacing:.28em;font-size:15px}
 .bn small{display:block;font-family:var(--mono);font-weight:400;letter-spacing:.14em;font-size:8.5px;color:var(--mu);margin-top:1px}
-.chip{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--mu);padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-transform:uppercase;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;background:rgba(10,16,26,.5)}
+.chip{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--mu);padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-transform:uppercase;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;background:rgba(10,16,26,.5)}
+button.chip{cursor:pointer}
+button.chip:hover{border-color:var(--cy2)}
+.chip.live{border-color:rgba(90,240,160,.4);color:var(--gr)}
+.chip.bad{border-color:rgba(255,107,107,.5);color:var(--dn)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--mu2);flex-shrink:0}
 .dot.on{background:var(--gr);box-shadow:0 0 8px var(--gr)}.dot.off{background:var(--dn);box-shadow:0 0 8px var(--dn)}.dot.am{background:var(--am);box-shadow:0 0 8px var(--am)}
+.dot.pulse{animation:dp 1.6s ease-in-out infinite}@keyframes dp{50%{opacity:.35}}
 .ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(10,16,26,.6);color:var(--mu);display:flex;align-items:center;justify-content:center;transition:.18s;position:relative}
 .ib:hover{color:var(--cy);border-color:var(--cy2)}
-.ib.act{background:var(--cy);color:#04141a;border-color:var(--cy);box-shadow:0 0 18px rgba(70,224,240,.45)}
 .ib[hidden]{display:none}
-main{flex:1;display:grid;grid-template-columns:340px minmax(0,1fr) 340px;min-height:0;gap:0}
-.col{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line2)}
-#colSide{border-right:0;border-left:1px solid var(--line2)}
+main{flex:1;display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr) minmax(300px,360px);min-height:0}
+.col{min-height:0;min-width:0;display:flex;flex-direction:column}
+#colChat{border-right:1px solid var(--line2);background:rgba(7,13,21,.45)}
+#colSide{border-left:1px solid var(--line2);background:rgba(7,13,21,.45)}
+.colh{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mu2);padding:12px 18px 6px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.colh em{font-style:normal;background:var(--cy);color:#04141a;border-radius:999px;font-size:9.5px;padding:0 6px;font-weight:700;letter-spacing:0}
 
-/* core */
-#colCore{align-items:center;padding:18px 16px;gap:14px;overflow-y:auto}
-#orbWrap{position:relative;width:min(300px,100%);aspect-ratio:1;flex-shrink:0}
-#orb{width:100%;height:100%;display:block}
-#stateLbl{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--cy);text-align:center;min-height:16px}
-#clock{font-family:var(--disp);font-size:30px;font-weight:700;letter-spacing:.08em;text-align:center;line-height:1}
+/* HUD centre */
+#colCore{align-items:center;padding:6px 20px 14px;gap:0;overflow:hidden;position:relative}
+#clock{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:.1em;text-align:center;line-height:1;padding-top:6px;flex-shrink:0}
 #clock small{display:block;font-family:var(--font);font-weight:400;letter-spacing:.02em;font-size:12px;color:var(--mu);margin-top:6px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
-.stat{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.18s}
-.stat:hover{border-color:var(--cy2)}
-.stat b{display:block;font-family:var(--disp);font-size:20px;color:var(--cy)}
-.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--mu);text-transform:uppercase}
-.quick{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;width:100%}
-.q{border:1px solid var(--line);background:rgba(10,16,26,.55);border-radius:999px;padding:7px 13px;font-size:12px;color:var(--mu);transition:.18s}
+#orbWrap{flex:1 1 0;min-height:200px;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#orb{height:100%;aspect-ratio:1/1;max-width:100%;display:block;margin:0 auto}
+#stateLbl{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--cy);text-align:center;min-height:16px;padding:0 0 8px;flex-shrink:0}
+#stage{width:min(760px,100%);text-align:center;min-height:92px;display:flex;flex-direction:column;justify-content:flex-start;gap:6px;flex-shrink:0;padding-bottom:8px}
+#interim{min-height:20px;font-size:13.5px;color:var(--mu);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#caption{font-size:clamp(16px,1.7vw,21px);line-height:1.5;font-weight:500;color:var(--tx);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;text-wrap:balance}
+.quick{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;width:min(760px,100%);flex-shrink:0;padding-bottom:10px}
+.q{border:1px solid var(--line);background:rgba(10,16,26,.55);border-radius:999px;padding:6px 13px;font-size:12px;color:var(--mu);transition:.18s}
 .q:hover{color:var(--cy);border-color:var(--cy2);background:rgba(70,224,240,.06)}
-
-/* chat */
-#colChat{background:linear-gradient(180deg,rgba(7,13,21,.35),rgba(7,13,21,.7))}
-#log{flex:1;overflow-y:auto;padding:22px 22px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
-.msg{max-width:min(720px,88%);display:flex;flex-direction:column;gap:8px;animation:in .3s ease}
-@keyframes in{from{opacity:0;transform:translateY(8px)}}
-.msg.u{align-self:flex-end;align-items:flex-end}
-.bub{padding:11px 15px;border-radius:16px;border:1px solid var(--line);background:var(--panel);word-wrap:break-word;overflow-wrap:anywhere}
-.msg.u .bub{background:linear-gradient(135deg,rgba(70,224,240,.18),rgba(120,190,255,.12));border-color:rgba(70,224,240,.3);border-bottom-right-radius:5px}
-.msg.j .bub{border-bottom-left-radius:5px}
-.msg.j .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--cy);margin:0 0 -3px 4px}
-.bub b{color:#fff}
-.bub ul{margin:6px 0 2px;padding-left:18px}
-.cards{display:flex;flex-wrap:wrap;gap:8px}
-.card{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:12px;border:1px solid rgba(70,224,240,.3);background:rgba(70,224,240,.07);color:var(--cy);text-decoration:none;font-size:13px;font-weight:600;transition:.18s}
-a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
-.card.ok{border-color:rgba(90,240,160,.35);color:var(--gr);background:rgba(90,240,160,.07)}
-.card.bad{border-color:rgba(255,107,107,.35);color:var(--dn);background:rgba(255,107,107,.07)}
-.card small{font-weight:400;color:var(--mu);font-size:11.5px}
-.typing{display:flex;gap:5px;padding:14px 16px}
-.typing i{width:7px;height:7px;border-radius:50%;background:var(--cy);animation:bounce 1.1s infinite}
-.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-5px)}}
-#interim{min-height:22px;padding:0 24px;font-size:13px;color:var(--mu);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dock{padding:8px 18px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center}
-.inp{flex:1;display:flex;align-items:center;border:1px solid var(--line);background:rgba(10,16,26,.8);border-radius:999px;padding:0 6px 0 18px;transition:.18s}
+.dock{width:min(720px,100%);display:flex;flex-shrink:0}
+.inp{flex:1;display:flex;align-items:center;border:1px solid var(--line);background:rgba(10,16,26,.85);border-radius:999px;padding:0 6px 0 20px;transition:.18s}
 .inp:focus-within{border-color:var(--cy);box-shadow:0 0 0 3px rgba(70,224,240,.12)}
 .inp input{flex:1;background:none;border:0;outline:0;padding:14px 0;min-width:0;font-size:15px}
 .inp input::placeholder{color:var(--mu2)}
 .send{width:40px;height:40px;border-radius:50%;border:0;background:var(--cy);color:#04141a;display:flex;align-items:center;justify-content:center}
 .send:hover{box-shadow:0 0 16px rgba(70,224,240,.6)}
-.mic{width:52px;height:52px;border-radius:50%;border:1px solid var(--cy2);background:rgba(70,224,240,.08);color:var(--cy);display:flex;align-items:center;justify-content:center;font-size:18px;transition:.2s;flex-shrink:0;position:relative}
-.mic:hover{background:rgba(70,224,240,.18)}
-.mic.act{background:var(--gr);border-color:var(--gr);color:#03140b;box-shadow:0 0 0 0 rgba(90,240,160,.6);animation:ring 1.4s infinite}
-@keyframes ring{to{box-shadow:0 0 0 16px rgba(90,240,160,0)}}
-.mic[hidden]{display:none}
+
+/* stats + conversation (left) */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 14px 4px;flex-shrink:0}
+.stat{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:9px 6px;text-align:center;cursor:pointer;transition:.18s;min-width:0}
+.stat:hover{border-color:var(--cy2)}
+.stat b{display:block;font-family:var(--disp);font-size:17px;color:var(--cy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--mu);text-transform:uppercase}
+#log{flex:1;overflow-y:auto;padding:6px 14px 16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{max-width:94%;display:flex;flex-direction:column;gap:7px;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.msg.u{align-self:flex-end;align-items:flex-end}
+.bub{padding:9px 13px;border-radius:14px;border:1px solid var(--line);background:var(--panel);word-wrap:break-word;overflow-wrap:anywhere;font-size:13.5px}
+.msg.u .bub{background:linear-gradient(135deg,rgba(70,224,240,.18),rgba(120,190,255,.12));border-color:rgba(70,224,240,.3);border-bottom-right-radius:5px}
+.msg.j .bub{border-bottom-left-radius:5px}
+.msg.j .who{font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--cy);margin:0 0 -3px 4px}
+.bub b{color:#fff}
+.cards{display:flex;flex-wrap:wrap;gap:7px}
+.card{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:11px;border:1px solid rgba(70,224,240,.3);background:rgba(70,224,240,.07);color:var(--cy);text-decoration:none;font-size:12.5px;font-weight:600;transition:.18s}
+a.card:hover{background:rgba(70,224,240,.16)}
+.card.ok{border-color:rgba(90,240,160,.35);color:var(--gr);background:rgba(90,240,160,.07)}
+.card.bad{border-color:rgba(255,107,107,.35);color:var(--dn);background:rgba(255,107,107,.07)}
+.card small{font-weight:400;color:var(--mu);font-size:11px}
+.work{width:100%;border:1px solid rgba(255,178,56,.35);background:rgba(255,178,56,.05);border-radius:12px;overflow:hidden}
+.work pre{margin:0;padding:12px 14px;white-space:pre-wrap;word-wrap:break-word;font-family:var(--font);font-size:13px;line-height:1.55;max-height:360px;overflow:auto}
+.work .wb{display:flex;gap:6px;padding:8px 10px;border-top:1px solid rgba(255,178,56,.2);flex-wrap:wrap}
+.work .wb a,.work .wb button{border:1px solid var(--line);background:rgba(10,16,26,.7);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--tx);text-decoration:none}
+.work .wb a:hover,.work .wb button:hover{border-color:var(--am);color:var(--am)}
+.typing{display:flex;gap:5px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--cy);animation:bounce 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-5px)}}
 
 /* side */
-#colSide{background:rgba(7,13,21,.4)}
 .tabs{display:flex;border-bottom:1px solid var(--line2);flex-shrink:0}
 .tab{flex:1;background:none;border:0;padding:13px 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;justify-content:center;gap:7px;border-bottom:2px solid transparent;transition:.18s}
 .tab:hover{color:var(--tx)}
 .tab.act{color:var(--cy);border-bottom-color:var(--cy)}
 .tab em{font-style:normal;background:var(--cy);color:#04141a;border-radius:999px;font-size:9.5px;padding:0 6px;font-weight:700}
 .pane{display:none;flex:1;min-height:0;flex-direction:column}
-.app[data-pane=tasks] #pTasks,.app[data-pane=remind] #pRemind,.app[data-pane=apps] #pApps{display:flex}
-.plist{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
-.add{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line2);flex-wrap:wrap}
-.add input,.add select{flex:1;min-width:0;background:rgba(10,16,26,.8);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:0;color-scheme:dark}
+.app[data-pane=plan] #pPlan,.app[data-pane=money] #pMoney,.app[data-pane=apps] #pApps{display:flex}
+.half{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+.half+.half{border-top:1px solid var(--line2)}
+.plist{flex:1;overflow-y:auto;padding:6px 14px 10px;display:flex;flex-direction:column;gap:8px;min-height:60px}
+.add{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line2);flex-wrap:wrap;flex-shrink:0}
+.add input,.add select{flex:1;min-width:0;background:rgba(10,16,26,.8);border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:0;color-scheme:dark}
 .add input:focus{border-color:var(--cy)}
 .btn{border:1px solid var(--cy2);background:rgba(70,224,240,.1);color:var(--cy);border-radius:10px;padding:9px 14px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;transition:.18s}
 .btn:hover{background:rgba(70,224,240,.2)}
 .btn.dn{border-color:rgba(255,107,107,.4);color:var(--dn);background:rgba(255,107,107,.08)}
 .btn.sol{background:var(--cy);color:#04141a;border-color:var(--cy)}
-.row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);background:var(--panel);border-radius:12px;animation:in .25s}
+.row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);background:var(--panel);border-radius:12px;animation:in .25s;flex-shrink:0}
 .row.done .t{text-decoration:line-through;color:var(--mu2)}
-.row .t{flex:1;min-width:0;word-wrap:break-word;overflow-wrap:anywhere}
-.row .t small{display:block;color:var(--mu);font-size:11.5px;font-family:var(--mono);margin-top:2px}
+.row .t{flex:1;min-width:0;word-wrap:break-word;overflow-wrap:anywhere;font-size:13.5px}
+.row .t small{display:block;color:var(--mu);font-size:11px;font-family:var(--mono);margin-top:2px}
 .chk{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--cy2);background:none;display:flex;align-items:center;justify-content:center;color:transparent;padding:0;flex-shrink:0}
 .row.done .chk{background:var(--cy);border-color:var(--cy);color:#04141a}
 .rm{background:none;border:0;color:var(--mu2);padding:4px;display:flex}.rm:hover{color:var(--dn)}
 .cd{font-family:var(--mono);font-size:12px;color:var(--am);white-space:nowrap}
 .sec{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu2);margin:8px 2px 0}
-.empty{color:var(--mu2);text-align:center;padding:26px 10px;font-size:13px}
+.empty{color:var(--mu2);text-align:center;padding:18px 10px;font-size:12.5px}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;padding:14px;overflow-y:auto}
 .app-t{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border:1px solid var(--line);background:var(--panel);border-radius:14px;color:var(--tx);font-size:11.5px;transition:.18s;text-align:center}
 .app-t:hover{border-color:var(--cy2);transform:translateY(-2px)}
 .app-t i{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em}
+
+/* money */
+.msum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 6px;flex-shrink:0}
+.msum div{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 10px;min-width:0}
+.msum span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.msum b{display:block;font-family:var(--disp);font-size:15px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mIn{color:var(--gr)}#mOut{color:var(--am)}#mNet{color:var(--cy)}
+.subtabs{display:flex;gap:6px;padding:6px 14px;flex-shrink:0}
+.stab{flex:1;border:1px solid var(--line);background:none;color:var(--mu);border-radius:9px;padding:7px;font-size:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.stab.act{color:#04141a;background:var(--cy);border-color:var(--cy)}
+.mpane{display:none;flex:1;min-height:0;flex-direction:column}
+.mpane.act{display:flex}
+.amt{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.amt.in{color:var(--gr)}.amt.out{color:var(--am)}
+select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radius:8px;padding:4px 6px;font-size:11px;color:var(--cy);color-scheme:dark}
+.job{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;padding:11px 13px;border:1px solid var(--line);background:var(--panel);border-radius:12px;color:var(--tx);transition:.18s;flex-shrink:0}
+.job:hover{border-color:var(--am)}
+.job b{font-size:13.5px}.job span{font-size:11.5px;color:var(--mu)}
 
 /* alerts */
 #toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:150;display:flex;flex-direction:column;gap:10px;width:min(460px,92vw)}
@@ -173,42 +199,38 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 .foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line2);color:var(--mu2);font-size:11.5px;text-align:center;line-height:1.7}
 
 #tabbar{display:none}
-
-/* responsive */
-@media(max-width:1180px){main{grid-template-columns:300px minmax(0,1fr) 300px}#orbWrap{width:min(250px,100%)}}
+@media(max-width:1180px){main{grid-template-columns:minmax(240px,290px) minmax(0,1fr) minmax(280px,320px)}}
 @media(max-width:900px){
   main{grid-template-columns:minmax(0,1fr)}
-  .col{min-width:0}
-  .quick{flex:1 1 100%;min-width:0}
-  .col{border:0}
-  #colSide{display:none;border:0}
-  .app:not([data-view=chat]) #colCore,.app:not([data-view=chat]) #colChat{display:none}
-  .app:not([data-view=chat]) #colSide{display:flex}
-  .app:not([data-view=chat]) .tabs{display:none}
-  #colCore{flex-direction:row;padding:8px 16px;gap:12px;overflow:visible;flex-wrap:wrap;justify-content:flex-start;align-items:center}
-  #orbWrap{width:84px}
-  #clock,.stats{display:none}
-  #stateLbl{text-align:left;font-size:10.5px}
-  .quick{flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px;justify-content:flex-start;scrollbar-width:none}
+  #colChat,#colSide{border:0;display:none}
+  .app[data-view=jarvis] #colCore{display:flex}
+  .app[data-view=log] #colChat{display:flex}.app[data-view=log] #colCore{display:none}
+  .app[data-view=plan] #colSide,.app[data-view=money] #colSide,.app[data-view=apps] #colSide{display:flex}
+  .app:not([data-view=jarvis]) #colCore{display:none}
+  .tabs{display:none}
+  #orbWrap{min-height:220px}
+  #colCore{padding:4px 14px 10px}
+  #clock{font-size:20px}
+  .quick{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;padding-bottom:8px}
   .quick::-webkit-scrollbar{display:none}
   .q{white-space:nowrap}
-  #log{padding:12px 14px 6px}
-  .msg{max-width:94%}
-  .dock{padding:6px 12px calc(10px + env(safe-area-inset-bottom))}
   #tabbar{display:flex;border-top:1px solid var(--line2);background:rgba(5,9,14,.92);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
-  #tabbar button{flex:1;background:none;border:0;padding:10px 4px 9px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase}
+  #tabbar button{flex:1;background:none;border:0;padding:9px 2px 8px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
   #tabbar button.act{color:var(--cy)}
   #tabbar svg.i{width:20px;height:20px}
-  .chip#nextChip{display:none}
+  #nextChip{display:none}
   header{padding:10px 14px;gap:8px}
   .bn small{display:none}
   .chip{padding:6px 10px}
   .chip .lbl{display:none}
+  #hfBtn .lbl{display:inline;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+  .half{flex:none}
+  #pPlan{overflow-y:auto}
+  .plist{max-height:34vh}
 }
-@media(max-width:520px){#colCore{padding:6px 14px}.bn{font-size:13px;letter-spacing:.2em}}
+@media(max-width:520px){.bn{font-size:13px;letter-spacing:.2em}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
-
 .vtag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--gr);text-transform:uppercase;margin-right:4px}
 .vtag.g{color:var(--am)}
 .chip.convo{border-color:rgba(90,240,160,.45);color:var(--gr)}
@@ -222,6 +244,11 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 .ebarw{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
 #enBar{height:100%;width:0;background:var(--gr);transition:width .1s}
 .enote{color:var(--mu);font-size:12.5px;min-height:18px}
+
+.bhint{max-width:340px;font-size:12.5px;color:var(--mu);line-height:1.5}
+.chip.convo,.app.convo #orbWrap{}
+@media(max-height:830px) and (min-width:901px){.quick{flex-wrap:nowrap;overflow-x:auto;justify-content:center;scrollbar-width:none}.q{white-space:nowrap}#stage{min-height:76px}}
+@media(max-width:900px){.mpane .plist{max-height:none}}
 </style></head><body>
 <div class="bg"></div>
 
@@ -231,42 +258,45 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
   <div class="bs" id="bootSub">Initializing neural core</div>
   <div class="bchecks" id="bootChecks"></div>
   <button id="bootGo">INITIALIZE</button>
+  <div class="bhint" id="bootHint">Tap once, then allow the microphone. After that just say “Hi Jarvis”, “Buddy” or “Partner”.</div>
 </div>
 
 <div id="toasts"></div>
 <div id="enroll" hidden><div class="ebox"><div class="ehead">LEARNING YOUR VOICE</div><div id="enStep" class="estep"></div><div id="enLine" class="eline"></div><div class="ebarw"><div id="enBar"></div></div><div id="enNote" class="enote"></div><button type="button" class="btn dn" id="enCancel">Cancel</button></div></div>
 
-<div class="app" id="app" data-view="chat" data-pane="tasks">
+<div class="app" id="app" data-view="jarvis" data-pane="plan">
   <header>
     <div class="brand"><div class="mark"></div><div class="bn">J.A.R.V.I.S.<small>PERSONAL AI ASSISTANT</small></div></div>
     <div class="chip" id="nextChip" hidden><span class="dot am"></span><span id="nextTxt"></span></div>
-    <div class="chip convo" id="convoChip" hidden><span class="dot on"></span><span>In conversation · say “stop” to end</span></div>
     <div class="chip" id="aiChip" title="Cloud brain status"><span class="dot" id="aiDot"></span><span class="lbl" id="aiTxt">Ready</span></div>
-    <button class="ib" id="hfBtn" title="Hands-free: say “Hey Jarvis”" aria-label="Hands-free wake word"><svg class="i" data-i="bolt"></svg></button>
+    <button class="chip btnchip" id="hfBtn" title="Tap to turn listening on or off" aria-label="Listening status"><span class="dot" id="hfDot"></span><span class="lbl" id="hfTxt">Mic off</span></button>
     <button class="ib" id="instBtn" title="Install app" aria-label="Install app" hidden><svg class="i" data-i="download"></svg></button>
     <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="i" data-i="sliders"></svg></button>
   </header>
 
   <main>
-    <section class="col" id="colCore">
-      <div id="orbWrap"><canvas id="orb"></canvas></div>
-      <div id="stateLbl">Standing by</div>
-      <div id="clock">--:--<small>—</small></div>
+    <section class="col" id="colChat">
       <div class="stats">
-        <div class="stat" data-go="tasks"><b id="sT">0</b><span>Tasks</span></div>
-        <div class="stat" data-go="remind"><b id="sR">0</b><span>Reminders</span></div>
-        <div class="stat" data-go="remind"><b id="sM">0</b><span>Timers</span></div>
+        <div class="stat" data-go="plan"><b id="sT">0</b><span>Tasks</span></div>
+        <div class="stat" data-go="plan"><b id="sR">0</b><span>Reminders</span></div>
+        <div class="stat" data-go="money"><b id="sM">0</b><span>Net · month</span></div>
       </div>
-      <div class="quick" id="quick"></div>
+      <div class="colh">Conversation</div>
+      <div id="log" aria-live="polite"></div>
     </section>
 
-    <section class="col" id="colChat">
-      <div id="log" aria-live="polite"></div>
-      <div id="interim"></div>
+    <section class="col" id="colCore">
+      <div id="clock">--:--<small>—</small></div>
+      <div id="orbWrap"><canvas id="orb"></canvas></div>
+      <div id="stateLbl">Standing by</div>
+      <div id="stage">
+        <div id="interim"></div>
+        <div id="caption"></div>
+      </div>
+      <div class="quick" id="quick"></div>
       <form class="dock" id="form" autocomplete="off">
-        <button type="button" class="mic" id="micBtn" title="Tap to speak" aria-label="Speak"><svg class="i" data-i="mic"></svg></button>
         <div class="inp">
-          <input id="txt" type="text" placeholder="Ask anything, or say: open YouTube · remind me in 10 minutes…" enterkeyhint="send" aria-label="Message">
+          <input id="txt" type="text" placeholder="Or type here — open YouTube · log income 50 from John · write a proposal…" enterkeyhint="send" aria-label="Message">
           <button type="submit" class="send" aria-label="Send"><svg class="i" data-i="send"></svg></button>
         </div>
       </form>
@@ -274,27 +304,62 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 
     <aside class="col" id="colSide">
       <div class="tabs">
-        <button class="tab act" data-pane="tasks"><svg class="i" data-i="list"></svg>Tasks <em id="bT">0</em></button>
-        <button class="tab" data-pane="remind"><svg class="i" data-i="bell"></svg>Remind <em id="bR">0</em></button>
+        <button class="tab act" data-pane="plan"><svg class="i" data-i="list"></svg>Plan <em id="bT">0</em></button>
+        <button class="tab" data-pane="money"><svg class="i" data-i="coin"></svg>Money</button>
         <button class="tab" data-pane="apps"><svg class="i" data-i="grid"></svg>Apps</button>
       </div>
 
-      <div class="pane" id="pTasks">
-        <div class="plist" id="taskList"></div>
-        <form class="add" id="taskForm"><input id="taskIn" type="text" placeholder="Add a task…" aria-label="New task"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button></form>
+      <div class="pane" id="pPlan">
+        <div class="half">
+          <div class="colh">Tasks</div>
+          <div class="plist" id="taskList"></div>
+          <form class="add" id="taskForm"><input id="taskIn" type="text" placeholder="Add a task…" aria-label="New task"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button></form>
+        </div>
+        <div class="half">
+          <div class="colh">Reminders &amp; timers <em id="bR">0</em></div>
+          <div class="plist" id="remList"></div>
+          <form class="add" id="remForm">
+            <input id="remText" type="text" placeholder="Remind me to…" aria-label="Reminder text" style="flex:1 1 100%">
+            <input id="remAt" type="datetime-local" aria-label="When" style="flex:1 1 55%">
+            <button class="btn sol" type="submit"><svg class="i" data-i="bell"></svg>Set</button>
+            <select id="tmSel" aria-label="Quick timer" style="flex:1 1 55%">
+              <option value="">Quick timer…</option><option value="60">1 minute</option><option value="300">5 minutes</option><option value="600">10 minutes</option><option value="900">15 minutes</option><option value="1800">30 minutes</option><option value="3600">1 hour</option>
+            </select>
+            <button class="btn" type="button" id="tmGo"><svg class="i" data-i="timer"></svg>Start</button>
+          </form>
+        </div>
       </div>
 
-      <div class="pane" id="pRemind">
-        <div class="plist" id="remList"></div>
-        <form class="add" id="remForm">
-          <input id="remText" type="text" placeholder="Remind me to…" aria-label="Reminder text" style="flex:1 1 100%">
-          <input id="remAt" type="datetime-local" aria-label="When" style="flex:1 1 60%">
-          <button class="btn sol" type="submit"><svg class="i" data-i="bell"></svg>Set</button>
-          <select id="tmSel" aria-label="Quick timer" style="flex:1 1 60%">
-            <option value="">Quick timer…</option><option value="60">1 minute</option><option value="300">5 minutes</option><option value="600">10 minutes</option><option value="900">15 minutes</option><option value="1800">30 minutes</option><option value="3600">1 hour</option>
-          </select>
-          <button class="btn" type="button" id="tmGo"><svg class="i" data-i="timer"></svg>Start</button>
-        </form>
+      <div class="pane" id="pMoney">
+        <div class="msum">
+          <div><span>Income</span><b id="mIn">0</b></div>
+          <div><span>Spent</span><b id="mOut">0</b></div>
+          <div><span>Net</span><b id="mNet">0</b></div>
+        </div>
+        <div class="subtabs">
+          <button class="stab act" data-mt="led">Ledger</button><button class="stab" data-mt="leads">Leads</button><button class="stab" data-mt="jobs">Jobs</button>
+        </div>
+        <div class="mpane act" id="mled">
+          <div class="plist" id="ledList"></div>
+          <form class="add" id="ledForm">
+            <select id="ledType" aria-label="Type"><option value="in">Income</option><option value="out">Expense</option></select>
+            <input id="ledAmt" type="number" step="0.01" min="0" placeholder="Amount" aria-label="Amount" style="flex:1 1 30%">
+            <input id="ledNote" type="text" placeholder="From / for…" aria-label="Note" style="flex:1 1 100%">
+            <button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Log</button>
+          </form>
+        </div>
+        <div class="mpane" id="mleads">
+          <div class="plist" id="leadList"></div>
+          <form class="add" id="leadForm">
+            <input id="leadName" type="text" placeholder="Client or lead name" aria-label="Lead name" style="flex:1 1 100%">
+            <input id="leadContact" type="text" placeholder="Phone or email" aria-label="Contact" style="flex:1 1 45%">
+            <input id="leadValue" type="number" step="0.01" min="0" placeholder="Value" aria-label="Deal value" style="flex:1 1 25%">
+            <button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button>
+          </form>
+        </div>
+        <div class="mpane" id="mjobs">
+          <div class="plist" id="jobList"></div>
+        </div>
       </div>
 
       <div class="pane" id="pApps">
@@ -304,9 +369,10 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
   </main>
 
   <nav id="tabbar">
-    <button data-view="chat" class="act"><svg class="i" data-i="chat"></svg>Jarvis</button>
-    <button data-view="tasks"><svg class="i" data-i="list"></svg>Tasks</button>
-    <button data-view="remind"><svg class="i" data-i="bell"></svg>Remind</button>
+    <button data-view="jarvis" class="act"><svg class="i" data-i="bolt"></svg>Jarvis</button>
+    <button data-view="log"><svg class="i" data-i="chat"></svg>Log</button>
+    <button data-view="plan"><svg class="i" data-i="list"></svg>Plan</button>
+    <button data-view="money"><svg class="i" data-i="coin"></svg>Money</button>
     <button data-view="apps"><svg class="i" data-i="grid"></svg>Apps</button>
   </nav>
 </div>
@@ -314,11 +380,12 @@ a.card:hover{background:rgba(70,224,240,.16);transform:translateY(-1px)}
 <div id="sheet" role="dialog" aria-modal="true" aria-label="Settings">
   <div class="sbox">
     <h2>SETTINGS</h2><p class="sub">Tune how Jarvis talks, listens and reaches you.</p>
-    <div class="fld"><label for="sName">What should I call you?</label><input type="text" id="sName" maxlength="24" placeholder="Sir"></div>
+    <div class="fld"><label for="sName">What should I call you?</label><input type="text" id="sName" maxlength="24" placeholder="boss"></div>
+    <div class="fld" style="display:flex;gap:10px"><div style="flex:1"><label for="sBiz">Business name (invoices)</label><input type="text" id="sBiz" maxlength="60" placeholder="Your business"></div><div style="width:84px"><label for="sCur">Currency</label><input type="text" id="sCur" maxlength="4" placeholder="$"></div></div>
     <div class="fld"><label for="sVoice">Voice</label><select id="sVoice"></select></div>
     <div class="fld"><label for="sRate">Speaking speed</label><input type="range" id="sRate" min="0.7" max="1.4" step="0.05"></div>
     <div class="tg"><span>Speak replies<small>Jarvis reads every answer aloud</small></span><button type="button" class="sw" id="sSpeak" aria-label="Speak replies"></button></div>
-    <div class="tg"><span>Always listening<small>Say “Hi Jarvis”, “Buddy” or “Partner”. Then talk freely until you say “stop”.</small></span><button type="button" class="sw" id="sHands" aria-label="Hands-free"></button></div>
+    <div class="tg"><span>Always listening<small>Say “Hi Jarvis”, “Buddy” or “Partner”. No button needed.</small></span><button type="button" class="sw" id="sHands" aria-label="Always listening"></button></div>
     <div class="tg"><span>Founder voice<small id="vSt">…</small></span><span style="display:flex;gap:6px"><button type="button" class="btn" id="vEnroll">Learn my voice</button><button type="button" class="btn dn" id="vForget">Forget</button></span></div>
     <div class="fld"><label for="sSens">Voice match strictness (left = stricter)</label><input type="range" id="sSens" min="0.7" max="1.6" step="0.05"></div>
     <div class="tg"><span>Reminder notifications<small id="nSt">Checking…</small></span><button type="button" class="btn" id="nBtn">Enable</button></div>
@@ -361,7 +428,8 @@ const IC = {
   x: '<path d="M6 6l12 12M18 6 6 18"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
-  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>'
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
+  coin: '<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2c-.4-.8-1.3-1.2-2.5-1.2-1.4 0-2.5.7-2.5 1.8 0 2.6 5 1.2 5 3.8 0 1.2-1.2 2-2.6 2-1.3 0-2.3-.5-2.7-1.4M12 6.5V8m0 8v1.5"/>'
 };
 const ic = n => '<svg class="i" viewBox="0 0 24 24">' + (IC[n] || '') + '</svg>';
 function hydrateIcons(root) { (root || document).querySelectorAll('svg[data-i]').forEach(s => { s.setAttribute('viewBox', '0 0 24 24'); s.innerHTML = IC[s.dataset.i] || ''; }); }
@@ -376,7 +444,9 @@ const store = {
 
 /* state */
 const S = {
-  settings: Object.assign({ name: 'boss', voice: '', rate: 1, autoSpeak: true, hands: true, endpoint: '', sens: 1 }, store.get('settings', {})),
+  settings: Object.assign({ name: 'boss', voice: '', rate: 1, autoSpeak: true, hands: true, endpoint: '', sens: 1, cur: '$', biz: '', v: 2 }, store.get('settings', {})),
+  ledger: store.get('ledger', []),
+  leads: store.get('leads', []),
   tasks: store.get('tasks', []),
   reminders: store.get('reminders', []),
   chat: store.get('chat', []),
@@ -385,10 +455,13 @@ const S = {
 const save = {
   settings: () => store.set('settings', S.settings),
   tasks: () => store.set('tasks', S.tasks),
+  ledger: () => store.set('ledger', S.ledger),
+  leads: () => store.set('leads', S.leads),
   reminders: () => store.set('reminders', S.reminders),
   chat: () => store.set('chat', S.chat.slice(-60))
 };
 if (S.settings.name === 'Sir') S.settings.name = 'boss';
+if (!S.settings.v || S.settings.v < 2) { S.settings.hands = true; S.settings.v = 2; store.set('settings', S.settings); }
 const NAME = () => (S.settings.name || 'boss').trim() || 'boss';
 const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /* guests (a voice that is not the founder) never get the title */
@@ -460,7 +533,7 @@ function normUrl(u) {
 /* ---------- launching ---------- */
 function launch(url) {
   try {
-    if (/^https?:/i.test(url)) {
+    if (/^(?:https?|blob):/i.test(url)) {
       const w = window.open(url, '_blank');
       if (w) { try { w.opener = null; } catch (e) { } return true; }
       return false;
@@ -643,6 +716,7 @@ function showAlert(h, p, r) {
   $('#toasts').appendChild(el);
 }
 function toast(msg, ms) {
+  const ex = $$('#toasts .toast.info p'); if (ex.some(p => p.textContent === msg)) return; if (ex.length >= 3) ex[0].parentNode.remove();
   const el = document.createElement('div'); el.className = 'toast info';
   el.innerHTML = '<h4>J.A.R.V.I.S.</h4><p></p>'; el.querySelector('p').textContent = msg;
   $('#toasts').appendChild(el); setTimeout(() => el.remove(), ms || 3200);
@@ -707,7 +781,8 @@ function localCommand(raw) {
   let t = raw.trim().replace(/\s+/g, ' ');
   const cl = t.replace(/[!?]+$/g, '').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|will you|kindly)\s+/i, '').trim();
   let low = cl.toLowerCase();
-  const og = s => { const i = low.indexOf(String(s).toLowerCase()); return i >= 0 ? cl.substr(i, String(s).length) : s; };
+  const lo0 = low;
+  const og = s => { const i = lo0.indexOf(String(s).toLowerCase()); return i >= 0 ? cl.substr(i, String(s).length) : s; };
   if (!low) return R('Yes, ' + NAME() + '?');
   let m;
 
@@ -731,6 +806,7 @@ function localCommand(raw) {
   }
 
   /* reminders (incl. time-first phrasing) */
+  if (/^follow ?up with\b/.test(low)) low = 'remind me to ' + low;
   let rr = low.replace(/^((?:in|after|at|by|tomorrow|tonight|today|this|on|next)\b.*?),?\s+(remind me\b.*)$/i, (a, b, c) => c + ' ' + b);
   m = /^(?:set (?:me )?(?:a |an )?(?:reminder|alarm)|reminder|remind me|add (?:a )?reminder|wake me up|wake me)\b\s*(.*)$/i.exec(rr);
   if (m) {
@@ -761,6 +837,8 @@ function localCommand(raw) {
   if (/^(cancel|stop|delete|remove|clear)\s+(all\s+)?(my\s+)?(timers?|reminders?|alarms?)$/.test(low)) return R('', [{ type: 'cancel_reminder', all: true }]);
   if ((m = /^(?:cancel|delete|remove)\s+(?:the\s+|my\s+)?(?:reminder|alarm|timer)\s+(?:to |about |for )?(.+)$/.exec(low))) return R('', [{ type: 'cancel_reminder', text: m[1] }]);
   if (/\b(my |the |pending |upcoming )?(reminders|alarms|timers)\b/.test(low) && /^(what|show|list|read|any|do i have|how many|tell me)/.test(low)) return R(listRemsReply(), [{ type: 'show_pane', pane: 'remind' }]);
+
+  const mc = moneyCommand(low, cl, og); if (mc) return mc;
 
   /* tasks */
   if ((m = /^(?:add|create|new|make|put)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:task|to-?do|todo|item)\s*(?:to|:|called|named|for|-)?\s*(.+)$/.exec(low)) ||
@@ -850,6 +928,7 @@ function sysPrompt() {
     '{"type":"add_task","text":"..."}\n{"type":"complete_task","text":"..."}\n{"type":"remove_task","text":"..."}\n' +
     '{"type":"reminder","text":"what to remind","in_minutes":10}  (or "at":"YYYY-MM-DDTHH:MM" in local time)\n' +
     '{"type":"timer","seconds":300,"label":"..."}\n{"type":"weather","place":"city"}\n' +
+    '{"type":"log_income","amount":50,"note":"from John"}\n{"type":"log_expense","amount":20,"note":"data bundle"}\n{"type":"add_lead","name":"...","contact":"...","note":"...","value":0}\n{"type":"invoice","client":"...","amount":200,"desc":"..."}\n{"type":"work","prompt":"the full request"}  (use for long drafts: proposals, pitches, business plans, content plans, outreach messages; put a one-sentence reply and let the work action write it)\n' +
     'Rules: only include an action when the user asks for it; use "actions":[] for ordinary conversation; the reply must match what the actions do and never claim an action you did not include; for reminders always compute the time from the current date/time above.';
 }
 function extractJSON(txt) {
@@ -863,7 +942,7 @@ function extractJSON(txt) {
   }
   return null;
 }
-const OK_TYPES = ['open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
+const OK_TYPES = ['log_income', 'log_expense', 'add_lead', 'lead_status', 'invoice', 'work', 'open_app', 'open_url', 'search', 'call', 'sms', 'whatsapp', 'email', 'add_task', 'complete_task', 'remove_task', 'reminder', 'timer', 'weather'];
 function parseAI(text) {
   const j = extractJSON(text);
   if (j && (typeof j.reply === 'string' || Array.isArray(j.actions))) {
@@ -913,7 +992,7 @@ async function execAction(a) {
     case 'enroll_voice': setTimeout(enrollVoice, 1500); return {};
     case 'forget_voice': VID.forget(); syncVoiceUI(); return { say: 'Done. I have forgotten your voice, and every voice will now be treated as the founder.' };
     case 'clear_chat': S.chat = []; save.chat(); $('#log').innerHTML = ''; return {};
-    case 'show_pane': setPane(a.pane); if (window.innerWidth <= 900) setView(a.pane); return {};
+    case 'show_pane': { const pn = (a.pane === 'tasks' || a.pane === 'remind') ? 'plan' : a.pane; setPane(pn); if (window.innerWidth <= 900) setView(pn); return {}; }
     case 'show_settings': openSettings(); return {};
     case 'open_app': {
       const app = findApp(a.name); if (!app) return { fail: 'No shortcut for ' + a.name, card: { label: 'Search “' + a.name + '”', url: siteUrl('google', a.name) } };
@@ -956,12 +1035,188 @@ async function execAction(a) {
       catch (e) { return { say: 'I couldn’t reach the weather service just now.' }; }
     }
   }
-  return {};
+  return await execMoney(a);
 }
 function openCard(label, url) {
   const ok = launch(url);
   return { card: { label, url, sub: ok ? '' : 'Tap to open' }, opened: ok };
 }
+
+/* ===== part 2b: money tools — ledger, leads, invoices, work drafts ===== */
+const CUR = () => (S.settings.cur || '$').trim() || '$';
+function money(n) { n = +n || 0; return (n < 0 ? '-' : '') + CUR() + Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: Math.abs(n) % 1 ? 2 : 0 }); }
+function spokenMoney(n) { return money(n).replace(/^(-?)([^\d]+)/, (m, s, c) => (s ? 'minus ' : '') + (c === '$' ? '' : c) ) + (CUR() === '$' ? ' dollars' : ''); }
+function parseAmount(str) {
+  const m = /(\d[\d,]*(?:\.\d+)?)\s*(k|thousand|hundred)?\b/i.exec(String(str || '').replace(/(\d)\s+(?=\d{3}\b)/g, '$1'));
+  if (!m) return null;
+  let v = parseFloat(m[1].replace(/,/g, '')); const u = (m[2] || '').toLowerCase();
+  if (u === 'k' || u === 'thousand') v *= 1000; else if (u === 'hundred') v *= 100;
+  return isFinite(v) && v > 0 ? { amt: v, text: m[0], index: m.index } : null;
+}
+function periodStart(p) {
+  const n = new Date();
+  if (p === 'today') return new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
+  if (p === 'week') { const d = new Date(n.getFullYear(), n.getMonth(), n.getDate()); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); }
+  if (p === 'all') return 0;
+  return new Date(n.getFullYear(), n.getMonth(), 1).getTime();
+}
+function totals(p) {
+  const from = periodStart(p || 'month'); let i = 0, o = 0;
+  S.ledger.forEach(e => { if (e.ts >= from) { if (e.type === 'in') i += e.amount; else o += e.amount; } });
+  return { in: i, out: o, net: i - o };
+}
+function addLedger(type, amount, note) {
+  const e = { id: uid(), type, amount: +amount, note: cap(String(note || '').trim()), ts: Date.now() };
+  S.ledger.unshift(e); save.ledger(); renderMoney(); return e;
+}
+function addLead(name, contact, note, value) {
+  const l = { id: uid(), name: cap(String(name || '').trim()), contact: String(contact || '').trim(), note: String(note || '').trim(), value: +value || 0, status: 'new', ts: Date.now() };
+  if (!l.name) return null; S.leads.unshift(l); save.leads(); renderMoney(); return l;
+}
+function findLead(q) { q = String(q || '').toLowerCase().trim(); return S.leads.find(l => l.name.toLowerCase() === q) || S.leads.find(l => l.name.toLowerCase().includes(q) || q.includes(l.name.toLowerCase())) || null; }
+const PERIODS = { today: 'today', week: 'this week', month: 'this month', all: 'in total' };
+function reportReply(p) {
+  const t = totals(p);
+  return 'Your income ' + PERIODS[p] + ' is ' + money(t.in) + ', you spent ' + money(t.out) + ', so your net is ' + money(t.net) + '.' + (t.net > 0 ? ' Good work, ' + NAME() + '.' : '');
+}
+function leadsReply() {
+  const open = S.leads.filter(l => !['won', 'lost'].includes(l.status));
+  if (!S.leads.length) return 'You have no leads yet. Say “add lead” followed by a name and what they want.';
+  const val = open.reduce((a, l) => a + l.value, 0);
+  if (!open.length) return 'You have no open leads. ' + S.leads.filter(l => l.status === 'won').length + ' won so far. Say “add lead” followed by a name to start a new one.';
+  return 'You have ' + open.length + ' open ' + (open.length === 1 ? 'lead' : 'leads') + (val ? ' worth about ' + money(val) : '') + ': ' + open.slice(0, 5).map(l => l.name + ' (' + l.status + ')').join(', ') + '. ' + S.leads.filter(l => l.status === 'won').length + ' won so far.';
+}
+const WORK_RE = /\b(proposal|pitch|cold (?:email|message|dm|call)|outreach|business (?:idea|plan|name)|side hustles?|content (?:calendar|plan|ideas)|social media (?:plan|posts?|calendar|strategy|content)|marketing (?:plan|strategy|ideas)|sales (?:script|letter|page|copy)|cover letter|ad copy|advert|product description|quotation|price list|slogan|elevator pitch|follow[- ]?up (?:email|message)|testimonial request)\b/;
+function workIntent(low) {
+  if (/^(?:add|set|create|new)\s+(?:a\s+)?(?:task|reminder|timer|lead|invoice)/.test(low)) return false;
+  if (/\b(?:write|draft|create|generate|give me|suggest|prepare|make me|help me|plan|come up with|need|i want)\b/.test(low) && WORK_RE.test(low)) return true;
+  if (/\b(?:ways?|ideas?|how (?:can|do|should) (?:i|we)|how to)\b.*\b(?:make money|earn money|earn (?:more )?income|get (?:more )?(?:clients|customers|sales)|find (?:clients|customers)|grow (?:my|the) business|start a business|raise funds|get funding|attract investors)\b/.test(low)) return true;
+  if (/\b(?:make|earn) money\b|\bget (?:clients|customers)\b|\bfind (?:clients|customers)\b|\braise funds\b|\bget funding\b/.test(low) && /^(?:how|what|any|give|suggest|ideas|help|tell)/.test(low)) return true;
+  return false;
+}
+function moneyCommand(low, cl, og) {
+  let m;
+  /* ledger: income */
+  if ((m = /^(?:(?:log|add|record|note|enter|book)\s+(?:an?\s+)?(?:income|payment|sale|sales|revenue|earnings?|deposit)|(?:i|we)\s+(?:just\s+)?(?:got paid|received|earned|made|sold|was paid|were paid|collected)|(?:received|got paid|earned|payment of|paid me|sold))\b(.*)$/.exec(low))) {
+    const a = parseAmount(m[1]);
+    if (a) { const note = og(tidy(m[1].replace(a.text, ' ').replace(/\b(?:dollars?|usd|bucks|rand|zar|from|for|of|an?|the|to|me|by|into|on)\b\s*/gi, (x) => /^(from|for)\b/i.test(x) ? '' : ' ')).replace(/\s+/g, ' ')); const fm = /\b(?:from|for)\s+(.+)$/.exec(m[1].replace(a.text, ' ')); return R('', [{ type: 'log_income', amount: a.amt, note: fm ? og(tidy(fm[1])) : note }]); }
+  }
+  /* ledger: expense */
+  if ((m = /^(?:(?:log|add|record|note|enter|book)\s+(?:an?\s+)?(?:expense|cost|spending|purchase|bill)|(?:i|we)\s+(?:just\s+)?(?:spent|paid|bought|used)|(?:spent|paid|bought))\b(.*)$/.exec(low))) {
+    const a = parseAmount(m[1]);
+    if (a) { const fm = /\b(?:on|for|to)\s+(.+)$/.exec(m[1].replace(a.text, ' ')); return R('', [{ type: 'log_expense', amount: a.amt, note: fm ? og(tidy(fm[1])) : '' }]); }
+  }
+  /* pricing */
+  if ((m = /\b(?:charge|price|quote|sell(?: it)? for|pricing)\b.*?\b(?:cost|costs|spend|spent)\D{0,12}(\d[\d.,]*)\D{0,60}?(\d+(?:\.\d+)?)\s*(?:%|percent)/.exec(low))) {
+    const cost = parseFloat(String(m[1]).replace(/,/g, '')), p = parseFloat(m[2]);
+    if (cost > 0 && p > 0 && p < 100) return R('At ' + p + ' percent margin you should charge ' + money(cost / (1 - p / 100)) + ', which earns ' + money(cost / (1 - p / 100) - cost) + ' profit. If you meant a ' + p + ' percent markup, charge ' + money(cost * (1 + p / 100)) + '.');
+  }
+  /* reports */
+  if (/\b(?:how much|what(?:'s| is| are)?)\b.*\b(?:made|earned|earn|income|profit|revenue|spent|expenses?|balance|net|sales)\b/.test(low) || /^(?:my\s+)?(?:income|profit|balance|earnings|finances|money|sales)(?:\s+(?:summary|report|today|this week|this month))?$/.test(low) || /^(?:money|finance|financial|profit)\s+(?:report|summary|update)$/.test(low)) {
+    const p = /today/.test(low) ? 'today' : /week/.test(low) ? 'week' : /all time|total|ever/.test(low) ? 'all' : 'month';
+    return R(reportReply(p), [{ type: 'show_pane', pane: 'money' }]);
+  }
+  /* leads */
+  if ((m = /^(?:add|new|save|create)\s+(?:a\s+)?(?:new\s+)?(?:lead|client|customer|prospect)\s+(.+)$/.exec(low))) {
+    const rest = og(m[1]); const ph = /(\+?\d[\d\s\-()]{6,}\d)/.exec(rest); const em = /([^\s@]+@[^\s@]+\.[^\s@]+)/.exec(rest);
+    let name = rest, note = '';
+    const cut = /\b(?:who|that|wants?|needs?|interested|looking|for|about|is|has|from)\b/i.exec(rest);
+    if (cut) { name = rest.slice(0, cut.index); note = rest.slice(cut.index); }
+    name = name.replace(ph ? ph[0] : '', '').replace(em ? em[0] : '', '').trim();
+    const v = parseAmount(note);
+    return R('', [{ type: 'add_lead', name, contact: ph ? ph[1].trim() : em ? em[1] : '', note: note.replace(ph ? ph[0] : '', '').trim(), value: v ? v.amt : 0 }]);
+  }
+  if ((m = /^mark\s+(.+?)\s+(?:as\s+)?(won|lost|contacted|negotiating|new|paid|closed)$/.exec(low))) return R('', [{ type: 'lead_status', name: m[1], status: m[2] === 'paid' || m[2] === 'closed' ? 'won' : m[2] }]);
+  if (/^(?:my\s+)?(?:leads|pipeline|clients|prospects)$/.test(low) || /^(?:list|show|how many|what are)\b.*\b(?:leads|clients|prospects|pipeline)\b/.test(low)) return R(leadsReply(), [{ type: 'show_pane', pane: 'money' }, { type: 'money_tab', tab: 'leads' }]);
+  /* pricing */
+  if ((m = /\b(?:charge|price|quote|sell(?: it)? for|pricing)\b.*?\b(?:cost|costs|spend|spent)\D{0,12}(\d[\d.,]*)\D{0,60}?(\d+(?:\.\d+)?)\s*(?:%|percent)/.exec(low)) || (m = /(\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:profit|margin|markup)\D{0,60}?(?:cost|costs)\D{0,12}(\d[\d.,]*)/.exec(low) && [0, RegExp.$2, RegExp.$1])) {
+    const cost = parseFloat(String(m[1]).replace(/,/g, '')), p = parseFloat(m[2]);
+    if (cost > 0 && p > 0 && p < 100) return R('At ' + p + ' percent margin you should charge ' + money(cost / (1 - p / 100)) + ', which earns ' + money(cost / (1 - p / 100) - cost) + ' profit. If you meant a ' + p + ' percent markup, charge ' + money(cost * (1 + p / 100)) + '.');
+  }
+  /* invoice */
+  if ((m = /^(?:create|make|generate|write|prepare|draft|send|raise)\s+(?:an?\s+)?invoice\s+(?:for|to)\s+(.+?)\s+(?:for|of)\s+(.+)$/.exec(low)) || (m = /^invoice\s+(.+?)\s+(?:for|of)?\s*(\$?\s?\d.*)$/.exec(low))) {
+    const a = parseAmount(m[2]) || parseAmount(m[1]);
+    if (a) {
+      const client = og(m[1].replace(a.text, '').replace(/\b(?:for|of)\s*$/i, '').trim());
+      const desc = og(tidy(m[2].replace(a.text, ' ').replace(/\b(?:dollars?|usd)\b/gi, ' ').replace(/^\s*(?:for|of|on)\s+/i, '')));
+      if (client) return R('', [{ type: 'invoice', client, amount: a.amt, desc }]);
+    }
+    S.pending = null; return R('Tell me like this: “invoice John Moyo 200 for logo design”.');
+  }
+  if (workIntent(low)) return R('', [{ type: 'work', prompt: cl }]);
+  return null;
+}
+
+/* ---------- invoice ---------- */
+function invoiceHtml(inv) {
+  const e = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const d = new Date(inv.ts), due = new Date(inv.ts + 7 * 864e5), f = x => x.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice ' + e(inv.no) + '</title><style>body{font-family:Segoe UI,Arial,sans-serif;color:#0b1220;max-width:760px;margin:30px auto;padding:0 20px}h1{font-size:30px;letter-spacing:.12em;margin:0}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0b1220;padding-bottom:16px}.meta{text-align:right;font-size:14px;line-height:1.7}table{width:100%;border-collapse:collapse;margin-top:28px}th{text-align:left;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #999;padding:8px 0}td{padding:14px 0;border-bottom:1px solid #ddd;font-size:15px}.r{text-align:right}.tot{font-size:22px;font-weight:700;text-align:right;margin-top:20px}.note{margin-top:40px;font-size:13px;color:#555;line-height:1.6}button{margin-top:26px;padding:10px 20px;font-size:14px;cursor:pointer}@media print{button{display:none}}</style></head><body><div class="top"><div><h1>INVOICE</h1><div style="margin-top:8px;font-size:15px"><b>' + e(inv.biz) + '</b></div></div><div class="meta">Invoice no: <b>' + e(inv.no) + '</b><br>Date: ' + f(d) + '<br>Due: ' + f(due) + '</div></div><p style="margin-top:24px;font-size:15px"><b>Bill to:</b><br>' + e(inv.client) + '</p><table><tr><th>Description</th><th class="r">Amount</th></tr><tr><td>' + e(inv.desc || 'Services rendered') + '</td><td class="r">' + e(money(inv.amount)) + '</td></tr></table><div class="tot">Total due: ' + e(money(inv.amount)) + '</div><div class="note">Payment is due within 7 days of the invoice date. Please include the invoice number as your payment reference. Thank you for your business.</div><button onclick="window.print()">Print / Save as PDF</button></body></html>';
+}
+
+/* ---------- work drafts via the AI worker ---------- */
+async function askWork(prompt) {
+  const sys = 'You are J.A.R.V.I.S., a sharp business and revenue assistant for a small entrepreneur in Africa (the user is likely in Zimbabwe). Produce ready-to-use work that the user can copy and send or act on: practical, specific, persuasive and honest. Never promise guaranteed income and never invent facts about the client; use [square brackets] as placeholders for details you do not know. Write plain text only: short paragraphs and simple "-" bullets, no markdown symbols, no asterisks, no hashes. Maximum 280 words. Start directly with the content, no preamble.';
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 45000);
+  try {
+    const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: sys, messages: [{ role: 'user', content: prompt }] }), signal: ctl.signal });
+    const raw = await r.text(); let j = null; try { j = JSON.parse(raw); } catch (e) { }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    let t = String(j ? (j.text || j.response || (j.result && j.result.response) || '') : raw).trim();
+    const jj = extractJSON(t); if (jj && typeof jj.reply === 'string') t = jj.reply;
+    t = t.replace(/```/g, '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').trim();
+    if (!t) throw new Error('empty'); setOnline(true); return t;
+  } catch (e) { setOnline(false); throw e; } finally { clearTimeout(to); }
+}
+
+async function execMoney(a) {
+  switch (a.type) {
+    case 'log_income': case 'log_expense': {
+      const amt = +a.amount; if (!(amt > 0)) return { fail: 'I could not read the amount.', say: 'I could not read the amount. Try “log income 50 from John”.' };
+      const inc = a.type === 'log_income'; const e = addLedger(inc ? 'in' : 'out', amt, a.note || '');
+      const t = totals('month');
+      return { done: { label: inc ? 'Income logged' : 'Expense logged', sub: money(amt) + (e.note ? ' · ' + e.note : '') }, say: (inc ? 'Logged income of ' : 'Logged an expense of ') + money(amt) + (e.note ? (inc ? ' from ' : ' for ') + e.note : '') + '. This month you are at ' + money(t.net) + ' net.' };
+    }
+    case 'add_lead': {
+      const l = addLead(a.name, a.contact, a.note, a.value); if (!l) return { fail: 'I need a name for the lead.' };
+      return { done: { label: 'Lead added', sub: l.name + (l.value ? ' · ' + money(l.value) : '') }, say: 'Lead saved: ' + l.name + '. Say “follow up with ' + l.name + ' tomorrow at 9” and I will remind you.' };
+    }
+    case 'lead_status': {
+      const l = findLead(a.name); if (!l) return { fail: 'No lead called ' + a.name, say: 'I could not find a lead called ' + a.name + '.' };
+      l.status = ['new', 'contacted', 'negotiating', 'won', 'lost'].includes(a.status) ? a.status : l.status; save.leads(); renderMoney();
+      const w = l.status === 'won';
+      if (w && l.value) { addLedger('in', l.value, 'Deal won: ' + l.name); }
+      return { done: { label: 'Lead ' + l.status, sub: l.name }, say: w ? 'Congratulations, ' + NAME() + '! ' + l.name + ' is marked as won' + (l.value ? ' and ' + money(l.value) + ' was added to your income.' : '.') : l.name + ' is now ' + l.status + '.' };
+    }
+    case 'money_tab': setMoneyTab(a.tab); return {};
+    case 'invoice': {
+      const amt = +a.amount; if (!(amt > 0) || !a.client) return { fail: 'I need a client and an amount.' };
+      const n = (store.get('invno', 0) || 0) + 1; store.set('invno', n);
+      const inv = { no: 'INV-' + String(n).padStart(4, '0'), client: String(a.client).trim(), amount: amt, desc: a.desc || '', ts: Date.now(), biz: S.settings.biz || 'Your Business' };
+      const url = URL.createObjectURL(new Blob([invoiceHtml(inv)], { type: 'text/html' }));
+      addReminder('Check payment: ' + inv.no + ' from ' + cap(inv.client), Date.now() + 7 * 864e5, 'reminder');
+      const o = openCard('Open ' + inv.no, url);
+      return Object.assign(o, { say: 'Invoice ' + inv.no + ' for ' + cap(inv.client) + ' for ' + money(amt) + ' is ready. Open it, then print or save it as PDF. I have also set a reminder in 7 days to check the payment.' });
+    }
+    case 'work': {
+      const p = String(a.prompt || '').trim(); if (!p) return { fail: 'Tell me what to write.' };
+      try { const text = await askWork(p); return { work: { text, prompt: p }, say: 'I have drafted it, ' + NAME() + '. It is on your screen. You can copy it, email it or send it on WhatsApp.' }; }
+      catch (e) { return { fail: 'I could not reach my writing brain.', say: 'I could not reach my cloud brain to write that. Check the connection and ask me again.' }; }
+    }
+  }
+  return {};
+}
+const JOBS = [
+  ['Write a client proposal', 'Persuasive proposal you can send today', 'Write a client proposal for '],
+  ['Cold outreach message', 'WhatsApp or email to win new clients', 'Write a cold outreach message to sell '],
+  ['Business idea + 7-day plan', 'A low-cost idea you can start this week', 'Give me a low-cost business idea and a 7 day action plan for '],
+  ['Social media week plan', 'Seven posts that attract customers', 'Plan a week of social media posts to promote '],
+  ['Side hustles for me', 'Ways to earn with my skills', 'Suggest side hustles I can start using these skills: '],
+  ['Price my service', 'Set a profitable price', 'What should I charge if my cost is 30 and I want 40 percent profit'],
+  ['Follow-up message', 'Nudge a client who went quiet', 'Write a polite follow-up message to a client who has not replied about '],
+  ['Investor pitch', 'A clear 60-second elevator pitch', 'Write a 60 second investor elevator pitch for '],
+  ['Create an invoice', 'Ready to print or save as PDF', 'Create invoice for ']
+];
 
 /* ===== part 3: rendering, conversation flow, voice, orb, init ===== */
 
@@ -977,6 +1232,7 @@ function addMsg(role, text, cards, persist, aiJson) {
     const c = document.createElement('div'); c.className = 'cards';
     cards.forEach(cd => {
       let n;
+      if (cd.work) { c.appendChild(workCard(cd.work)); return; }
       if (cd.url) { n = document.createElement('a'); n.href = cd.url; n.target = '_blank'; n.rel = 'noopener'; n.className = 'card'; n.innerHTML = ic('ext') + '<span></span>'; }
       else { n = document.createElement('div'); n.className = 'card ' + (cd.bad ? 'bad' : 'ok'); n.innerHTML = ic(cd.bad ? 'x' : 'check') + '<span></span>'; }
       n.querySelector('span').innerHTML = esc(cd.label) + (cd.sub ? ' <small>' + esc(cd.sub) + '</small>' : '');
@@ -985,8 +1241,24 @@ function addMsg(role, text, cards, persist, aiJson) {
     el.appendChild(c);
   }
   log.appendChild(el); log.scrollTop = log.scrollHeight;
+  if (role === 'j' && text) setCaption(text); else if (role === 'u') $('#interim').textContent = '“' + text + '”';
   if (persist !== false) { S.chat.push({ r: role, t: text, ai: aiJson || (role === 'u' ? text : JSON.stringify({ reply: text, actions: [] })) }); save.chat(); }
   return el;
+}
+function setCaption(t) { $('#caption').textContent = String(t).replace(/\*\*/g, ''); }
+function workCard(w) {
+  const d = document.createElement('div'); d.className = 'work';
+  d.innerHTML = '<pre></pre><div class="wb"><button type="button" data-a="copy">Copy</button><a data-a="mail" target="_blank" rel="noopener">Email</a><a data-a="wa" target="_blank" rel="noopener">WhatsApp</a></div>';
+  d.querySelector('pre').textContent = w.text;
+  const subj = (w.prompt || 'Draft').slice(0, 60);
+  d.querySelector('[data-a=mail]').href = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(w.text);
+  d.querySelector('[data-a=wa]').href = 'https://wa.me/?text=' + encodeURIComponent(w.text);
+  d.querySelector('[data-a=copy]').onclick = async e => {
+    const b = e.currentTarget;
+    try { await navigator.clipboard.writeText(w.text); b.textContent = 'Copied ✓'; }
+    catch (err) { const r = document.createRange(); r.selectNodeContents(d.querySelector('pre')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Selected — press Ctrl+C'; }
+  };
+  return d;
 }
 function showTyping() { const el = document.createElement('div'); el.className = 'msg j'; el.id = 'typing'; el.innerHTML = '<div class="bub typing"><i></i><i></i><i></i></div>'; $('#log').appendChild(el); $('#log').scrollTop = 1e9; }
 function hideTyping() { const t = $('#typing'); if (t) t.remove(); }
@@ -1008,6 +1280,7 @@ async function handle(text, who) {
   const cards = [], says = [], key = [];
   for (const a of res.actions) {
     let o; try { o = await execAction(a); } catch (e) { console.error(e); o = { fail: 'That action failed.' }; }
+    if (o.work) cards.push({ work: o.work });
     if (o.card) cards.push(o.card);
     if (o.done) cards.push({ label: o.done.label, sub: o.done.sub });
     if (o.fail) cards.push({ label: o.fail, bad: true });
@@ -1074,7 +1347,7 @@ function renderReminders() {
     const h = document.createElement('div'); h.className = 'sec'; h.textContent = 'Recent'; L.appendChild(h);
     hist.forEach(r => { const row = document.createElement('div'); row.className = 'row done'; row.innerHTML = '<span style="color:var(--mu2)">' + ic('check') + '</span><div class="t"></div>'; row.querySelector('.t').textContent = r.text; L.appendChild(row); });
   }
-  $('#sR').textContent = p.filter(r => r.kind !== 'timer').length; $('#sM').textContent = p.filter(r => r.kind === 'timer').length;
+  $('#sR').textContent = p.length;
   $('#bR').textContent = p.length; $('#bR').style.display = p.length ? '' : 'none';
   updateCountdowns();
 }
@@ -1099,12 +1372,13 @@ const QUICK = ['Daily briefing', 'Open YouTube', 'Remind me in 10 minutes to str
 
 /* ---------- views ---------- */
 function setPane(p) {
+  if (p === 'tasks' || p === 'remind') p = 'plan';
   $('#app').dataset.pane = p;
   $$('.tab').forEach(t => t.classList.toggle('act', t.dataset.pane === p));
 }
 function setView(v) {
   const app = $('#app');
-  if (v !== 'chat') setPane(v);
+  if (['plan', 'money', 'apps'].includes(v)) setPane(v);
   app.dataset.view = v;
   $$('#tabbar button').forEach(b => b.classList.toggle('act', b.dataset.view === v));
 }
@@ -1141,6 +1415,7 @@ function speak(text) {
     let i = 0;
     const done = () => { if (tok !== spTok) { res(); return; } S.speaking = false; refreshState(); if (hf) setTimeout(startRec, 450); res(); };
     const next = () => {
+      S.lastChunk = Date.now();
       if (tok !== spTok) { res(); return; }
       if (i >= chunks.length) { done(); return; }
       const u = new SpeechSynthesisUtterance(chunks[i++]); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; }
@@ -1275,28 +1550,30 @@ function syncVoiceUI() {
 /* ---------- speech in: always listening, conversation mode ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recObj = null, hf = false, oneShot = false, lastGuest = false;
-const WAKE = /\b(?:(?:hey|hi|hello|ok|okay|yo)\s+)?(?:jarvis|jarvas|jarvus|jervis|buddy|partner)\b[\s,.:!?-]*/i;
+const WAKE = /\b(?:(?:hey|hi|hello|ok|okay|yo|hay|he)\s+)?(?:jarvis|jarvas|jarvus|jervis|jarvice|jarves|javis|travis|jarvi|buddy|buddie|partner|pardner)\b[\s,.:!?-]*/i;
 const STOPRE = /^(?:(?:ok|okay|hey|hi)[, ]+)?(?:(?:jarvis|buddy|partner)[, ]*)?(?:please )?(stop|stop listening|stop talking|stop it|goodbye|good bye|bye|bye bye|that'?s all|that is all|go to sleep|end (?:the )?conversation|end chat|we are done|we'?re done)(?: now| please| jarvis| buddy| partner)*[\s.!?]*$/i;
 function setConvo(v) {
-  S.convo = v; $('#convoChip').hidden = !v; $('#app').classList.toggle('convo', v); refreshState();
+  S.convo = v; $('#app').classList.toggle('convo', v); refreshState();
 }
 function startRec() {
   if (!SR || recObj || S.speaking || enrolling || (!hf && !oneShot)) return;
   const r = new SR(); recObj = r;
-  r.lang = 'en-US'; r.continuous = hf && !oneShot; r.interimResults = true; r.maxAlternatives = 1;
+  r.lang = 'en-US'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 3;
   r.onstart = () => { S.listening = true; refreshState(); };
   r.onresult = e => {
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i], t = res[0].transcript.trim();
+      micBlocked = false;
       if (!res.isFinal) { $('#interim').textContent = '“' + t + '”'; continue; }
       $('#interim').textContent = '';
-      onHeard(t);
+      onHeard(t, Array.from(res).map(a => String(a.transcript || '').trim()).filter(Boolean));
     }
   };
   r.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { hf = false; oneShot = false; setConvo(false); toast('Microphone blocked — allow mic access for this page.', 4500); syncHf(); }
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { const first = !micBlocked; micBlocked = true; setConvo(false); if (first) toast('The microphone is blocked. Click the lock icon in the address bar, allow Microphone, then tap the mic chip at the top.', 7000); micChip(); }
+    else if (e.error === 'network') { toast('Voice recognition needs an internet connection.', 3500); }
   };
-  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (oneShot && !S.busy) { oneShot = false; refreshMic(); } if (hf && !S.speaking && !enrolling) setTimeout(startRec, 300); };
+  r.onend = () => { recObj = null; S.listening = false; $('#interim').textContent = ''; refreshState(); if (hf && !S.speaking && !enrolling && !micBlocked) setTimeout(startRec, 300); };
   try { r.start(); } catch (e) { recObj = null; }
 }
 function voiceWho() {
@@ -1305,11 +1582,11 @@ function voiceWho() {
   if (c.boss === null) return lastGuest ? { guest: true, d: null } : { guest: false, d: null };
   lastGuest = !c.boss; return { guest: !c.boss, d: c.d, enrolled: c.enrolled };
 }
-function onHeard(t) {
+function onHeard(t, alts) {
   if (!t || enrolling) return;
   const who = voiceWho();
-  if (oneShot) { oneShot = false; try { recObj && recObj.stop(); } catch (e) { } refreshMic(); handle(t, who); return; }
   if (!hf) return;
+  if (!S.convo && alts && alts.length > 1) { const w = alts.find(a => { const mm = WAKE.exec(a); return mm && mm.index <= 12; }); if (w) t = w; }
   const stopM = STOPRE.test(t.trim());
   if (stopM) {
     stopSpeak();
@@ -1331,20 +1608,32 @@ function onHeard(t) {
   if (cmd.length > 1) handle(cmd, who);
   else if (m) { const g = who.guest ? 'Yes?' : rnd(['Yes, ' + NAME() + '?', 'I am here, ' + NAME() + '.']); addMsg('j', g, [], false); speak(g); }
 }
-function refreshMic() { $('#micBtn').classList.toggle('act', oneShot || (S.listening && !hf)); }
-function syncHf() { $('#hfBtn').classList.toggle('act', hf); $('#sHands').classList.toggle('on', hf); S.settings.hands = hf; save.settings(); }
+let micBlocked = false;
+function micChip() {
+  const c = $('#hfBtn'), d = $('#hfDot'), t = $('#hfTxt'); if (!c) return;
+  let k = 'off', txt = 'Mic off';
+  if (!SR) { k = 'bad'; txt = 'Voice not supported'; }
+  else if (micBlocked) { k = 'bad'; txt = 'Mic blocked · tap'; }
+  else if (hf && S.speaking) { k = 'live'; txt = 'Speaking'; }
+  else if (hf && S.listening) { k = 'live'; txt = S.convo ? 'Listening' : 'Say “Hi Jarvis”'; }
+  else if (hf) { k = 'wait'; txt = 'Starting mic…'; }
+  c.className = 'chip btnchip' + (k === 'live' ? ' live' : k === 'bad' ? ' bad' : '');
+  d.className = 'dot' + (k === 'live' ? ' on pulse' : k === 'bad' ? ' off' : k === 'wait' ? ' am pulse' : '');
+  t.textContent = txt;
+}
+function syncHf() { micChip(); $('#sHands').classList.toggle('on', hf); S.settings.hands = hf; save.settings(); }
 async function setHf(v, quiet) {
   if (!SR) { toast('Voice input is not supported in this browser. Try Chrome or Edge.', 4500); return; }
   hf = v; syncHf();
-  if (hf) { audioCtx(); startRec(); if (VID.profile) VID.start(); if (!quiet) toast('Always listening. Say “Hi Jarvis”, “Buddy” or “Partner”.'); }
+  if (hf) { micBlocked = false; audioCtx(); startRec(); if (VID.profile) VID.start(); if (!quiet) toast('Listening. Say “Hi Jarvis”, “Buddy” or “Partner”.'); }
   else { setConvo(false); try { recObj && recObj.abort(); } catch (e) { } VID.stop(); if (!quiet) toast('Listening is off. Tap the mic or turn it back on.'); }
 }
 
 /* ---------- state + orb ---------- */
 function refreshState() {
   S.state = S.busy ? 'thinking' : S.speaking ? 'speaking' : (oneShot || S.listening) ? 'listening' : 'idle';
-  const L = { idle: S.convo ? 'In conversation' : hf ? 'Say “Hi Jarvis”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: S.convo ? 'Listening · say stop to end' : 'Listening' };
-  $('#stateLbl').textContent = L[S.state]; refreshMic();
+  const L = { idle: S.convo ? 'Listening' : hf ? 'Say “Hi Jarvis”, “Buddy” or “Partner”' : 'Standing by', thinking: 'Processing', speaking: 'Speaking', listening: 'Listening' };
+  $('#stateLbl').textContent = L[S.state]; micChip();
 }
 const cv = $('#orb'), cx = cv.getContext('2d'); let OW = 0, OH = 0;
 function fit() { const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); OW = r.width; OH = r.height; cv.width = Math.max(1, OW * d); cv.height = Math.max(1, OH * d); cx.setTransform(d, 0, 0, d, 0, 0); }
@@ -1367,6 +1656,9 @@ function drawOrb(now) {
     cx.save(); cx.translate(X, Y); cx.rotate(t * (sp * Math.PI / 180) * (st === 'thinking' ? 3 : 1));
     cx.strokeStyle = `rgba(${c},${a + lvl * 0.2})`; cx.setLineDash(dash); cx.beginPath(); cx.arc(0, 0, Rr * k, 0, 7); cx.stroke(); cx.restore();
   });
+  cx.save(); cx.translate(X, Y); cx.rotate(-t * 0.06);
+  for (let i = 0; i < 90; i++) { const a = i / 90 * 6.2832, big = i % 5 === 0, r1 = Rr * 0.985, r2 = Rr * (big ? 0.93 : 0.955); cx.strokeStyle = `rgba(${c},${big ? 0.5 : 0.22})`; cx.lineWidth = big ? 1.4 : 1; cx.beginPath(); cx.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); cx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); cx.stroke(); }
+  cx.restore();
   if (st === 'thinking') { cx.strokeStyle = `rgba(${c},.9)`; cx.lineWidth = 2.5; cx.setLineDash([]); cx.beginPath(); cx.arc(X, Y, Rr * 0.72, t * 4, t * 4 + 1.2); cx.stroke(); cx.beginPath(); cx.arc(X, Y, Rr * 0.72, t * 4 + 3.14, t * 4 + 4.3); cx.stroke(); }
   if (st === 'listening') for (let k = 0; k < 3; k++) { const p = (t * 0.7 + k / 3) % 1; cx.strokeStyle = `rgba(${c},${(1 - p) * 0.5})`; cx.lineWidth = 1.5; cx.setLineDash([]); cx.beginPath(); cx.arc(X, Y, Rr * (0.35 + p * 0.6), 0, 7); cx.stroke(); }
   cx.setLineDash([]);
@@ -1397,7 +1689,7 @@ function refreshNotifUI() {
   b.style.display = p === 'granted' ? 'none' : ''; b.disabled = p === 'denied';
 }
 function openSettings() {
-  $('#sName').value = S.settings.name; $('#sRate').value = S.settings.rate; $('#sEp').value = S.settings.endpoint || '';
+  $('#sName').value = S.settings.name; $('#sBiz').value = S.settings.biz || ''; $('#sCur').value = S.settings.cur || '$'; $('#sRate').value = S.settings.rate; $('#sEp').value = S.settings.endpoint || '';
   $('#sSpeak').classList.toggle('on', S.settings.autoSpeak); $('#sHands').classList.toggle('on', hf);
   fillVoiceSel(); refreshNotifUI(); $('#sheet').classList.add('open');
 }
@@ -1416,26 +1708,17 @@ function greeting() {
 function init() {
   hydrateIcons();
   $('#quick').innerHTML = ''; QUICK.forEach(q => { const b = document.createElement('button'); b.className = 'q'; b.textContent = q; b.onclick = () => handle(q); $('#quick').appendChild(b); });
-  renderApps(); renderTasks(); renderReminders();
+  renderApps(); renderTasks(); renderReminders(); renderMoney();
   S.chat.slice(-30).forEach(m => {
     const el = document.createElement('div'); el.className = 'msg ' + (m.r === 'u' ? 'u' : 'j');
     el.innerHTML = (m.r === 'j' ? '<div class="who">JARVIS</div>' : '') + '<div class="bub">' + mdLite(m.t) + '</div>'; $('#log').appendChild(el);
   });
   $('#log').scrollTop = 1e9;
   $('#form').onsubmit = e => { e.preventDefault(); const v = $('#txt').value; $('#txt').value = ''; handle(v); };
-  $('#micBtn').onclick = () => {
-    if (!SR) { toast('Voice input needs Chrome, Edge or Safari. You can still type.', 4500); return; }
-    audioCtx();
-    if (oneShot || (S.listening && !hf)) { oneShot = false; try { recObj && recObj.abort(); } catch (e) { } refreshState(); return; }
-    stopSpeak(); oneShot = true;
-    if (recObj) { try { recObj.abort(); } catch (e) { } recObj = null; }
-    refreshState(); setTimeout(startRec, 120);
-  };
-  if (!SR) $('#micBtn').title = 'Voice input not supported here — type instead';
-  $('#hfBtn').onclick = () => setHf(!hf);
+  $('#hfBtn').onclick = () => { if (!SR) { toast('Voice input needs Chrome or Edge. You can still type.', 4500); return; } if (micBlocked) { micBlocked = false; setHf(true); } else setHf(!hf); };
   $('#setBtn').onclick = openSettings; $('#sClose').onclick = closeSettings;
   $('#sheet').onclick = e => { if (e.target.id === 'sheet') closeSettings(); };
-  $('#sName').oninput = e => { S.settings.name = e.target.value.trim() || 'Sir'; save.settings(); };
+  $('#sName').oninput = e => { S.settings.name = e.target.value.trim() || 'boss'; save.settings(); };
   $('#sRate').oninput = e => { S.settings.rate = +e.target.value; save.settings(); };
   $('#sVoice').onchange = e => { S.settings.voice = e.target.value; save.settings(); };
   $('#sEp').onchange = e => { S.settings.endpoint = e.target.value.trim(); save.settings(); };
@@ -1451,7 +1734,8 @@ function init() {
   $('#sReset').onclick = () => { if (confirm('Erase all tasks, reminders, chat and settings?')) { store.wipe(); location.reload(); } };
   $$('.tab').forEach(t => t.onclick = () => setPane(t.dataset.pane));
   $$('#tabbar button').forEach(b => b.onclick = () => setView(b.dataset.view));
-  $$('.stat').forEach(s => s.onclick = () => { setPane(s.dataset.go); });
+  $$('.stat').forEach(s => s.onclick = () => { setPane(s.dataset.go); if (window.innerWidth <= 900) setView(s.dataset.go); });
+  initMoneyUI();
   $('#taskForm').onsubmit = e => { e.preventDefault(); const v = $('#taskIn').value; if (addTask(v)) $('#taskIn').value = ''; };
   const d0 = new Date(Date.now() + 600000); $('#remAt').value = d0.getFullYear() + '-' + pad(d0.getMonth() + 1) + '-' + pad(d0.getDate()) + 'T' + pad(d0.getHours()) + ':' + pad(d0.getMinutes());
   $('#remForm').onsubmit = e => {
@@ -1465,7 +1749,7 @@ function init() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
   window.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSettings(); stopSpeak(); } });
   if ('speechSynthesis' in window) { loadVoices(); try { speechSynthesis.onvoiceschanged = loadVoices; } catch (e) { } }
-  if (!SR) { $('#hfBtn').hidden = true; }
+  micChip();
   fit(); requestAnimationFrame(drawOrb); refreshState();
   setInterval(tick, 1000); tick();
   /* PWA install button */
@@ -1474,6 +1758,18 @@ function init() {
   window.addEventListener('appinstalled', () => { $('#instBtn').hidden = true; toast('Installed. Open Jarvis from your apps.'); });
   $('#instBtn').onclick = async () => { if (dip) { dip.prompt(); try { await dip.userChoice; } catch (e) { } dip = null; $('#instBtn').hidden = true; } };
   setOnline(null); $('#aiDot').className = 'dot am'; $('#aiTxt').textContent = 'Ready';
+  /* keep the mic alive: restart recognition if it died, and un-stick speech that never reported its end */
+  setInterval(() => {
+    try {
+      if (S.speaking && 'speechSynthesis' in window && !speechSynthesis.speaking && !speechSynthesis.pending && Date.now() - (S.lastChunk || 0) > 3500) { stopSpeak(); }
+    } catch (e) { }
+    if (hf && SR && !recObj && !S.speaking && !enrolling && !micBlocked) startRec();
+  }, 2500);
+  /* first tap or key anywhere (re)starts listening, in case the browser wanted a gesture */
+  const kick = () => { audioCtx(); if (hf && !recObj && !micBlocked) startRec(); };
+  window.addEventListener('pointerdown', kick, { passive: true }); window.addEventListener('keydown', kick);
+  /* if the mic is already allowed, start listening straight away */
+  try { if (SR && S.settings.hands !== false && navigator.permissions) navigator.permissions.query({ name: 'microphone' }).then(p => { if (p.state === 'granted') { hf = true; syncHf(); startRec(); if (VID.profile) VID.start(); } }).catch(() => { }); } catch (e) { }
   boot();
 }
 function boot() {
@@ -1487,13 +1783,55 @@ function boot() {
   step();
   const go = () => {
     audioCtx(); $('#boot').classList.add('hide');
-    const g = greeting() + (SR && S.settings.hands !== false ? ' I am listening. Say Hi Jarvis, Buddy or Partner, and say stop when you are done.' : ''); addMsg('j', g, [], false); speak(g);
+    const g = greeting(); addMsg('j', g, [], false); speak(g);
     if (S.settings.hands !== false && SR) setTimeout(() => setHf(true, true), 600);
     const q = new URLSearchParams(location.search).get('q'); if (q) setTimeout(() => handle(q), 800);
   };
   $('#bootGo').onclick = go;
   window.addEventListener('keydown', function k(e) { if (e.key === 'Enter' && !$('#boot').classList.contains('hide') && $('#bootGo').classList.contains('show')) { go(); window.removeEventListener('keydown', k); } });
 }
+
+/* ---------- money UI ---------- */
+function setMoneyTab(t) {
+  $$('.stab').forEach(b => b.classList.toggle('act', b.dataset.mt === t));
+  $$('.mpane').forEach(p => p.classList.toggle('act', p.id === 'm' + t));
+}
+const LEAD_ST = ['new', 'contacted', 'negotiating', 'won', 'lost'];
+function renderMoney() {
+  const t = totals('month');
+  $('#mIn').textContent = money(t.in); $('#mOut').textContent = money(t.out); $('#mNet').textContent = money(t.net); $('#sM').textContent = money(t.net);
+  const L = $('#ledList'); if (!L) return; L.innerHTML = '';
+  if (!S.ledger.length) L.innerHTML = '<div class="empty">No money logged yet.<br>Say “log income 50 from John”<br>or “I spent 20 on data”.</div>';
+  S.ledger.slice(0, 40).forEach(e => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = '<div class="t"></div><span class="amt ' + e.type + '"></span><button class="rm" aria-label="Delete">' + ic('trash') + '</button>';
+    r.querySelector('.t').innerHTML = esc(e.note || (e.type === 'in' ? 'Income' : 'Expense')) + '<small>' + new Date(e.ts).toLocaleDateString([], { day: 'numeric', month: 'short' }) + '</small>';
+    r.querySelector('.amt').textContent = (e.type === 'in' ? '+' : '−') + money(e.amount);
+    r.querySelector('.rm').onclick = () => { S.ledger = S.ledger.filter(x => x !== e); save.ledger(); renderMoney(); };
+    L.appendChild(r);
+  });
+  const D = $('#leadList'); D.innerHTML = '';
+  if (!S.leads.length) D.innerHTML = '<div class="empty">No leads yet.<br>Say “add lead John Moyo wants a website”.</div>';
+  S.leads.forEach(l => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = '<div class="t"></div><select class="st" aria-label="Status">' + LEAD_ST.map(s => '<option' + (s === l.status ? ' selected' : '') + '>' + s + '</option>').join('') + '</select><button class="rm" aria-label="Delete">' + ic('trash') + '</button>';
+    r.querySelector('.t').innerHTML = esc(l.name) + '<small>' + esc([l.contact, l.value ? money(l.value) : '', l.note].filter(Boolean).join(' · ')) + '</small>';
+    r.querySelector('select').onchange = e => { l.status = e.target.value; save.leads(); if (l.status === 'won' && l.value && confirmWon(l)) { } renderMoney(); };
+    r.querySelector('.rm').onclick = () => { S.leads = S.leads.filter(x => x !== l); save.leads(); renderMoney(); };
+    D.appendChild(r);
+  });
+}
+function confirmWon(l) { addLedger('in', l.value, 'Deal won: ' + l.name); toast('Won! ' + money(l.value) + ' added to income.'); return true; }
+function initMoneyUI() {
+  $$('.stab').forEach(b => b.onclick = () => setMoneyTab(b.dataset.mt));
+  $('#ledForm').onsubmit = e => { e.preventDefault(); const a = +$('#ledAmt').value; if (!(a > 0)) { toast('Enter an amount.'); return; } addLedger($('#ledType').value, a, $('#ledNote').value); $('#ledAmt').value = ''; $('#ledNote').value = ''; };
+  $('#leadForm').onsubmit = e => { e.preventDefault(); if (!addLead($('#leadName').value, $('#leadContact').value, '', $('#leadValue').value)) { toast('Enter a name.'); return; } $('#leadName').value = ''; $('#leadContact').value = ''; $('#leadValue').value = ''; };
+  const J = $('#jobList'); J.innerHTML = '';
+  JOBS.forEach(([t, d, p]) => { const b = document.createElement('button'); b.className = 'job'; b.type = 'button'; b.innerHTML = '<b></b><span></span>'; b.querySelector('b').textContent = t; b.querySelector('span').textContent = d; b.onclick = () => { if (window.innerWidth <= 900) setView('jarvis'); const i = $('#txt'); i.value = p; i.focus(); try { i.setSelectionRange(p.length, p.length); } catch (e) { } toast('Finish the sentence and press Enter, or say it out loud.'); }; J.appendChild(b); });
+  $('#sBiz').oninput = e => { S.settings.biz = e.target.value.trim(); save.settings(); };
+  $('#sCur').oninput = e => { S.settings.cur = e.target.value.trim() || '$'; save.settings(); renderMoney(); };
+}
+
 init();
 </script><script>if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body></html>
