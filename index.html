@@ -273,6 +273,74 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
 #cam .cb button{border:1px solid var(--cy);background:rgba(70,224,240,.12);color:var(--cy);padding:11px 22px;border-radius:999px;font-size:15px}
 #cam.flash{background:#fff}
 @media(max-width:900px){.app:not(.drawer) #colCore{padding-bottom:12px}}
+/* ===== v3 redesign: glass surfaces, floating bars, Hub panel (orb/HUD untouched) ===== */
+:root{--bg:#04060c;--line:rgba(150,200,255,.12);--line2:rgba(150,200,255,.06);--panel:rgba(18,28,46,.55);--panel-s:#0b1322;--glass:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.015));--stroke:rgba(150,200,255,.14);--r:20px;--shadow:0 24px 60px -24px rgba(0,0,0,.8)}
+::selection{background:rgba(70,224,240,.3)}
+body{background:var(--bg);letter-spacing:.005em}
+.bg{background:radial-gradient(900px 620px at 15% -10%,rgba(70,224,240,.13),transparent 60%),radial-gradient(760px 560px at 105% 105%,rgba(139,92,246,.10),transparent 60%),radial-gradient(520px 380px at 65% 35%,rgba(120,190,255,.05),transparent 70%);animation:aur 22s ease-in-out infinite alternate}
+@keyframes aur{to{filter:hue-rotate(18deg) saturate(1.15)}}
+/* boot */
+#boot{background:radial-gradient(760px 520px at 50% 38%,#0c1c30,#04060c)}
+.bt{font-size:30px;letter-spacing:.55em}
+#bootGo{background:linear-gradient(135deg,rgba(70,224,240,.22),rgba(120,190,255,.12));border-color:rgba(70,224,240,.55);box-shadow:0 0 34px -8px rgba(70,224,240,.6)}
+.bchecks{background:var(--glass);border:1px solid var(--stroke);border-radius:16px;padding:12px 18px;min-height:0}
+/* floating header + glass columns (panel mode) */
+header{margin:12px 16px 0;border:1px solid var(--stroke);border-radius:999px;background:rgba(10,16,28,.6);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);box-shadow:var(--shadow);padding:9px 14px 9px 18px}
+.app:not(.drawer) header{margin:0;border:0;box-shadow:none;background:none;padding:12px 20px}
+.mark{box-shadow:0 0 18px rgba(70,224,240,.5)}
+.chip,.ib{background:rgba(255,255,255,.04);border-color:var(--stroke);transition:.2s}
+.ib{border-radius:12px}.ib:hover,.chip:hover{background:rgba(70,224,240,.1);transform:translateY(-1px)}
+.app.drawer main{gap:12px;padding:12px 16px 16px}
+.app.drawer #colChat,.app.drawer #colSide{border:1px solid var(--stroke);border-radius:24px;background:linear-gradient(160deg,rgba(16,26,44,.62),rgba(8,14,26,.5));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:var(--shadow);overflow:hidden}
+.colh{color:var(--mu);letter-spacing:.2em}
+/* HUD surroundings (orb itself untouched) */
+#clock{font-weight:600;letter-spacing:.14em;color:#dff8ff;text-shadow:0 0 24px rgba(70,224,240,.35)}
+#stateLbl{display:inline-block;align-self:center;padding:5px 16px;border:1px solid var(--stroke);border-radius:999px;background:rgba(10,16,28,.55);font-size:10.5px;margin-bottom:10px;letter-spacing:.28em}
+#caption{font-weight:500;text-shadow:0 2px 30px rgba(0,0,0,.6)}
+#interim{color:var(--mu)}
+.q{background:var(--glass);border-color:var(--stroke);padding:7px 15px;backdrop-filter:blur(10px)}
+.q:hover{transform:translateY(-1px);box-shadow:0 8px 24px -10px rgba(70,224,240,.5)}
+.dock{opacity:1;width:min(740px,100%)}
+.inp{height:58px;padding:0 7px 0 24px;border-color:var(--stroke);background:rgba(10,16,28,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+.inp:focus-within{border-color:rgba(70,224,240,.7);box-shadow:0 0 0 4px rgba(70,224,240,.12),0 14px 40px -14px rgba(70,224,240,.45)}
+.send{width:44px;height:44px;background:linear-gradient(135deg,#46e0f0,#78beff);transition:.2s}.send:hover{transform:scale(1.06)}
+/* conversation */
+.stat{background:var(--glass);border-color:var(--stroke);border-radius:16px;transition:.2s}.stat:hover{transform:translateY(-2px);box-shadow:0 10px 26px -12px rgba(70,224,240,.5)}
+.bub{border-radius:18px;background:var(--glass);border-color:var(--stroke);line-height:1.55}
+.msg.u .bub{background:linear-gradient(135deg,rgba(70,224,240,.28),rgba(120,190,255,.16));border-color:rgba(70,224,240,.4)}
+.card{border-radius:12px;backdrop-filter:blur(8px)}
+/* side panel */
+.tabs{margin:12px 12px 4px;padding:4px;border:1px solid var(--stroke);border-radius:14px;background:rgba(255,255,255,.03);gap:2px}
+.tab{border:0;border-radius:10px;padding:9px 4px;font-size:10px;letter-spacing:.1em}
+.tab.act{background:rgba(70,224,240,.14);color:var(--cy);box-shadow:inset 0 0 0 1px rgba(70,224,240,.3)}
+.row,.job,.app-t,.msum div{background:var(--glass);border-color:var(--stroke);border-radius:14px;transition:.2s}
+.row:hover,.job:hover,.app-t:hover{transform:translateY(-1px);border-color:rgba(70,224,240,.35);box-shadow:0 10px 26px -14px rgba(70,224,240,.45)}
+.app-t i{border-radius:14px;box-shadow:0 8px 18px -8px rgba(0,0,0,.7)}
+.add input,.add select,.fld input[type=text],.fld select{background:rgba(255,255,255,.04);border-color:var(--stroke);border-radius:12px}
+.btn{border-radius:12px}.btn.sol{background:linear-gradient(135deg,#46e0f0,#78beff);border-color:transparent}
+.stab.act{background:linear-gradient(135deg,#46e0f0,#78beff);border-color:transparent}
+.app[data-pane=hub] #pHub{display:flex}
+#pHub{overflow-y:auto}
+.hubgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 14px 6px;flex-shrink:0}
+.hub-t{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px 11px;border:1px solid var(--stroke);border-radius:16px;background:var(--glass);color:var(--tx);font-size:11px;transition:.2s}
+.hub-t svg.i{width:22px;height:22px;color:var(--cy)}
+.hub-t:hover{transform:translateY(-2px);border-color:rgba(70,224,240,.4);box-shadow:0 12px 28px -12px rgba(70,224,240,.55)}
+#pHub .plist{flex:none;max-height:none;overflow:visible}
+/* overlays */
+.toast{border-radius:18px;backdrop-filter:blur(20px)}
+.sbox{border-radius:26px;background:linear-gradient(160deg,#0e1a2e,#08111f);border-color:var(--stroke);box-shadow:0 40px 100px -30px #000}
+.sw{background:rgba(255,255,255,.12)}
+#cam .cb button{backdrop-filter:blur(12px)}
+::-webkit-scrollbar-thumb{background:rgba(150,200,255,.18)}
+@media(max-width:900px){
+  .app[data-view=hub] #colSide{display:flex}
+  header{margin:8px 10px 0}
+  #tabbar{margin:0 10px calc(8px + env(safe-area-inset-bottom));padding:0;border:1px solid var(--stroke);border-radius:22px;background:rgba(8,13,24,.82);box-shadow:var(--shadow)}
+  #tabbar button{padding:10px 2px 9px;font-size:9px}
+  .app.drawer #colChat,.app.drawer #colSide{border-radius:20px;margin:8px 10px}
+  .hubgrid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:420px){.hubgrid{grid-template-columns:repeat(3,1fr)}}
 </style></head><body>
 <div class="bg"></div>
 
@@ -333,6 +401,7 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
         <button class="tab act" data-pane="plan"><svg class="i" data-i="list"></svg>Plan <em id="bT">0</em></button>
         <button class="tab" data-pane="money"><svg class="i" data-i="coin"></svg>Money</button>
         <button class="tab" data-pane="apps"><svg class="i" data-i="grid"></svg>Apps</button>
+        <button class="tab" data-pane="hub"><svg class="i" data-i="bolt"></svg>Hub</button>
       </div>
 
       <div class="pane" id="pPlan">
@@ -391,6 +460,12 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
       <div class="pane" id="pApps">
         <div class="apps" id="appGrid"></div>
       </div>
+
+      <div class="pane" id="pHub">
+        <div class="hubgrid" id="hubGrid"></div>
+        <div class="colh">Meetings</div><div class="plist" id="hubMeet"></div>
+        <div class="colh">Contacts</div><div class="plist" id="hubCon"></div>
+      </div>
     </aside>
   </main>
 
@@ -400,6 +475,7 @@ select.st{background:rgba(10,16,26,.9);border:1px solid var(--line);border-radiu
     <button data-view="plan"><svg class="i" data-i="list"></svg>Plan</button>
     <button data-view="money"><svg class="i" data-i="coin"></svg>Money</button>
     <button data-view="apps"><svg class="i" data-i="grid"></svg>Apps</button>
+    <button data-view="hub"><svg class="i" data-i="bolt"></svg>Hub</button>
   </nav>
 </div>
 
@@ -1685,7 +1761,7 @@ function setPane(p) {
 }
 function setView(v) {
   const app = $('#app');
-  if (['plan', 'money', 'apps'].includes(v)) setPane(v);
+  if (['plan', 'money', 'apps', 'hub'].includes(v)) setPane(v);
   app.dataset.view = v;
   $$('#tabbar button').forEach(b => b.classList.toggle('act', b.dataset.view === v));
 }
@@ -2463,6 +2539,23 @@ function superCommand(low, cl, og) {
   }
   return null;
 }
+
+/* ---- Hub panel: quick actions, meetings, contacts ---- */
+Object.assign(IC, { camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', screen: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>', eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', news: '<path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM9 8h6M9 12h6M9 16h4"/>', cloud: '<path d="M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6 1.5A3.5 3.5 0 0 1 17 18z"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>' });
+const HUB = [['camera', 'Camera', 'open the camera'], ['screen', 'Screenshot', 'take a screenshot'], ['eye', 'Read screen', 'read my screen'], ['news', 'Headlines', 'what is the news'], ['cloud', 'Forecast', 'weather forecast'], ['bolt', 'Briefing', 'full briefing'], ['cal', 'Meetings', 'what meetings do I have'], ['download', 'Install', 'install jarvis']];
+let hubSig = '';
+function renderHub() {
+  const G = $('#hubGrid'), M = $('#hubMeet'), C = $('#hubCon'); if (!G || !M || !C) return;
+  if (!G.children.length) HUB.forEach(([i, n, c]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hub-t'; b.innerHTML = ic(i) + '<span></span>'; b.querySelector('span').textContent = n; b.onclick = () => { if (window.innerWidth <= 900) setView('jarvis'); handle(c); }; G.appendChild(b); });
+  const um = upcomingMeetings().slice(0, 8), sig = JSON.stringify([um.map(m => m.id), CONTACTS.map(c => c.name + c.phone + c.email)]); if (sig === hubSig) return; hubSig = sig;
+  M.innerHTML = um.length ? '' : '<div class="empty">No meetings yet.<br>Say “schedule a meeting with John tomorrow at 3 pm”.</div>';
+  um.forEach(m => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<span style="color:var(--cy)">' + ic('cal') + '</span><div class="t"></div><button class="rm" aria-label="Cancel meeting">' + ic('trash') + '</button>'; r.querySelector('.t').innerHTML = esc(m.title) + '<small>' + esc(fmtWhen(m.at) + ' · ' + m.min + ' min') + '</small>'; r.querySelector('.rm').onclick = () => { MEETINGS = MEETINGS.filter(x => x !== m); saveMeetings(); renderHub(); }; M.appendChild(r); });
+  C.innerHTML = CONTACTS.length ? '' : '<div class="empty">No contacts yet.<br>Say “save contact John 0771234567”.</div>';
+  CONTACTS.slice(0, 20).forEach(c => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<div class="t"></div><button class="rm" aria-label="Delete contact">' + ic('trash') + '</button>'; r.querySelector('.t').innerHTML = esc(c.name) + '<small>' + esc([c.phone, c.email].filter(Boolean).join(' · ') || 'no details') + '</small>'; r.querySelector('.rm').onclick = () => { CONTACTS = CONTACTS.filter(x => x !== c); saveContacts(); renderHub(); }; C.appendChild(r); });
+}
+setInterval(() => { if ($('#app').dataset.pane === 'hub') renderHub(); }, 1500);
+$$('.tab,#tabbar button,#menuBtn').forEach(b => b.addEventListener('click', () => setTimeout(renderHub, 40)));
+renderHub();
 
 init();
 </script>
