@@ -475,6 +475,25 @@ details.lab .plist{padding:.2rem .8rem .7rem}
 
 #linkChip{color:var(--gr);border-color:rgba(var(--g),.45)}#linkChip::before{background:var(--gr)}
 @media(max-width:900px){#miniBtn{display:none}}
+
+#heard{display:flex;align-items:center;gap:.5rem;width:min(46rem,100%);margin:0 0 .5rem;padding:.35rem .6rem;border:1px solid var(--line);border-radius:.5rem;background:rgba(0,0,0,.35);font-family:var(--mono);font-size:.7rem;flex-shrink:0}
+#heard[hidden],#confirmBar[hidden],#dlg[hidden]{display:none}
+#hdBadge{color:var(--cy);letter-spacing:.1em;white-space:nowrap}#hdTxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx);font-family:var(--font);font-size:.8rem}
+#hdConf{color:var(--mu)}#hdConf.low{color:var(--am)}
+#heard button,#confirmBar button{padding:.2rem .6rem;font-size:.66rem;border-radius:.4rem}#heard button{border:1px solid var(--line);background:none;color:var(--mu)}#heard button:hover{color:var(--cy);border-color:var(--cy2)}
+#confirmBar{display:flex;align-items:center;gap:.6rem;width:min(46rem,100%);margin:0 0 .5rem;padding:.55rem .8rem;border:1px solid var(--am);border-radius:.6rem;background:rgba(var(--w),.1);flex-shrink:0;animation:in .25s}
+#cfText{flex:1;font-weight:600;font-size:.86rem}
+#pipeline{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;width:min(46rem,100%);margin:0 0 .45rem;min-height:1.4rem;flex-shrink:0}
+#pipeline i{font-style:normal;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .5rem;border-radius:.3rem;border:1px solid var(--line);color:var(--mu);max-width:14rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pipeline i.ok{color:var(--gr);border-color:rgba(var(--g),.45)}#pipeline i.run{color:var(--cy);border-color:var(--cy2);animation:dp 1s infinite}#pipeline i.bad{color:var(--dn);border-color:rgba(255,107,107,.5)}#pipeline i.ask{color:var(--am);border-color:rgba(var(--w),.5)}
+#dlg{position:fixed;inset:0;z-index:160;background:rgba(2,5,9,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem}
+.dlgbox{width:min(26rem,100%);background:var(--panel-s);border:1px solid var(--cy2);border-radius:1rem;padding:1.2rem;box-shadow:0 0 3rem rgba(var(--a),.2);animation:drop .3s var(--ease)}
+.dlgbox h3{margin:0 0 .4rem;font-family:var(--disp);font-size:.8rem;letter-spacing:.2em;color:var(--cy)}.dlgbox p{margin:0 0 .8rem;font-size:.86rem;color:var(--mu);line-height:1.55;white-space:pre-wrap}
+.dlgbox input{width:100%;margin-bottom:.8rem;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:.6rem;padding:.6rem .8rem;outline:0}.dlgbox input:focus{border-color:var(--cy)}
+.dlgbtns{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap}
+html[data-rm=on] *{animation:none!important;transition:none!important}html[data-rm=on] .floor,html[data-rm=on] .sweep,html[data-rm=on] .scan{display:none}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.vt-ok{color:var(--gr)}.vt-bad{color:var(--dn)}.vt-t{width:100%;border-collapse:collapse;font-size:.72rem}.vt-t td,.vt-t th{padding:.25rem .4rem;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top}.vt-t th{color:var(--mu);font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase}
 </style></head><body>
 <div class="bg"></div>
 <div class="floor"></div>
@@ -547,6 +566,9 @@ details.lab .plist{padding:.2rem .8rem .7rem}
           <div id="caption"></div>
           <div id="stageCards"></div>
         </div>
+        <div id="heard" aria-live="polite" hidden><span id="hdBadge"></span><span id="hdTxt"></span><span id="hdConf"></span><button type="button" id="hdFix">Fix</button><button type="button" id="hdCancel">Cancel</button></div>
+        <div id="confirmBar" hidden role="alertdialog" aria-live="assertive"><span id="cfText"></span><button type="button" class="btn sol" id="cfYes">Yes</button><button type="button" class="btn dn" id="cfNo">No</button></div>
+        <div id="pipeline" aria-label="Command pipeline"></div>
         <div class="quick" id="quick"></div>
         <form class="dock" id="form" autocomplete="off">
           <div class="inp">
@@ -600,7 +622,7 @@ details.lab .plist{padding:.2rem .8rem .7rem}
           </div>
           <div class="mchart" id="mchart"></div>
           <div class="subtabs">
-            <button class="stab act" data-mt="led">Ledger</button><button class="stab" data-mt="leads">Leads</button><button class="stab" data-mt="jobs">Jobs</button>
+            <button class="stab act" data-mt="led">Ledger</button><button class="stab" data-mt="leads">Leads</button><button class="stab" data-mt="jobs">Jobs</button><button class="stab" data-mt="inv">Invoices</button><button class="stab" data-mt="rep">Reports</button><button class="stab" data-mt="ppl">People</button>
           </div>
           <div class="mpane act" id="mled">
             <div class="plist" id="ledList"></div>
@@ -619,6 +641,23 @@ details.lab .plist{padding:.2rem .8rem .7rem}
               <input id="leadValue" type="number" step="0.01" min="0" placeholder="Value" aria-label="Deal value" style="flex:1 1 25%">
               <button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button>
             </form>
+          </div>
+          <div class="mpane" id="minv">
+            <div class="plist" id="invList"></div>
+            <form class="add" id="invForm">
+              <input id="invClient" type="text" placeholder="Client" aria-label="Client" style="flex:1 1 60%"><input id="invAmt" type="number" step="0.01" min="0" placeholder="Amount" aria-label="Invoice amount" style="flex:1 1 30%">
+              <input id="invDue" type="date" aria-label="Due date" style="flex:1 1 45%"><input id="invNote" type="text" placeholder="For (optional)" aria-label="Description" style="flex:1 1 45%"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Track</button>
+            </form>
+          </div>
+          <div class="mpane" id="mrep">
+            <div class="add" style="padding-bottom:.2rem"><select id="repYear" aria-label="Year"></select><input id="txSearch" type="search" placeholder="Search transactions…" aria-label="Search transactions"></div>
+            <div id="repOut" class="calcout" style="padding:.2rem 1rem"></div><div class="plist" id="txList"></div>
+            <div class="sbtns" style="padding:0 1rem 1rem"><button type="button" class="btn" id="repExport">Export report</button></div>
+          </div>
+          <div class="mpane" id="mppl">
+            <div class="add" style="padding-bottom:.2rem"><input id="pplSearch" type="search" placeholder="Search customers & suppliers…" aria-label="Search people"></div>
+            <div class="plist" id="pplList"></div>
+            <form class="add" id="pplForm"><input id="pplName" type="text" placeholder="Name" aria-label="Name" style="flex:1 1 50%"><select id="pplType" aria-label="Type"><option value="customer">Customer</option><option value="supplier">Supplier</option></select><input id="pplContact" type="text" placeholder="Phone / email" aria-label="Contact" style="flex:1 1 100%"><button class="btn sol" type="submit"><svg class="i" data-i="plus"></svg>Add</button></form>
           </div>
           <div class="mpane" id="mjobs"><div class="plist" id="jobList"></div></div>
         </div>
@@ -674,9 +713,44 @@ details.lab .plist{padding:.2rem .8rem .7rem}
             <div class="fbtns" style="padding-top:0"><button type="button" class="btn" id="musStream">Stream (Audius)</button><button type="button" class="btn" id="musNext">Next</button><button type="button" class="btn dn" id="musStop">Stop</button></div>
             <audio id="musicPlayer" controls style="width:calc(100% - 1.6rem);margin:0 .8rem .8rem;display:none"></audio>
           </details>
+          <details class="lab" open id="labPlan"><summary>Today planner</summary>
+            <div class="calcout" id="planOut"></div><div class="fbtns"><button type="button" class="btn" id="planRefresh">Refresh</button><button type="button" class="btn" id="planReport">Report</button></div>
+          </details>
+          <details class="lab" id="labNotif"><summary>Notification centre</summary><div class="plist" id="notifList"></div></details>
+          <details class="lab" id="labAct"><summary>Activity &amp; history</summary>
+            <div class="add"><input id="actSearch" type="search" placeholder="Search what I did…" aria-label="Search activity"></div><div class="plist" id="actList"></div>
+            <div class="fbtns"><button type="button" class="btn" id="actExport">Export</button><button type="button" class="btn dn" id="actClear">Clear</button></div>
+          </details>
+          <details class="lab" id="labMem"><summary>Memory</summary>
+            <div class="tg" style="margin:0 .8rem;border-top:0"><span>Long-term memory<small>Off by default. Nothing is saved without your say-so.</small></span><button type="button" class="sw" id="memOn" aria-label="Long-term memory"></button></div>
+            <div class="chips" id="memCats" style="flex-wrap:wrap;margin:.3rem 0"><button type="button" data-c="preferences">Preferences</button><button type="button" data-c="projects">Projects</button><button type="button" data-c="routines">Routines</button><button type="button" data-c="personal">Personal</button></div>
+            <form class="add" id="memForm"><input id="memIn" type="text" placeholder="Remember that…" aria-label="New memory"><button class="btn sol" type="submit">Save</button></form>
+            <div class="plist" id="memList"></div>
+            <div class="fbtns"><button type="button" class="btn" id="memExport">Export</button><button type="button" class="btn dn" id="memReset">Reset all</button></div>
+          </details>
+          <details class="lab" id="labDocs"><summary>Documents</summary>
+            <div class="add"><input id="docFile" type="file" multiple accept=".txt,.md,.csv,.json,.pdf,.docx,text/*" aria-label="Choose documents"></div>
+            <div class="plist" id="docList"></div>
+            <div class="add"><input id="docQ" type="text" placeholder="Ask a question, search for a word, or describe a draft…" aria-label="Document question"></div>
+            <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="docSum">Summarise</button><button type="button" class="btn" id="docAsk">Ask</button><button type="button" class="btn" id="docFind">Search</button><button type="button" class="btn" id="docCmp">Compare 2</button></div>
+            <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="docExt">Extract invoice</button><select id="docDraftT" aria-label="Draft type" style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:.6rem;padding:.4rem"><option value="letter">Letter</option><option value="email">Email</option><option value="report">Report</option><option value="proposal">Proposal</option><option value="cv">CV</option></select><button type="button" class="btn" id="docDraft">Draft</button></div>
+            <div class="calcout"><pre id="docOut" style="white-space:pre-wrap;font-family:var(--font);font-size:.78rem;margin:0;max-height:16rem;overflow:auto"></pre></div>
+            <div class="fbtns"><button type="button" class="btn" id="docTxt">Export TXT</button><button type="button" class="btn" id="docPdf">Print / PDF</button></div>
+          </details>
+          <details class="lab" id="labRecs"><summary>Recordings</summary><div class="plist" id="recList"></div></details>
+          <details class="lab" id="labCmds"><summary>Command library</summary>
+            <div class="add"><input id="cmdSearch" type="search" placeholder="Search commands…" aria-label="Search commands"></div><div class="plist" id="cmdList"></div>
+          </details>
+          <details class="lab" id="labRout"><summary>Routines</summary>
+            <div class="add"><select id="routSel" aria-label="Routine" style="flex:1"></select><button type="button" class="btn" id="routNew">New</button></div>
+            <div class="plist" id="routSteps"></div>
+            <form class="add" id="routForm"><input id="routStep" type="text" placeholder="Add a step (a command)…" aria-label="Routine step"><button class="btn" type="submit">Add</button></form>
+            <div class="fbtns"><button type="button" class="btn sol" id="routRun">Preview &amp; run</button><button type="button" class="btn dn" id="routDel">Delete</button></div>
+            <div class="colh">Run history</div><div class="plist" id="routHist"></div>
+          </details>
           <details class="lab" id="labDiag"><summary>Diagnostics</summary>
             <div class="diag" id="diagList"></div>
-            <div class="fbtns"><button type="button" class="btn" id="diagRun"><svg class="i" data-i="pulse"></svg>Run &amp; speak</button></div>
+            <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="diagRun"><svg class="i" data-i="pulse"></svg>Full diagnostic</button><button type="button" class="btn" id="apiTest">Test AI</button><button type="button" class="btn" id="diagExport">Export report</button></div><div class="colh">Permissions</div><div class="diag" id="permList"></div>
           </details>
         </div></div>
       </aside>
@@ -689,6 +763,8 @@ details.lab .plist{padding:.2rem .8rem .7rem}
   <div class="eyetop"><span class="recdot" id="recTag" hidden>● REC <b id="recTime">00:00</b></span><span id="eyeStat">Opening…</span></div>
   <div class="eyebar"><button type="button" id="eyRec">Record</button><button type="button" id="eySnap">Snap</button><button type="button" id="eyLearn">Remember face</button><button type="button" id="eyFlip">Flip</button><button type="button" id="eyClose">Close</button></div>
 </div>
+
+<div id="dlg" hidden><div class="dlgbox" role="dialog" aria-modal="true"><h3 id="dlgT"></h3><p id="dlgB"></p><input id="dlgIn" hidden autocomplete="off"><div class="dlgbtns" id="dlgBtns"></div></div></div>
 
 <div id="pal" hidden>
   <div class="palbox">
@@ -705,6 +781,7 @@ details.lab .plist{padding:.2rem .8rem .7rem}
       <button type="button" class="act" data-sp="profile"><svg class="i" data-i="core"></svg>Profile</button>
       <button type="button" data-sp="voice"><svg class="i" data-i="speaker"></svg>Voice</button>
       <button type="button" data-sp="listen"><svg class="i" data-i="mic"></svg>Listening</button>
+      <button type="button" data-sp="vlab"><svg class="i" data-i="mic"></svg>Voice lab</button>
       <button type="button" data-sp="look"><svg class="i" data-i="palette"></svg>Interface</button>
       <button type="button" data-sp="eyes"><svg class="i" data-i="eye"></svg>Eyes</button>
       <button type="button" data-sp="alerts"><svg class="i" data-i="bell"></svg>Alerts &amp; sound</button>
@@ -742,6 +819,30 @@ details.lab .plist{padding:.2rem .8rem .7rem}
           <div class="fld" style="margin-top:.8rem"><label for="sSens">Voice match strictness (left = stricter)</label><input type="range" id="sSens" min="0.7" max="1.6" step="0.05"></div>
         </div>
 
+        <div class="spane" data-sp="vlab">
+          <h3>VOICE LAB</h3><p class="sub">Recognition engine, accuracy tuning, vocabulary, security and tests. <b id="vEngineNote"></b></p>
+          <div class="fld"><label for="sSttLang">Recognition language / accent</label><select id="sSttLang"><option value="en-ZA">English — South Africa (closest to Zimbabwe)</option><option value="en-GB">English — UK</option><option value="en-US">English — US</option><option value="en-NG">English — Nigeria</option><option value="en-KE">English — Kenya</option><option value="en-IN">English — India</option><option value="en-AU">English — Australia</option><option value="sw-KE">Swahili</option><option value="fr-FR">French</option><option value="pt-PT">Portuguese</option></select></div>
+          <div class="fld"><label for="sSttEngine">Recognition engine</label><select id="sSttEngine"><option value="auto">Auto — browser, then cloud if you allow it</option><option value="web">Browser speech (Google/Apple, lightweight)</option><option value="cloud">Cloud Whisper via your AI endpoint (sends audio)</option><option value="local">On-device Whisper (downloads ~40 MB model once)</option></select></div>
+          <div class="fld"><label for="sListenMode">Listening mode</label><select id="sListenMode"><option value="wake">Wake word (Hi Jarvis / Buddy / Partner)</option><option value="ptt">Push to talk (hold Space or the mic button)</option><option value="continuous">Continuous (every sentence is a command)</option></select></div>
+          <div class="fld"><label for="sSttConf">Ask me to confirm when confidence is below <b id="sSttConfV"></b></label><input type="range" id="sSttConf" min="0" max="0.9" step="0.05"></div>
+          <div class="fld"><label for="sMicProc">Microphone processing (cloud / on-device engines)</label><select id="sMicProc"><option value="balanced">Balanced — echo cancel only (keeps word edges)</option><option value="clean">Clean — noise suppression + auto gain</option></select></div>
+          <div class="tg"><span>Allow interrupting while I speak<small>Experimental: keeps the mic open during replies so “stop” works. Needs headphones in noisy rooms.</small></span><button type="button" class="sw" id="sBargeIn" aria-label="Barge-in"></button></div>
+          <div class="tg"><span>Allow sending voice clips to my AI endpoint<small id="sCloudHost">Required before the cloud engine hears you.</small></span><button type="button" class="sw" id="sCloudConsent" aria-label="Cloud voice consent"></button></div>
+          <div class="colh" style="padding-left:0">Custom vocabulary (names, apps, terms)</div>
+          <div class="add" style="padding-left:0;padding-right:0"><input id="vocIn" type="text" placeholder="e.g. Tinashe, Mbare, Netlify, ZiG"><button type="button" class="btn sol" id="vocAdd">Add</button></div>
+          <div class="plist" id="vocList" style="padding-left:0;padding-right:0"></div>
+          <div class="colh" style="padding-left:0">Approved corrections (heard → meant)</div>
+          <div class="add" style="padding-left:0;padding-right:0"><input id="corrFrom" type="text" placeholder="heard, e.g. tin ash"><input id="corrTo" type="text" placeholder="meant, e.g. Tinashe"><button type="button" class="btn sol" id="corrAdd">Save</button></div>
+          <div class="plist" id="corrList" style="padding-left:0;padding-right:0"></div>
+          <div class="colh" style="padding-left:0">Voice accuracy test</div>
+          <div class="sbtns"><button type="button" class="btn sol" id="vtRun">Start voice test</button><button type="button" class="btn" id="vtBase">Save as baseline</button><button type="button" class="btn" id="vtCsv">Export CSV</button><button type="button" class="btn" id="utRun">Run unit tests</button></div>
+          <div id="vtBox" class="calcout" style="padding:.6rem 0"></div>
+          <div class="colh" style="padding-left:0">Security &amp; accessibility</div>
+          <div class="tg"><span>Security PIN for risky actions<small id="pinNote">Voice match alone is never enough for sensitive actions. A PIN adds a second factor.</small></span><span style="display:flex;gap:.4rem"><button type="button" class="btn" id="pinSet">Set PIN</button><button type="button" class="btn dn" id="pinClear">Remove</button></span></div>
+          <div class="tg"><span>Reduce motion<small>Turns off animation and heavy effects regardless of your system setting</small></span><button type="button" class="sw" id="sReduce" aria-label="Reduce motion"></button></div>
+          <div class="tg"><span>Confirm risky voice commands<small>Calls, texts, emails and deletions ask “yes or no” first when spoken</small></span><button type="button" class="sw" id="sRiskConf" aria-label="Confirm risky commands"></button></div>
+        </div>
+
         <div class="spane" data-sp="look">
           <h3>INTERFACE</h3><p class="sub">Make the deck yours.</p>
           <div class="fld"><label>Colour theme</label>
@@ -775,6 +876,8 @@ details.lab .plist{padding:.2rem .8rem .7rem}
 
         <div class="spane" data-sp="eyes">
           <h3>EYES</h3><p class="sub">Camera, face memory and recording. Face data is stored as numeric templates (no photos) on this device only. Only enrol people who know and agree.</p>
+          <div class="tg"><span>Enable face memory (opt-in)<small>Off by default. Saves numeric face templates (no photos) on this device only. Tell people before saving them.</small></span><button type="button" class="sw" id="sFaceConsent" aria-label="Enable face memory"></button></div>
+          <div class="fld" style="margin-top:.6rem"><label for="sFaceDays">Auto-delete faces not seen for</label><select id="sFaceDays"><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option><option value="365">1 year</option></select></div>
           <div class="tg"><span>Greet known faces<small>“Hi, you are …” when a saved person appears on camera</small></span><button type="button" class="sw" id="sFaceGreet" aria-label="Greet known faces"></button></div>
           <div class="tg"><span>Ask unknown people their name<small>Jarvis asks, then remembers the face under that name</small></span><button type="button" class="sw" id="sFaceAsk" aria-label="Ask names"></button></div>
           <div class="tg"><span>Record audio with video<small>May interrupt voice listening while recording</small></span><button type="button" class="sw" id="sRecAudio" aria-label="Record audio"></button></div>
@@ -801,6 +904,10 @@ details.lab .plist{padding:.2rem .8rem .7rem}
         <div class="spane" data-sp="adv">
           <h3>ADVANCED</h3><p class="sub">For builders.</p>
           <div class="fld"><label for="sEp">AI endpoint</label><input type="text" id="sEp" placeholder="Cloudflare Worker URL"></div>
+          <div class="colh" style="padding-left:0">Desktop bridge (optional)</div>
+          <div class="fld"><label for="sBrUrl">Bridge URL</label><input type="text" id="sBrUrl" placeholder="http://127.0.0.1:7777"></div>
+          <div class="fld"><label for="sBrTok">Bridge token (from jarvis-bridge.config.json)</label><input type="password" id="sBrTok" placeholder="paste token" autocomplete="off"></div>
+          <div class="sbtns" style="margin-bottom:1rem"><button type="button" class="btn" id="brTest">Test connection</button><span id="brState" class="kbd">not connected</span></div>
           <div class="fld"><label for="sJam">Jamendo client ID (optional, free at devportal.jamendo.com)</label><input type="text" id="sJam" placeholder="Adds Jamendo's Creative Commons catalogue"></div>
           <div class="tg"><span>Stay awake<small>Keep the screen and Jarvis alive while linked or in mini mode</small></span><button type="button" class="sw" id="sAwake" aria-label="Stay awake"></button></div>
           <div class="foot">J.A.R.V.I.S. Command Deck · created by Arnold Nedahwa<br>Browser apps cannot launch every native program. Jarvis opens websites and app links; install it as an app for the best reminders.</div>
@@ -2935,7 +3042,7 @@ function haptic(p) { if (S.settings.haptic && navigator.vibrate) { try { navigat
 /* ---------------- FX engine: motes, shockwaves, sparks ---------------- */
 const FX = { cv: $('#fx'), cx: null, W: 0, H: 0, motes: [], sparks: [], rings: [], mx: .5, my: .5, t0: 0, lt: {} };
 FX.cx = FX.cv.getContext('2d');
-const fxLevel = () => ({ off: 0, low: 1, high: 2 }[S.settings.fx] ?? 1);
+let fxLevel = () => ({ off: 0, low: 1, high: 2 }[S.settings.fx] ?? 1);
 function fxResize() {
   const d = Math.min(2, window.devicePixelRatio || 1); FX.W = window.innerWidth; FX.H = window.innerHeight;
   FX.cv.width = Math.max(1, FX.W * d); FX.cv.height = Math.max(1, FX.H * d); FX.cx.setTransform(d, 0, 0, d, 0, 0);
@@ -3644,7 +3751,7 @@ function takeName(text) {
   if (/^(?:no|nope|cancel|never ?mind|skip|forget it|stop)$/i.test(raw)) { EYE.ask = null; return R('No problem. I will not save you.'); }
   const n = raw.replace(/[.!?]+$/, '').replace(/^(?:(?:my name is|i am|i'm|im|it's|its|this is|call me|name'?s|the name is)\s+)/i, '').trim();
   if (!n || n.split(' ').length > 4 || /\d/.test(n)) return R('Sorry, I did not catch a name. Please say just your name.');
-  EYE.ask = null; const f = saveFace(n, a.desc); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Pleasure to meet you, ' + f.name + '. I will remember your face.');
+  EYE.ask = null; const f = saveFace(n, a.desc); if (!f) return R('I could not save that face.'); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Pleasure to meet you, ' + f.name + '. I will remember your face.');
 }
 
 /* ---------- screen + voice memo ---------- */
@@ -3731,7 +3838,7 @@ function eyesCommand(raw) {
   if ((m = /^(?:remember|learn|save|enrol+|enroll|memorize|memorise) (?:this |my |his |her |their )?(?:face|person)(?: (?:as|is|name is|called))? (.+)$/.exec(t)) || (EYE.on && (m = /^(?:this is|i am|i'm|my name is) ([a-z' -]{2,30})$/i.exec(t)))) {
     if (!EYE.on) return R('Say “open your eyes” first so I can see the face.');
     const big = EYE.last.slice().sort((a, b) => b.box.w * b.box.h - a.box.w * a.box.h)[0]; if (!big) return R('I cannot see a face right now. Look at the camera.');
-    const f = saveFace(m[1].replace(/[.!?]+$/, ''), big.desc); if (!f) return R('What name should I save?'); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Done. I will recognise ' + f.name + ' from now on.');
+    const f = saveFace(m[1].replace(/[.!?]+$/, ''), big.desc); if (!f) return R(S.settings.faceConsent ? 'What name should I save?' : 'Face memory is off. Turn it on in Settings under Eyes, and make sure the person agrees.'); EYE.greeted[f.id] = Date.now(); burst('ok'); return R('Done. I will recognise ' + f.name + ' from now on.');
   }
   if ((m = /^forget (?:the )?face(?: of| named| called)? (.+)$/.exec(low))) { const f = FACES.find(x => x.name.toLowerCase() === m[1].trim()); if (!f) return R('I do not have a face saved for ' + m[1] + '.'); FACES = FACES.filter(x => x !== f); saveFaces(); renderFaces(); return R('Forgotten: ' + f.name + '.'); }
   if (/^forget (?:all )?faces$/.test(low)) { FACES = []; saveFaces(); renderFaces(); return R('All saved faces erased.'); }
