@@ -502,6 +502,7 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
 #orb{height:132%;width:auto;max-width:96vw;flex-shrink:0}
 #clock,#stateLbl,#stage,.dock,#confirmBar{position:relative;z-index:1}
 #orbWrap::before{height:min(108%,40rem)}
+#caption{transition:opacity .7s ease}#caption.fade{opacity:0}
 </style></head><body>
 <div class="bg"></div>
 <div class="floor"></div>
@@ -756,6 +757,17 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
             <div class="fbtns"><button type="button" class="btn sol" id="routRun">Preview &amp; run</button><button type="button" class="btn dn" id="routDel">Delete</button></div>
             <div class="colh">Run history</div><div class="plist" id="routHist"></div>
           </details>
+          <details class="lab" open id="labBC"><summary>WhatsApp scam-warning broadcast</summary>
+            <div class="fmeta" style="text-align:left;padding:.1rem .9rem .4rem">Jarvis cannot read your WhatsApp contact list (WhatsApp does not allow that). Import your contacts first, tick who should get the warning, and I will send it one by one, slowly, so WhatsApp does not flag your account.</div>
+            <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="bcImport">Import contacts (.vcf / .csv)</button><button type="button" class="btn" id="bcPick" hidden>Pick from phone</button><input type="file" id="bcFile" accept=".vcf,.csv,text/vcard,text/csv" hidden></div>
+            <div class="add"><input id="bcSearch" type="search" placeholder="Search contacts…" aria-label="Search contacts"></div>
+            <div class="chips" style="flex-wrap:wrap;margin-bottom:.3rem"><button type="button" id="bcSelShown">Tick shown (max 25)</button><button type="button" id="bcClear">Clear ticks</button></div>
+            <div class="plist" id="bcList" style="max-height:15rem;overflow:auto"></div>
+            <div class="add"><textarea id="bcMsg" rows="7" aria-label="Message" style="flex:1 1 100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:.6rem;padding:.55rem .75rem;outline:0;font-size:.8rem;resize:vertical"></textarea></div>
+            <div class="add" style="padding-top:0"><select id="bcDelay" aria-label="Pause between messages" style="flex:1"><option value="20">Pause ~20 s</option><option value="30" selected>Pause ~30 s</option><option value="45">Pause ~45 s</option><option value="60">Pause ~60 s</option></select><button type="button" class="btn" id="bcReset">Reset message</button></div>
+            <div class="fbtns"><button type="button" class="btn sol" id="bcStart"><svg class="i" data-i="play"></svg>Start</button><button type="button" class="btn dn" id="bcStop">Stop</button></div>
+            <div class="fmeta" id="bcProg"></div><div class="plist" id="bcLog"></div>
+          </details>
           <details class="lab" id="labDiag"><summary>Diagnostics</summary>
             <div class="diag" id="diagList"></div>
             <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="diagRun"><svg class="i" data-i="pulse"></svg>Full diagnostic</button><button type="button" class="btn" id="apiTest">Test AI</button><button type="button" class="btn" id="diagExport">Export report</button></div><div class="colh">Permissions</div><div class="diag" id="permList"></div>
@@ -876,6 +888,7 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
           <div class="fld"><label>Effects intensity</label><div class="seg" id="sFx"><button type="button" data-v="off">Off</button><button type="button" data-v="low">Low</button><button type="button" data-v="high">High</button></div></div>
           <div class="fld"><label>Panel side</label><div class="seg" id="sSide"><button type="button" data-v="right">Right</button><button type="button" data-v="left">Left</button></div></div>
           <div class="fld"><label for="sScale">Interface size</label><input type="range" id="sScale" min="0.85" max="1.25" step="0.05"></div>
+          <div class="tg"><span>Wipe spoken text from the main screen<small>After Jarvis finishes speaking, his words fade off the main screen. The full reply stays in the Log.</small></span><button type="button" class="sw" id="sClearCap" aria-label="Clear caption"></button></div>
           <div class="tg"><span>Telemetry readouts<small>Live system stats beside the core</small></span><button type="button" class="sw" id="sHud" aria-label="Telemetry"></button></div>
           <div class="tg"><span>Weather widget<small>Temperature and conditions on the HUD</small></span><button type="button" class="sw" id="sWxOn" aria-label="Weather widget"></button></div>
           <div class="fld" style="margin-top:.8rem"><label for="sWx">Weather location</label><input type="text" id="sWx" maxlength="40" placeholder="Harare"></div>
@@ -4776,6 +4789,117 @@ const _execSuper8 = execSuper; execSuper = async function (a) {
 };
 HELP += ' **WhatsApp:** “send a message to Kelly on WhatsApp saying hi”, “read my WhatsApp messages” (reads what is on your linked screen).';
 syncVoiceUI(); applyLook();
+
+/* =====================================================================
+   WHATSAPP SCAM-WARNING BROADCAST (import contacts → tick → slow, capped, stoppable sending)
+   ===================================================================== */
+const BC = { sel: new Set(), running: false, stop: false, manual: null, log: store.get('bclog', []) };
+const BC_MAX_RUN = 25, BC_MAX_DAY = 60;
+const BC_DEFAULT = 'Hi {name}, quick heads-up from me. WhatsApp scams are everywhere right now:\n\n• Never share the 6-digit code WhatsApp sends you by SMS, not even with a friend. That is how accounts get hijacked.\n• Be careful with “Hi, it’s me, new number” or “I’m in trouble, send money” messages. Call the person on their old number first.\n• Don’t click unknown links, prizes or job offers, and never pay a “fee” to receive money or a prize.\n• Turn on two-step verification: WhatsApp > Settings > Account > Two-step verification.\n\nPlease pass this on to your family. Stay safe!';
+const bcNum = c => waNumber(c.phone);
+const bcFirst = n => String(n || '').trim().split(/\s+/)[0] || 'there';
+const bcPersonal = (tpl, name) => String(tpl).replace(/\{name\}/gi, bcFirst(name));
+const bcSentToday = () => BC.log.filter(l => Date.now() - l.ts < 864e5 && l.ok).length;
+
+/* ---------- contact import ---------- */
+function parseVCard(txt) {
+  const out = []; String(txt).split(/BEGIN:VCARD/i).slice(1).forEach(card => {
+    const un = card.replace(/\r?\n[ \t]/g, ''), fn = /^FN[^:]*:(.+)$/im.exec(un), n = /^N[^:]*:(.+)$/im.exec(un), tel = /^(?:item\d+\.)?TEL[^:]*:([+\d][\d\s().-]{5,})$/im.exec(un);
+    let name = fn ? fn[1].trim() : n ? n[1].split(';').filter(Boolean).reverse().join(' ').trim() : ''; if (name && tel) out.push({ name: cap(name), phone: tel[1].trim() });
+  }); return out;
+}
+function parseCSV(txt) {
+  const rows = []; let row = [], cur = '', q = false; const s = String(txt).replace(/^\uFEFF/, '');
+  for (let i = 0; i < s.length; i++) { const ch = s[i]; if (q) { if (ch === '"' && s[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; } else if (ch === '"') q = true; else if (ch === ',') { row.push(cur); cur = ''; } else if (ch === '\n' || ch === '\r') { if (ch === '\r' && s[i + 1] === '\n') i++; row.push(cur); cur = ''; if (row.some(x => x.trim())) rows.push(row); row = []; } else cur += ch; }
+  row.push(cur); if (row.some(x => x.trim())) rows.push(row); if (rows.length < 2) return [];
+  const h = rows[0].map(x => x.trim().toLowerCase()), idx = re => h.findIndex(x => re.test(x));
+  const iN = idx(/^(?:name|display name|full name)$/), iF = idx(/first name|given name/), iL = idx(/last name|family name|surname/), iP = [idx(/mobile|cell/), idx(/phone 1 - value|^phone$|phone number|tel/), idx(/phone/)].find(x => x >= 0);
+  if (iP === undefined) return []; const out = [];
+  rows.slice(1).forEach(r => { let name = iN >= 0 ? r[iN] : [iF >= 0 ? r[iF] : '', iL >= 0 ? r[iL] : ''].join(' '); name = String(name || '').trim(); const ph = String(r[iP] || '').split(/:::|;|\/|,/)[0].trim(); if (name && /\d{6,}/.test(ph.replace(/\D/g, ''))) out.push({ name: cap(name), phone: ph }); }); return out;
+}
+function bcMerge(list) {
+  let added = 0; const have = new Set(CONTACTS.map(c => bcNum(c)).filter(Boolean));
+  list.forEach(c => { const n = bcNum(c); if (n.length < 8 || n.length > 15 || have.has(n) || CONTACTS.length >= 3000) return; have.add(n); CONTACTS.push({ name: c.name, phone: c.phone, email: '' }); added++; });
+  store.set('contacts', CONTACTS); try { renderHub(); } catch (e) { } bcRender(); return added;
+}
+
+/* ---------- list UI ---------- */
+function bcRender() {
+  const L = $('#bcList'); if (!L) return; const q = ($('#bcSearch').value || '').toLowerCase(), all = CONTACTS.filter(c => bcNum(c).length >= 8), shown = all.filter(c => !q || (c.name + c.phone).toLowerCase().includes(q)).slice(0, 150);
+  L.innerHTML = all.length ? '' : '<div class="empty">No contacts with phone numbers yet. Import a .vcf or .csv (Google Contacts / your phone can export one).</div>';
+  shown.forEach(c => { const n = bcNum(c), r = document.createElement('label'); r.className = 'row'; r.style.cursor = 'pointer'; r.innerHTML = '<input type="checkbox" style="accent-color:var(--cy)"><div class="t"></div>'; r.querySelector('input').checked = BC.sel.has(n); r.querySelector('.t').innerHTML = esc(c.name) + '<small>' + esc(c.phone) + '</small>'; r.querySelector('input').onchange = e => { if (e.target.checked) { if (BC.sel.size >= BC_MAX_RUN) { e.target.checked = false; toast('Limit is ' + BC_MAX_RUN + ' people per run, to protect your WhatsApp account.', 3500, true); return; } BC.sel.add(n); } else BC.sel.delete(n); bcProg(); }; L.appendChild(r); });
+  bcProg();
+}
+function bcProg(txt) { const p = $('#bcProg'); if (!p) return; p.textContent = txt || (BC.running ? '' : BC.sel.size + ' selected · sent in the last 24 h: ' + bcSentToday() + '/' + BC_MAX_DAY); }
+function bcLogRender() { const L = $('#bcLog'); if (!L) return; L.innerHTML = ''; BC.log.slice(-8).reverse().forEach(l => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<span class="dot ' + (l.ok ? 'on' : 'off') + '"></span><div class="t"></div>'; r.querySelector('.t').innerHTML = esc(l.name) + '<small>' + esc(new Date(l.ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' · ' + (l.ok ? l.how : 'failed: ' + (l.why || ''))) + '</small>'; L.appendChild(r); }); }
+
+/* ---------- the sender ---------- */
+const bcSleep = async ms => { const end = Date.now() + ms; while (Date.now() < end) { if (BC.stop) return; await sleep(Math.min(500, end - Date.now())); } };
+async function bcStart() {
+  if (BC.running) return; const tpl = $('#bcMsg').value.trim(); if (!tpl) { toast('Write the message first.', 2200, true); return; }
+  const people = [...BC.sel].map(n => CONTACTS.find(c => bcNum(c) === n)).filter(Boolean); if (!people.length) { toast('Tick at least one contact.', 2500, true); return; }
+  const left = BC_MAX_DAY - bcSentToday(); if (left <= 0) { toast('Daily safety limit reached (' + BC_MAX_DAY + '). Try again tomorrow.', 4500, true); return; }
+  const todo = people.filter(c => !BC.log.some(l => l.ok && l.num === bcNum(c) && l.msg === tpl.slice(0, 40) && Date.now() - l.ts < 864e5)).slice(0, Math.min(BC_MAX_RUN, left));
+  const gap = +$('#bcDelay').value || 30, mins = Math.ceil(todo.length * gap / 60), auto = !!(S.settings.waAuto && (BR.ok || S.settings.brTok));
+  const a = await dialog({ title: 'Send to ' + todo.length + ' people?', body: 'Message preview (first contact):\n\n' + bcPersonal(tpl, todo[0] && todo[0].name) + '\n\n' + (auto ? 'Jarvis will open WhatsApp for each person and press Send, about every ' + gap + ' seconds (≈ ' + mins + ' min). Keep this tab open and do not use the keyboard while it runs.' : 'WhatsApp opens for each person with the message ready. You press Send, then “Next” here.') + '\n\nSend only to people who know you. WhatsApp can restrict accounts that send many similar messages quickly.', buttons: [{ label: 'Start', val: 'ok', cls: 'sol' }, { label: 'Cancel', val: null }] });
+  if (a.btn !== 'ok') return; if (!(await pinRequire('Enter your PIN to send a broadcast.'))) return;
+  BC.running = true; BC.stop = false; let done = 0, mode = auto ? 'auto' : 'manual'; const sendLog = (c, ok, how, why) => { BC.log.push({ ts: Date.now(), num: bcNum(c), name: c.name, ok, how, why, msg: tpl.slice(0, 40) }); BC.log = BC.log.slice(-300); store.set('bclog', BC.log); bcLogRender(); };
+  for (let i = 0; i < todo.length && !BC.stop; i++) {
+    const c = todo[i], text = bcPersonal(tpl, c.name), num = bcNum(c); bcProg('Sending ' + (i + 1) + '/' + todo.length + ' → ' + c.name);
+    if (mode === 'auto') {
+      try { if (!BR.ok) await BR.test(); if (!BR.ok) throw new Error('bridge offline'); const j = await BR.call('/whatsapp', { phone: num, text, autosend: true }); if (!j.ok) throw new Error(j.error || 'refused'); if (!j.autosent) { sendLog(c, false, '', 'auto-send is off in the bridge config'); mode = 'manual'; toast('Auto-send is off in jarvis-bridge.config.json ("allowAutoSend": true). Switching to manual: tap Send, then Next.', 6000, true); await bcManual(c, num, text, true); sendLog(c, true, 'manual'); done++; } else { sendLog(c, true, 'opened + Enter pressed'); done++; } }
+      catch (e) { sendLog(c, false, '', e.message || 'error'); mode = 'manual'; toast('Bridge problem (' + (e.message || 'error') + '). Switching to manual mode.', 5000, true); await bcManual(c, num, text); if (!BC.stop) { sendLog(c, true, 'manual'); done++; } }
+    } else { await bcManual(c, num, text); if (!BC.stop) { sendLog(c, true, 'manual'); done++; } }
+    if (i < todo.length - 1 && !BC.stop && mode === 'auto') { const wait = Math.round(gap * (0.75 + Math.random() * 0.6)) * 1000; for (let s = Math.round(wait / 1000); s > 0 && !BC.stop; s -= 1) { bcProg('Sent ' + done + '/' + todo.length + ' · next in ' + s + ' s'); await bcSleep(1000); } }
+  }
+  BC.running = false; const msg = BC.stop ? 'Stopped after ' + done + ' of ' + todo.length + '.' : 'Finished: ' + done + ' of ' + todo.length + ' handled. Check WhatsApp to confirm they went out.'; bcProg(msg); addMsg('j', msg, [], false); speak(msg); burst(BC.stop ? 'think' : 'ok');
+}
+function bcManual(c, num, text, skipOpen) {
+  return new Promise(res => { if (!skipOpen) launch('https://wa.me/' + num + '?text=' + encodeURIComponent(text)); BC.manual = res; bcProg('Press Send in WhatsApp for ' + c.name + ', then tap Next.'); const L = $('#bcProg'); const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sol'; b.textContent = 'Next'; b.style.marginLeft = '.6rem'; L.appendChild(b); b.onclick = () => { BC.manual = null; res(); }; });
+}
+function bcStop() { BC.stop = true; if (BC.manual) { BC.manual(); BC.manual = null; } }
+
+/* ---------- voice / text command ---------- */
+function bcCommand(raw) {
+  const low = String(raw || '').toLowerCase().replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you)\s+/, '').replace(/[!?.]+$/, '').trim();
+  if (/\bscam/.test(low) && /\b(?:warn|warning|alert|tell|send|broadcast|share|message|inform)\b/.test(low) && /\b(?:contacts?|friends?|people|everyone|family|whats ?app)\b/.test(low)) {
+    if (S.guest) return R('That one is reserved for the founder.'); setView('lab'); const d = $('#labBC'); if (d) d.open = true; if (!$('#bcMsg').value.trim()) $('#bcMsg').value = BC_DEFAULT; bcRender();
+    return R('I have prepared the scam warning in the Lab. ' + (CONTACTS.filter(c => bcNum(c).length >= 8).length ? 'Tick who should get it and press Start.' : 'First import your contacts as a .vcf or .csv file; I cannot read your WhatsApp contact list directly.') + ' I will send it slowly, to at most ' + BC_MAX_RUN + ' people at a time.');
+  }
+  if (/^stop (?:the )?(?:broadcast|sending|scam warning)$/.test(low)) { bcStop(); return R('Stopping.'); }
+  return null;
+}
+const _deckCommand9 = deckCommand; deckCommand = function (raw) { let r = null; try { r = bcCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand9(raw); };
+HELP += ' **Scam-warning broadcast:** “send the scam warning to my contacts” prepares it in the Lab.';
+
+/* ---------- wiring ---------- */
+$('#bcMsg').value = BC_DEFAULT;
+$('#bcImport').onclick = () => $('#bcFile').click();
+$('#bcFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const txt = await f.text(), list = /\.vcf$/i.test(f.name) || /BEGIN:VCARD/i.test(txt.slice(0, 200)) ? parseVCard(txt) : parseCSV(txt); const n = bcMerge(list); toast(list.length ? 'Read ' + list.length + ' contacts, added ' + n + ' new.' : 'No contacts with phone numbers found in that file.', 3500, true); } catch (x) { toast('Could not read that file.', 3000, true); } e.target.value = ''; };
+if (navigator.contacts && navigator.contacts.select) { $('#bcPick').hidden = false; $('#bcPick').onclick = async () => { try { const r = await navigator.contacts.select(['name', 'tel'], { multiple: true }); const n = bcMerge(r.filter(x => x.name && x.name[0] && x.tel && x.tel[0]).map(x => ({ name: x.name[0], phone: x.tel[0] }))); toast('Added ' + n + ' contacts.', 2500, true); } catch (e) { } }; }
+$('#bcSearch').oninput = bcRender; $('#bcClear').onclick = () => { BC.sel.clear(); bcRender(); };
+$('#bcSelShown').onclick = () => { const q = ($('#bcSearch').value || '').toLowerCase(); CONTACTS.filter(c => bcNum(c).length >= 8 && (!q || (c.name + c.phone).toLowerCase().includes(q))).slice(0, BC_MAX_RUN).forEach(c => { if (BC.sel.size < BC_MAX_RUN) BC.sel.add(bcNum(c)); }); bcRender(); };
+$('#bcReset').onclick = () => { $('#bcMsg').value = BC_DEFAULT; }; $('#bcStart').onclick = bcStart; $('#bcStop').onclick = bcStop;
+bcRender(); bcLogRender();
+
+/* ---------- wipe spoken text off the main screen once Jarvis has finished (the Log keeps everything) ---------- */
+Object.assign(DECK_DEF, { clearCaption: true });
+if (S.settings.clearCaption === undefined) S.settings.clearCaption = true;
+let capSetAt = 0, capFading = false;
+const _setCaption10 = setCaption; setCaption = function (t) { _setCaption10(t); capSetAt = Date.now(); capFading = false; const c = $('#caption'); if (c) c.classList.remove('fade'); };
+function capTick() {
+  const c = $('#caption'); if (!c || !c.textContent || capFading || S.settings.clearCaption === false) return;
+  if (S.speaking || S.busy || CONF.pending) return;
+  const len = c.textContent.length, speechEnded = Math.max(S.speakEnd || 0, capSetAt);
+  const hold = S.settings.autoSpeak !== false && !quietNow() ? 1500 : Math.min(20000, Math.max(5000, 2500 + len * 60));   // silent replies need reading time
+  if (Date.now() - speechEnded < hold) return;
+  capFading = true; c.classList.add('fade'); const snap = capSetAt;
+  setTimeout(() => { if (capSetAt === snap) { c.textContent = ''; } c.classList.remove('fade'); capFading = false; }, 750);
+}
+setInterval(capTick, 400);
+const _syncDeckUI10 = syncDeckUI; syncDeckUI = function () { _syncDeckUI10(); try { $('#sClearCap').classList.toggle('on', S.settings.clearCaption !== false); } catch (e) { } };
+$('#sClearCap').onclick = () => { S.settings.clearCaption = S.settings.clearCaption === false; save.settings(); syncDeckUI(); };
+syncDeckUI();
 
 init();
 </script>
