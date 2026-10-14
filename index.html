@@ -503,6 +503,11 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
 #clock,#stateLbl,#stage,.dock,#confirmBar{position:relative;z-index:1}
 #orbWrap::before{height:min(108%,40rem)}
 #caption{transition:opacity .7s ease}#caption.fade{opacity:0}
+
+#alarmOv{position:fixed;inset:0;z-index:300;background:radial-gradient(circle at 50% 40%,rgba(var(--w),.35),rgba(0,0,0,.94) 70%);display:flex;align-items:center;justify-content:center;animation:alflash 1s infinite}
+#alarmOv[hidden]{display:none}@keyframes alflash{50%{background:radial-gradient(circle at 50% 40%,rgba(255,107,107,.45),rgba(0,0,0,.96) 70%)}}
+.albox{text-align:center;padding:2rem}.alclock{font-family:var(--disp);font-size:clamp(3rem,14vw,7rem);font-weight:900;letter-spacing:.06em}.altxt{font-size:1.4rem;margin:.6rem 0 1.6rem;color:var(--am)}
+.albtns{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}.albtns .btn{font-size:1.1rem;padding:.9rem 2rem}
 </style></head><body>
 <div class="bg"></div>
 <div class="floor"></div>
@@ -768,6 +773,20 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
             <div class="fbtns"><button type="button" class="btn sol" id="bcStart"><svg class="i" data-i="play"></svg>Start</button><button type="button" class="btn dn" id="bcStop">Stop</button></div>
             <div class="fmeta" id="bcProg"></div><div class="plist" id="bcLog"></div>
           </details>
+          <details class="lab" open id="labStudio"><summary>Document studio · CV, proposals, assignments</summary>
+            <div class="add"><select id="stType" aria-label="Document type" style="flex:1"><option value="cv">CV / résumé</option><option value="coverletter">Cover letter</option><option value="proposal">Proposal</option><option value="assignment">Assignment</option><option value="report">Report</option><option value="essay">Essay</option><option value="businessplan">Business plan</option><option value="letter">Letter</option><option value="lessonplan">Lesson plan</option><option value="minutes">Meeting minutes</option></select></div>
+            <div class="add"><input id="stTopic" type="text" placeholder="Topic or title, e.g. Solar mini-grid for Mutare schools" aria-label="Topic"></div>
+            <div class="add"><textarea id="stDetails" rows="5" aria-label="Details" placeholder="Your details or the brief. For a CV: name, phone, email, education, jobs, skills. Anything missing becomes a [placeholder], never an invented fact." style="flex:1 1 100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:.6rem;padding:.55rem .75rem;outline:0;font-size:.8rem;resize:vertical"></textarea></div>
+            <div class="add" style="padding-top:0"><select id="stWords" aria-label="Length" style="flex:1"><option value="0">Auto length</option><option value="600">Short · ~600 words</option><option value="1200">Standard · ~1200</option><option value="2000">Long · ~2000</option><option value="3500">Very long · ~3500</option></select><select id="stFmt" aria-label="Format" style="flex:1"><option value="docx">Word (.docx)</option><option value="pdf">PDF (print dialog)</option></select></div>
+            <div class="fbtns"><button type="button" class="btn sol" id="stGo">Create &amp; download</button><button type="button" class="btn dn" id="stCancel">Cancel</button></div>
+            <div class="fmeta" id="stProg"></div><div class="plist" id="stList"></div>
+          </details>
+          <details class="lab" id="labCrop"><summary>Image cropper</summary>
+            <div class="add"><input id="cropFile" type="file" accept="image/*" aria-label="Choose an image"></div>
+            <div class="chips" id="cropAsp" style="flex-wrap:wrap"><button type="button" data-a="0" class="act">Free</button><button type="button" data-a="1">1:1</button><button type="button" data-a="1.3333">4:3</button><button type="button" data-a="1.7778">16:9</button><button type="button" data-a="0.75">3:4</button></div>
+            <div style="padding:.5rem .8rem"><canvas id="cropCv" style="width:100%;touch-action:none;border:1px solid var(--line);border-radius:.5rem;background:#000;display:none"></canvas></div>
+            <div class="fbtns"><button type="button" class="btn sol" id="cropGo">Crop &amp; download</button><button type="button" class="btn" id="cropReset">Reset</button></div>
+          </details>
           <details class="lab" id="labDiag"><summary>Diagnostics</summary>
             <div class="diag" id="diagList"></div>
             <div class="fbtns" style="flex-wrap:wrap"><button type="button" class="btn" id="diagRun"><svg class="i" data-i="pulse"></svg>Full diagnostic</button><button type="button" class="btn" id="apiTest">Test AI</button><button type="button" class="btn" id="diagExport">Export report</button></div><div class="colh">Permissions</div><div class="diag" id="permList"></div>
@@ -785,6 +804,8 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
 </div>
 
 <div id="dlg" hidden><div class="dlgbox" role="dialog" aria-modal="true"><h3 id="dlgT"></h3><p id="dlgB"></p><input id="dlgIn" hidden autocomplete="off"><div class="dlgbtns" id="dlgBtns"></div></div></div>
+
+<div id="alarmOv" hidden role="alertdialog" aria-live="assertive"><div class="albox"><div class="alclock" id="alTime">--:--</div><div class="altxt" id="alTxt">Wake up!</div><div class="albtns"><button type="button" class="btn sol" id="alStop">I'm up</button><button type="button" class="btn" id="alSnooze">Snooze 5 min</button></div></div></div>
 
 <div id="pal" hidden>
   <div class="palbox">
@@ -814,6 +835,7 @@ html:not([data-details=on]) #heard,html:not([data-details=on]) #pipeline{display
           <h3>PROFILE</h3><p class="sub">Who Jarvis is talking to, and how he behaves.</p>
           <div class="fld"><label for="sName">What should I call you?</label><input type="text" id="sName" maxlength="24" placeholder="boss"></div>
           <div class="fld"><div class="two"><div><label for="sBiz">Business name (invoices)</label><input type="text" id="sBiz" maxlength="60" placeholder="Your business"></div><div style="max-width:6rem"><label for="sCur">Currency</label><input type="text" id="sCur" maxlength="4" placeholder="$"></div></div></div>
+          <div class="fld"><label for="sDepth">Answer depth</label><select id="sDepth"><option value="deep">Mastermind — thorough and long whenever it helps</option><option value="normal">Normal — shorter answers</option></select></div>
           <div class="fld"><label for="sPers">Personality</label>
             <select id="sPers"><option value="classic">Classic Jarvis — calm, witty butler</option><option value="concise">Concise — shortest possible answers</option><option value="friendly">Friendly — warm and casual</option><option value="witty">Witty — extra banter</option><option value="formal">Formal — executive assistant</option><option value="coach">Coach — motivating and direct</option></select></div>
           <div class="tg"><span>Greet me on start<small>Jarvis speaks a briefing line when you press Initialize</small></span><button type="button" class="sw" id="sGreet" aria-label="Greet on start"></button></div>
@@ -1566,9 +1588,9 @@ async function askAI(userText) {
   const hist = S.chat.filter(m => m.ai).slice(-8).map(m => ({ role: m.r === 'u' ? 'user' : 'assistant', content: m.ai }));
   while (hist.length && hist[0].role !== 'user') hist.shift();
   const msgs = hist.concat([{ role: 'user', content: userText }]);
-  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 30000);
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), AI_TIMEOUT());
   try {
-    const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: sysPrompt(), messages: msgs }), signal: ctl.signal });
+    const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: sysPrompt(), messages: msgs, max_tokens: MAXTOK() }), signal: ctl.signal });
     const raw = await r.text(); let j = null;
     try { j = JSON.parse(raw); } catch (e) { }
     if (!r.ok) throw new Error((j && (j.error || j.text)) || 'HTTP ' + r.status);
@@ -2224,7 +2246,7 @@ function speak(text) {
       S.lastChunk = Date.now();
       if (tok !== spTok) { res(); return; }
       if (i >= chunks.length) { done(); return; }
-      const u = new SpeechSynthesisUtterance(chunks[i++]); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; }
+      const u = new SpeechSynthesisUtterance(chunks[i++]); const v = pickVoiceFor(u.text); if (v) { u.voice = v; u.lang = v.lang; }
       u.rate = +S.settings.rate || 1; u.pitch = +S.settings.pitch || 0.92; u.volume = S.settings.vol == null ? 1 : +S.settings.vol; u.onend = next; u.onerror = next;
       try { speechSynthesis.speak(u); } catch (e) { done(); }
     };
@@ -4259,6 +4281,7 @@ function onHeard(t, alts, meta) {
   meta = meta || {}; if (!t || enrolling) return; if (VTEST.arm) { VTEST.capture(t, meta); return; } if (!hf) return;
   const now = Date.now(); let text = String(t).replace(/\s+/g, ' ').trim(); if (!text) return;
   const key = normTxt(text); if (key === VOICE.lastFinal && now - VOICE.lastFinalAt < 2500) { VOICE.stats.dups++; return; } VOICE.lastFinal = key; VOICE.lastFinalAt = now; VOICE.stats.finals++;
+  if (typeof alarmVoice === 'function' && alarmVoice(text)) return;
   const sinceSpeak = now - (S.speakEnd || 0), isYN = !!(CONF.pending && (YESRE.test(text) || NORE.test(text)) && key.split(' ').length <= 3), isStopPhrase = STOPRE.test(text.trim()) || SPEAKSTOP.test(key) || isYN;
   const echoSim = VOICE.lastSpoken && sinceSpeak < 6000 ? similar(key, VOICE.lastSpoken) : 0;
   if ((S.speaking || sinceSpeak < (S.settings.bargeIn ? 250 : 550)) && !isStopPhrase) { VOICE.stats.echo++; return; }
@@ -4270,6 +4293,7 @@ function onHeard(t, alts, meta) {
   if (CONF.pending) { if (YESRE.test(text)) { stopSpeak(); confirmResolve(true); return; } if (NORE.test(text)) { confirmResolve(false); return; } CONF.pending = null; $('#confirmBar').hidden = true; }
   if (S.busy && /^(?:cancel|stop|never ?mind|quiet)\b/i.test(text)) { cancelAll(); return; }
   if (isStopPhrase) {
+    if (typeof modeStopHook === 'function' && modeStopHook(text)) return;
     if (S.speaking) { stopSpeak(); if (SPEAKSTOP.test(key) && !STOPRE.test(text.trim())) return; }
     if (STOPRE.test(text.trim()) && isConvo() && !who.guest && S.settings.listenMode !== 'continuous') { setConvo(false); const m = rnd(['Understood, ' + NAME() + '. Standing by. Just call me when you need me.', 'As you wish, ' + NAME() + '. I will be right here.', 'Very good, ' + NAME() + '. Say Hi Jarvis whenever you need me.']); addMsg('j', m, [], false); speak(m); }
     return;
@@ -4900,6 +4924,321 @@ setInterval(capTick, 400);
 const _syncDeckUI10 = syncDeckUI; syncDeckUI = function () { _syncDeckUI10(); try { $('#sClearCap').classList.toggle('on', S.settings.clearCaption !== false); } catch (e) { } };
 $('#sClearCap').onclick = () => { S.settings.clearCaption = S.settings.clearCaption === false; save.settings(); syncDeckUI(); };
 syncDeckUI();
+
+/* =====================================================================
+   DOCUMENT STUDIO — CV, proposals, assignments, reports → professional .docx
+   (sectioned generation so long documents are not cut off; never invents facts)
+   ===================================================================== */
+Object.assign(DECK_DEF, { depth: 'deep' });
+if (S.settings.depth === undefined) S.settings.depth = 'deep';
+const DOCX_URL = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+const ST = { busy: false, cancel: false, capture: null, list: store.get('stdocs', []) };
+const DOC_TYPES = {
+  cv: { label: 'CV', words: 0, layout: 'cv', fixed: ['Profile', 'Core skills', 'Work experience', 'Education', 'Certifications and training', 'Projects', 'Languages', 'References'] },
+  coverletter: { label: 'Cover letter', words: 380, layout: 'letter' }, letter: { label: 'Letter', words: 320, layout: 'letter' },
+  proposal: { label: 'Proposal', words: 1900, layout: 'report', hint: 'Executive summary; Background and need; Objectives; Proposed solution and scope; Methodology and work plan; Timeline (table with phase, activities, duration); Budget (table with item, quantity, unit cost, total); Team and capacity; Risks and mitigation (table); Expected outcomes and success measures; Conclusion and next steps' },
+  assignment: { label: 'Assignment', words: 1300, layout: 'report', hint: 'Introduction; 3 to 6 body sections that directly answer the question with analysis, definitions and worked examples; Conclusion; References (placeholder list only, never invent sources)' },
+  report: { label: 'Report', words: 1600, layout: 'report', hint: 'Executive summary; Introduction and purpose; Methodology; Findings (use a table where numbers help); Analysis and discussion; Recommendations; Conclusion' },
+  essay: { label: 'Essay', words: 1100, layout: 'report', hint: 'Introduction with a clear thesis; 3 to 5 argument sections with evidence and counter-arguments; Conclusion' },
+  businessplan: { label: 'Business plan', words: 2400, layout: 'report', hint: 'Executive summary; Company description; Market analysis; Products and services; Marketing and sales strategy; Operations plan; Management and team; Financial plan (tables); Risks; Funding request and next steps' },
+  lessonplan: { label: 'Lesson plan', words: 800, layout: 'report', hint: 'Topic and grade; Learning objectives; Materials; Lesson introduction; Main activities with timings (table); Assessment; Differentiation; Homework' },
+  minutes: { label: 'Meeting minutes', words: 500, layout: 'report', hint: 'Meeting details; Attendees; Agenda; Discussion summary; Decisions made; Action items (table with owner and due date); Next meeting' }
+};
+const DOC_RULES = 'You are an elite professional writer. Rules: write in clear, polished, professional British English. NEVER invent personal facts, employers, dates, qualifications, statistics, quotes, laws or citations; where information is missing write a clear [placeholder] such as [Add your phone number]. Prefer concrete, specific, well-organised content over filler. Use plain text only: short paragraphs, "- " for bullets, "**bold**" sparingly, and pipe tables ("| a | b |" with a header row) only where asked.';
+async function aiText(system, user, tries) {
+  tries = tries || 2; let last;
+  for (let k = 0; k < tries; k++) {
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 90000);
+    try {
+      const r = await fetch(AI_ENDPOINT(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system, messages: [{ role: 'user', content: user }], max_tokens: 4096 }), signal: ctl.signal });
+      const raw = await r.text(); let j = null; try { j = JSON.parse(raw); } catch (e) { } if (!r.ok) throw new Error('HTTP ' + r.status);
+      let t = String(j ? (j.text || j.response || (j.result && j.result.response) || '') : raw).trim(); const jj = extractJSON(t); if (jj && typeof jj.reply === 'string') t = jj.reply;
+      t = t.replace(/```[a-z]*/g, '').trim(); if (!t) throw new Error('empty'); setOnline(true); return t;
+    } catch (e) { last = e; setOnline(false); await sleep(800); } finally { clearTimeout(to); }
+  } throw last;
+}
+function parseInline(t) { const runs = [], re = /\*\*(.+?)\*\*/g; let i = 0, m; while ((m = re.exec(t))) { if (m.index > i) runs.push({ t: t.slice(i, m.index) }); runs.push({ t: m[1], b: true }); i = re.lastIndex; } if (i < t.length) runs.push({ t: t.slice(i) }); return runs.length ? runs : [{ t }]; }
+function parseBlocks(text) {
+  const lines = String(text).replace(/\r/g, '').split('\n'), out = []; let para = [], list = null, tbl = null;
+  const flushP = () => { if (para.length) { out.push({ k: 'p', t: para.join(' ').trim() }); para = []; } }, flushL = () => { if (list) { out.push(list); list = null; } }, flushT = () => { if (tbl) { if (tbl.rows.length) out.push(tbl); tbl = null; } };
+  lines.forEach(raw => {
+    const l = raw.trim();
+    if (!l) { flushP(); flushL(); flushT(); return; }
+    if (/^\|.*\|$/.test(l)) { flushP(); flushL(); tbl = tbl || { k: 't', rows: [] }; if (/^\|[\s:|-]+\|$/.test(l)) return; tbl.rows.push(l.slice(1, -1).split('|').map(c => c.trim())); return; }
+    flushT(); const b = /^(?:[-•*]|\u2022)\s+(.*)$/.exec(l), n = /^\d+[.)]\s+(.*)$/.exec(l);
+    if (b) { flushP(); if (!list || list.k !== 'b') { flushL(); list = { k: 'b', items: [] }; } list.items.push(b[1]); return; }
+    if (n) { flushP(); if (!list || list.k !== 'n') { flushL(); list = { k: 'n', items: [] }; } list.items.push(n[1]); return; }
+    flushL(); para.push(l);
+  }); flushP(); flushL(); flushT(); return out;
+}
+/* ---------- DOCX (docx library) ---------- */
+function makeDoc(D, model) {
+  const ACC = model.accent || '1F4E79', GREY = '595959', lay = model.layout, cv = lay === 'cv';
+  const P = (children, o) => new D.Paragraph(Object.assign({ children, spacing: { after: cv ? 80 : 140, line: cv ? 252 : 288 } }, o || {}));
+  const runs = (t, o) => parseInline(t).map(r => new D.TextRun(Object.assign({ text: r.t, bold: !!r.b }, o || {})));
+  const children = [];
+  if (lay === 'report') {
+    children.push(P([new D.TextRun({ text: model.title, bold: true, size: 48, color: ACC })], { spacing: { before: 1200, after: 120 } }));
+    children.push(P([new D.TextRun({ text: model.subtitle || '', size: 26, color: GREY })], { spacing: { after: 160 }, border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: ACC, space: 8 } } }));
+    if (model.meta) children.push(P([new D.TextRun({ text: model.meta, size: 20, color: GREY })], { spacing: { after: 360 } }));
+  } else if (cv) {
+    children.push(P([new D.TextRun({ text: model.title, bold: true, size: 52, color: ACC })], { spacing: { after: 40 } }));
+    if (model.meta) children.push(P([new D.TextRun({ text: model.meta, size: 20, color: GREY })], { spacing: { after: 160 }, border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: ACC, space: 6 } } }));
+  }
+  model.sections.forEach((s, si) => {
+    if (s.h) children.push(new D.Paragraph(cv ? { children: [new D.TextRun({ text: s.h.toUpperCase(), bold: true, size: 22, color: ACC })], spacing: { before: 220, after: 80 }, border: { bottom: { style: D.BorderStyle.SINGLE, size: 6, color: 'BFBFBF', space: 2 } }, keepNext: true } : { heading: D.HeadingLevel.HEADING_1, children: [new D.TextRun({ text: (lay === 'report' ? (si + 1) + '. ' : '') + s.h, bold: true, size: 30, color: ACC })], spacing: { before: 320, after: 120 }, keepNext: true }));
+    s.blocks.forEach(bl => {
+      if (bl.k === 'p') children.push(P(runs(bl.t, { size: cv ? 21 : 22 }), lay === 'letter' ? { spacing: { after: 180, line: 300 } } : {}));
+      else if (bl.k === 'b' || bl.k === 'n') bl.items.forEach(it => children.push(new D.Paragraph({ children: runs(it, { size: cv ? 21 : 22 }), numbering: { reference: bl.k === 'b' ? 'bul' : 'num', level: 0 }, spacing: { after: 60 } })));
+      else if (bl.k === 't' && bl.rows.length) {
+        const cols = Math.max(...bl.rows.map(r => r.length)), edge = { style: D.BorderStyle.SINGLE, size: 4, color: 'BFBFBF' }, bd = { top: edge, bottom: edge, left: edge, right: edge };
+        children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: bl.rows.map((r, ri) => new D.TableRow({ tableHeader: ri === 0, cantSplit: true, children: Array.from({ length: cols }, (_, ci) => new D.TableCell({ borders: bd, margins: { top: 60, bottom: 60, left: 100, right: 100 }, shading: ri === 0 ? { type: D.ShadingType.CLEAR, fill: ACC, color: 'auto' } : (ri % 2 ? { type: D.ShadingType.CLEAR, fill: 'F3F6FA', color: 'auto' } : undefined), children: [new D.Paragraph({ children: runs(r[ci] || '', ri === 0 ? { bold: true, color: 'FFFFFF', size: 20 } : { size: 20 }) })] })) })) }));
+        children.push(P([new D.TextRun('')], { spacing: { after: 120 } }));
+      }
+    });
+  });
+  const footer = new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: (model.footer || model.title) + '   ·   Page ', size: 16, color: '7F7F7F' }), new D.TextRun({ children: [D.PageNumber.CURRENT], size: 16, color: '7F7F7F' }), new D.TextRun({ text: ' of ', size: 16, color: '7F7F7F' }), new D.TextRun({ children: [D.PageNumber.TOTAL_PAGES], size: 16, color: '7F7F7F' })] })] });
+  const lvl = (fmt, txt) => [{ level: 0, format: fmt, text: txt, alignment: D.AlignmentType.LEFT, style: { paragraph: { indent: { left: 540, hanging: 270 } } } }];
+  return new D.Document({ creator: model.author || 'J.A.R.V.I.S.', title: model.title, description: model.label, styles: { default: { document: { run: { font: 'Calibri', size: 22 } } } },
+    numbering: { config: [{ reference: 'bul', levels: lvl(D.LevelFormat.BULLET, '•') }, { reference: 'num', levels: lvl(D.LevelFormat.DECIMAL, '%1.') }] },
+    sections: [{ properties: { page: { margin: cv ? { top: 850, bottom: 850, left: 1000, right: 1000 } : { top: 1300, bottom: 1200, left: 1300, right: 1300 } } }, footers: { default: footer }, children }] });
+}
+function docHtml(model) {
+  const e = esc, cv = model.layout === 'cv', inl = t => e(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const body = model.sections.map((s, i) => (s.h ? '<h2>' + (model.layout === 'report' ? (i + 1) + '. ' : '') + e(s.h) + '</h2>' : '') + s.blocks.map(b => b.k === 'p' ? '<p>' + inl(b.t) + '</p>' : b.k === 'b' ? '<ul>' + b.items.map(x => '<li>' + inl(x) + '</li>').join('') + '</ul>' : b.k === 'n' ? '<ol>' + b.items.map(x => '<li>' + inl(x) + '</li>').join('') + '</ol>' : '<table>' + b.rows.map((r, ri) => '<tr>' + r.map(c => (ri ? '<td>' : '<th>') + inl(c) + (ri ? '</td>' : '</th>')).join('') + '</tr>').join('') + '</table>').join('')).join('');
+  return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>' + e(model.title) + '</title><style>@page{margin:2cm}body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;color:#222}h1{font-size:24pt;color:#1F4E79;margin:0 0 4pt}h2{font-size:' + (cv ? '11pt;text-transform:uppercase;border-bottom:1px solid #bbb' : '15pt') + ';color:#1F4E79;margin:16pt 0 6pt}.sub{color:#555;border-bottom:3px solid #1F4E79;padding-bottom:6pt;margin-bottom:14pt}table{border-collapse:collapse;width:100%;margin:8pt 0}td,th{border:1px solid #bbb;padding:5pt 7pt;font-size:10pt;text-align:left}th{background:#1F4E79;color:#fff}ul,ol{margin:4pt 0 8pt}p{margin:0 0 8pt}</style></head><body><h1>' + e(model.title) + '</h1><div class="sub">' + e(model.subtitle || model.meta || '') + '</div>' + body + '</body></html>';
+}
+let docxP = null; const loadDocx = () => docxP || (docxP = loadScript(DOCX_URL, 'docx').catch(e => { docxP = null; throw e; }));
+async function exportModel(model, fmt) {
+  const base = (model.label + ' - ' + (model.title || '').replace(/^.*?—\s*/, '')).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (fmt === 'pdf') { const w = window.open('', '_blank'); if (!w) throw new Error('Allow pop-ups to open the print dialog.'); w.document.write(docHtml(model)); w.document.close(); setTimeout(() => w.print(), 500); return { name: base + ' (print to PDF)', url: '' }; }
+  try { const D = await loadDocx(), blob = await D.Packer.toBlob(makeDoc(D, model)); const name = base + '.docx'; return { name, url: saveBlob(blob, name), blob }; }
+  catch (e) { const blob = new Blob(['\ufeff', docHtml(model)], { type: 'application/msword' }), name = base + '.doc'; return { name, url: saveBlob(blob, name), blob, fallback: true }; }
+}
+/* ---------- the generation pipeline ---------- */
+function stProg(t) { const p = $('#stProg'); if (p) p.textContent = t || ''; }
+function parseLen(t) { let w = 0; t = t.replace(/\b(\d{3,5})\s*words?\b/i, (m, n) => { w = +n; return ''; }).replace(/\b(\d{1,2})\s*pages?\b/i, (m, n) => { w = +n * 450; return ''; }); return { text: t.replace(/\s{2,}/g, ' ').replace(/[,.\s]+$/, '').trim(), words: w }; }
+async function studioMake(o) {
+  if (ST.busy) { toast('I am already writing a document. Say “cancel” to stop it.', 3000, true); return; }
+  ST.busy = true; ST.cancel = false; const T = DOC_TYPES[o.type] || DOC_TYPES.report, started = Date.now(), name = NAME(); const topic = (o.topic || '').trim(), details = (o.details || '').trim();
+  const mem = typeof memFor === 'function' ? memFor() : '', ctx = (details ? 'USER-SUPPLIED DETAILS (the only facts you may use about the person):\n' + details.slice(0, 5000) : 'No personal details were supplied: use [placeholders].') + (o.type === 'cv' && mem ? '\nSAVED USER NOTES:\n' + mem : '');
+  try {
+    let sections = [], title = topic || T.label, meta = '', words = o.words || T.words;
+    if (T.layout === 'letter') {
+      stProg('Writing the letter…'); const t = await aiText(DOC_RULES, 'Write a complete ' + T.label.toLowerCase() + ' of about ' + words + ' words. Topic / purpose: ' + (topic || 'general') + '.\n' + ctx + '\nInclude a sender block, date placeholder, recipient block, subject line, salutation, well-structured body and a professional sign-off, as plain lines. Use [placeholders] for unknown names.'); sections = [{ h: '', blocks: parseBlocks(t) }]; title = topic || T.label;
+    } else if (T.layout === 'cv') {
+      const heads = T.fixed; for (let i = 0; i < heads.length && !ST.cancel; i++) {
+        stProg('Writing CV section ' + (i + 1) + '/' + heads.length + ': ' + heads[i]); const t = await aiText(DOC_RULES + ' You are writing ONE section of a one-to-two page CV. Use strong action verbs and quantified achievements ONLY if the user supplied them.', 'Target role / goal: ' + (topic || 'general professional role') + '.\n' + ctx + '\nWrite ONLY the "' + heads[i] + '" section body (no heading). ' + (heads[i] === 'Work experience' ? 'For each job use a line "**Job title — Employer (Dates)**" followed by 3-5 "- " bullets. If no jobs were supplied write one example line in [placeholder] form.' : heads[i] === 'Profile' ? 'A 3-4 sentence professional summary tailored to the target role.' : heads[i] === 'References' ? 'If none supplied write "Available on request."' : 'Keep it concise; if nothing was supplied write a single short [placeholder] line.'));
+        if (!/^\s*\[?(?:none|n\/a)/i.test(t)) sections.push({ h: heads[i], blocks: parseBlocks(t) });
+      }
+      const nm0 = /(?:my (?:full )?name is|full name\s*[:\-]?|name\s*[:\-]|i am called|call me)\s+([a-z'’-]+(?:\s+[a-z'’-]+){0,2})/i.exec(details), nm = nm0 ? [0, nm0[1].split(/\s+/).filter((w, k) => !/^(?:and|my|phone|email|i|is|number|from|the)$/i.test(w)).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')] : null, em = /[\w.+-]+@[\w-]+\.[\w.]+/.exec(details), ph = /\+?\d[\d\s().-]{7,}\d/.exec(details);
+      title = nm ? nm[1] : '[Your Full Name]'; meta = [ph ? ph[0].trim() : '[Phone]', em ? em[0].replace(/[.,;]+$/, '') : '[Email]', '[City, Country]'].join('   |   ');
+    } else {
+      stProg('Planning the structure…'); let outline = null; try { outline = extractJSON(await aiText(DOC_RULES, 'Plan a ' + T.label + ' about: ' + (topic || 'the supplied brief') + '.\n' + ctx + '\nRecommended structure: ' + T.hint + '\nReturn ONLY JSON: {"title":"a specific professional title","sections":[{"h":"section heading","brief":"one line on exactly what to cover","table":false}]} with 5-10 sections (set "table":true where a table is the right format).')); } catch (e) { }
+      if (!outline || !Array.isArray(outline.sections) || !outline.sections.length) outline = { title: topic || T.label, sections: T.hint.split(/;\s*/).map(h => ({ h: h.replace(/\s*\(.*\)/, ''), brief: h, table: /table/i.test(h) })) };
+      title = outline.title || topic || T.label; const n = outline.sections.length, per = Math.max(120, Math.round(words / n));
+      for (let i = 0; i < n && !ST.cancel; i++) {
+        const s = outline.sections[i]; stProg('Writing section ' + (i + 1) + '/' + n + ': ' + s.h);
+        const t = await aiText(DOC_RULES + ' You are writing ONE section of a longer ' + T.label.toLowerCase() + '. Stay consistent with the other sections and do not repeat them.', 'Document title: ' + title + '\nBrief / question: ' + (topic || '') + '\n' + ctx + '\nFull outline: ' + outline.sections.map((x, k) => (k + 1) + '. ' + x.h).join(' | ') + '\n\nWrite ONLY the body of section ' + (i + 1) + ' "' + s.h + '" (no heading). Cover: ' + (s.brief || s.h) + '. About ' + per + ' words. ' + (s.table ? 'Present the core content as a pipe table with a header row, plus 1-2 sentences of explanation.' : 'Use short paragraphs and bullets where they aid scanning.') + (/references/i.test(s.h) ? ' List only generic [placeholder] entries such as "[Author, Year. Title. Publisher.]": never invent real sources.' : ''));
+        sections.push({ h: s.h, blocks: parseBlocks(t) });
+      }
+      meta = 'Prepared by ' + (details && /prepared by[:\s]+(.+)/i.exec(details) ? /prepared by[:\s]+(.+)/i.exec(details)[1] : (name !== 'boss' ? name : '[Your name]')) + '  ·  ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    if (ST.cancel) { stProg('Cancelled.'); addMsg('j', 'Document cancelled.', [], false); return; }
+    stProg('Formatting…'); const model = { type: o.type, label: T.label, layout: T.layout, title, subtitle: T.label, meta, sections, author: name, footer: title };
+    const res = await exportModel(model, o.fmt || 'docx'), secs = Math.round((Date.now() - started) / 1000);
+    ST.list.unshift({ name: res.name, at: Date.now(), words: sections.reduce((s, x) => s + x.blocks.reduce((a, b) => a + (b.t ? b.t.split(/\s+/).length : b.items ? b.items.join(' ').split(/\s+/).length : 0), 0), 0) }); ST.list = ST.list.slice(0, 15); store.set('stdocs', ST.list); renderStudioList();
+    const msg = 'Your ' + T.label.toLowerCase() + ' is ready: ' + res.name + (res.fallback ? '. The Word library was unavailable offline, so I saved a Word-compatible .doc instead' : '') + '. It took ' + secs + ' seconds and is in your Downloads folder.' + (o.type === 'assignment' || o.type === 'essay' ? ' Review it and add your own sources before you submit.' : '') + (/\[/.test(JSON.stringify(sections)) ? ' Fill in the [placeholders] with your real details.' : '');
+    addMsg('j', msg, res.url ? [{ label: 'Saved ' + res.name, url: res.url, dl: res.name, sub: 'tap if it did not download' }] : [], false); speak('Your ' + T.label.toLowerCase() + ' is ready and downloading, ' + name + '.'); burst('ok'); sfx('done'); stProg('Done: ' + res.name);
+  } catch (e) { const m = 'I could not finish that document: ' + (e && e.message === 'HTTP 429' ? 'the AI service is busy, try again in a minute.' : 'the AI service did not respond. Check the connection and try again.'); addMsg('j', m, [], false); speak(m); stProg(m); }
+  finally { ST.busy = false; }
+}
+function renderStudioList() { const L = $('#stList'); if (!L) return; L.innerHTML = ST.list.length ? '' : '<div class="empty">Nothing created yet.</div>'; ST.list.slice(0, 8).forEach(d => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<span style="color:var(--cy)">' + ic('note') + '</span><div class="t"></div>'; r.querySelector('.t').innerHTML = esc(d.name) + '<small>' + esc(new Date(d.at).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ' · ~' + d.words + ' words') + '</small>'; L.appendChild(r); }); }
+/* ---------- voice: "create my CV", "write a proposal about…", "do my assignment on…" ---------- */
+function studioCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|kindly)\s+/i, '').trim(), low = t.toLowerCase(); let m; if (!low) return null;
+  if (ST.capture) {
+    const c = ST.capture;
+    if (/^(?:cancel|stop|never ?mind|forget it)\b/.test(low)) { ST.capture = null; return R('Cancelled.'); }
+    if (c.stage === 'topic') { const lp = parseLen(t); c.topic = lp.text; if (lp.words) c.words = lp.words; if (c.type === 'cv') { c.stage = 'details'; c.parts = []; return R('Now tell me about yourself: your full name, phone and email, education, work experience and skills. Say “that’s all” when you are finished, or say “skip” and I will make a template with placeholders.'); } ST.capture = null; return startStudio(c); }
+    if (c.stage === 'details') { if (/^(?:that'?s all|that is all|that'?s it|i'?m done|done|finished|generate|go ahead|create it|make it)$/.test(low)) { ST.capture = null; c.details = c.parts.join('\n'); return startStudio(c); } if (/^skip$/.test(low)) { ST.capture = null; c.details = ''; return startStudio(c); } c.parts.push(t); return R('Got it. Anything else, or say “that’s all”?'); }
+  }
+  if (/^(?:cancel|stop) (?:the |that )?(?:document|writing|cv|proposal|assignment)$/.test(low)) { if (ST.busy) { ST.cancel = true; return R('Stopping the document.'); } }
+  const begin = (type, topic) => { const lp = parseLen(topic || ''); if (S.guest) return R('That one is reserved for the founder.'); if (!isConvo()) setConvo(true); const c = { type, topic: lp.text, words: lp.words, details: '', stage: 'topic' }; if (type === 'cv') { if (c.topic) { c.stage = 'details'; c.parts = []; ST.capture = c; return R('Tell me about yourself: your full name, phone and email, education, work experience and skills. Say “that’s all” when you are finished, or “skip” for a template with placeholders.'); } ST.capture = c; c.stage = 'topic'; return R('What job or purpose is the CV for? Say “general” if it is not for one role.'); } if (c.topic) return startStudio(c); ST.capture = c; return R('What is the ' + DOC_TYPES[type].label.toLowerCase() + ' about? You can also say how long, for example “about 1500 words”.'); };
+  if ((m = /^(?:create|make|write|build|prepare|draft|generate|design)(?: me)?(?: a| an| my| new)* ?(?:professional |modern |new |good |winning )*(?:cv|curriculum vitae|resume|résumé)(?: (?:for|as|about) (.+))?$/i.exec(t))) return begin('cv', m[1]);
+  if ((m = /^(?:write|create|draft|prepare|make)(?: me)?(?: a| an| my)* ?(?:professional |good |strong )*cover letter(?: (?:for|to) (.+))?$/i.exec(t))) return begin('coverletter', m[1]);
+  if ((m = /^(?:write|create|draft|prepare|make|generate)(?: me)?(?: a| an)* ?(?:professional |detailed |winning |complete |well[- ]presented )*(?:business |project |grant |funding )?proposal(?: (?:about|on|for|regarding|to)\s*(.+))?$/i.exec(t))) return begin('proposal', m[1]);
+  if ((m = /^(?:write|create|draft|prepare|make|generate)(?: me)?(?: a| an)* ?(?:professional |detailed |complete )*(business plan|report|essay|letter|lesson plan|minutes of(?: the)? meeting|meeting minutes)(?: (?:about|on|for|regarding|to)\s*(.+))?$/i.exec(t))) { const k = m[1].toLowerCase(); return begin(k.includes('business') ? 'businessplan' : k.includes('lesson') ? 'lessonplan' : k.includes('minutes') ? 'minutes' : k, m[2]); }
+  if ((m = /^(?:do|write|complete|solve|answer|finish|help me (?:with|do|write))(?: me)?(?: with)?(?: my| an| the| this| a)* ?(assignment|homework|coursework|term paper|project|essay)(?:\s*(?:question|on|about|for|regarding|:)\s*(.+))?$/i.exec(t))) return begin(/essay/i.test(m[1]) ? 'essay' : 'assignment', m[2]);
+  if (/^(?:open|show|go to) (?:the )?(?:document studio|studio)$/.test(low)) { setView('lab'); const d = $('#labStudio'); if (d) d.open = true; return R('Document studio open.'); }
+  return null;
+}
+function startStudio(c) { return R('On it. I am writing your ' + DOC_TYPES[c.type].label.toLowerCase() + ' now. It can take a minute or two; I will tell you when it is ready.', [{ type: 'deck_studio', c }]); }
+const _deckCommand11 = deckCommand; deckCommand = function (raw) { let r = null; try { r = studioCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand11(raw); };
+const _execSuper11 = execSuper; execSuper = async function (a) { if (a.type === 'deck_studio') { studioMake(a.c); return {}; } return _execSuper11(a); };
+/* ---------- Lab card wiring + image cropper ---------- */
+$('#stGo').onclick = () => { const type = $('#stType').value, topic = $('#stTopic').value.trim(); if (type !== 'cv' && !topic) { toast('Type the topic or question first.', 2500, true); return; } studioMake({ type, topic: topic || 'general', details: $('#stDetails').value, words: +$('#stWords').value || 0, fmt: $('#stFmt').value }); };
+$('#stCancel').onclick = () => { ST.cancel = true; stProg('Stopping…'); };
+renderStudioList();
+const CR = { img: null, rect: null, drag: null, asp: 0 };
+function cropDraw() { const cv = $('#cropCv'); if (!CR.img) return; const c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); c.drawImage(CR.img, 0, 0, cv.width, cv.height); if (CR.rect) { const r = CR.rect; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(0, 0, cv.width, r.y); c.fillRect(0, r.y + r.h, cv.width, cv.height - r.y - r.h); c.fillRect(0, r.y, r.x, r.h); c.fillRect(r.x + r.w, r.y, cv.width - r.x - r.w, r.h); c.strokeStyle = '#46e0f0'; c.lineWidth = 2; c.strokeRect(r.x, r.y, r.w, r.h); } }
+function cropPos(e) { const cv = $('#cropCv'), b = cv.getBoundingClientRect(); return { x: Math.max(0, Math.min(cv.width, (e.clientX - b.left) * cv.width / b.width)), y: Math.max(0, Math.min(cv.height, (e.clientY - b.top) * cv.height / b.height)) }; }
+$('#cropFile').onchange = e => { const f = e.target.files[0]; if (!f) return; const im = new Image(); im.onload = () => { const cv = $('#cropCv'), sc = Math.min(1, 900 / im.width); CR.img = im; CR.sc = sc; cv.width = Math.round(im.width * sc); cv.height = Math.round(im.height * sc); cv.style.display = 'block'; CR.rect = null; cropDraw(); URL.revokeObjectURL(im.src); }; im.src = URL.createObjectURL(f); CR.name = f.name.replace(/\.[^.]+$/, ''); };
+$('#cropCv').onpointerdown = e => { if (!CR.img) return; e.target.setPointerCapture(e.pointerId); CR.drag = cropPos(e); CR.rect = { x: CR.drag.x, y: CR.drag.y, w: 0, h: 0 }; };
+$('#cropCv').onpointermove = e => { if (!CR.drag) return; const p = cropPos(e); let w = p.x - CR.drag.x, h = p.y - CR.drag.y; if (CR.asp) { h = Math.sign(h || 1) * Math.abs(w) / CR.asp; } CR.rect = { x: Math.min(CR.drag.x, CR.drag.x + w), y: Math.min(CR.drag.y, CR.drag.y + h), w: Math.abs(w), h: Math.abs(h) }; cropDraw(); };
+$('#cropCv').onpointerup = () => { CR.drag = null; };
+$$('#cropAsp button').forEach(b => b.onclick = () => { CR.asp = +b.dataset.a; $$('#cropAsp button').forEach(x => x.classList.toggle('act', x === b)); });
+$('#cropReset').onclick = () => { CR.rect = null; cropDraw(); };
+$('#cropGo').onclick = () => { if (!CR.img) { toast('Choose an image first.', 2000, true); return; } const r = CR.rect && CR.rect.w > 4 && CR.rect.h > 4 ? CR.rect : { x: 0, y: 0, w: $('#cropCv').width, h: $('#cropCv').height }, sx = r.x / CR.sc, sy = r.y / CR.sc, sw = r.w / CR.sc, sh = r.h / CR.sc, o = document.createElement('canvas'); o.width = Math.round(sw); o.height = Math.round(sh); o.getContext('2d').drawImage(CR.img, sx, sy, sw, sh, 0, 0, o.width, o.height); o.toBlob(b => { const n = (CR.name || 'image') + '-cropped.png'; saveBlob(b, n); toast('Saved ' + n + ' (' + o.width + '×' + o.height + ').', 3000, true); }, 'image/png'); };
+const _syncDeckUI11 = syncDeckUI; syncDeckUI = function () { _syncDeckUI11(); try { $('#sDepth').value = S.settings.depth || 'deep'; } catch (e) { } };
+$('#sDepth').onchange = e => { S.settings.depth = e.target.value; save.settings(); };
+HELP += ' **Documents:** “create my CV”, “write a proposal about solar for schools”, “do my assignment on climate change, 1500 words” — saved as Word files in Downloads.';
+syncDeckUI();
+
+/* =====================================================================
+   ALARM · NEWS (ZBC + more, summarised) · TEACH / GUIDE MODES · MASTERMIND PROMPT
+   · WINDOWS MEDIA / SYSTEM / FILE COMMANDS (via the bridge) · multilingual speech
+   ===================================================================== */
+const MODE = { type: null, subject: '', n: 0, auto: true, since: Date.now(), streak: 0 };
+const MAXTOK = () => (S.settings.depth !== 'normal' || MODE.type) ? 4096 : 1024;
+const AI_TIMEOUT = () => (S.settings.depth !== 'normal' || MODE.type) ? 90000 : 30000;
+
+/* ---------- mastermind + mode instructions injected into every AI call ---------- */
+const MASTER = 'MASTERMIND STANDARD: you are a world-class polymath with expert-level knowledge in every field (business, law basics, medicine basics, engineering, science, languages, cooking, finance, history, technology, writing). When the user needs something, deliver the complete, correct, polished result in one go, stating any assumption in a few words; ask at most ONE clarifying question and only when it is truly essential. For requests to explain, teach, plan, compare, advise, write or analyse, give thorough, well-structured, long answers with concrete detail, examples and next steps. For simple commands and quick facts reply in one or two sentences. Be accurate; if unsure say so; never invent facts, figures, sources or quotes. Prefer Zimbabwean and African context and local currency/units when relevant.';
+const _sysPrompt12 = sysPrompt;
+sysPrompt = function () {
+  let p = _sysPrompt12(); if (S.settings.depth !== 'normal') p += '\n' + MASTER;
+  if (MODE.type === 'teach') p += '\nTEACHING MODE (stay in it until the user says stop): you are an expert tutor teaching "' + MODE.subject + '". Teach as a complete structured course, lesson by lesson (this is lesson ' + (MODE.n || 1) + '). Each reply must be LONG and rich (about 600-900 words): lesson goal, new vocabulary or concepts in a table or list (with pronunciation / romanisation for languages and the meaning), 8-12 example sentences or worked examples, grammar or method explained simply, common mistakes, a cultural or practical note, 5 practice exercises, then a short quiz for the learner to answer. When the learner answers, correct them kindly and explain, then continue. When they say "next" or are silent, continue with the next part. Never wrap up the course yourself and never give a short answer.';
+  if (MODE.type === 'guide') p += '\nGUIDED MODE (stay in it until the user says stop): you are walking the user through "' + MODE.subject + '" step by step. First reply: a short overview, everything needed with exact quantities, total time, then ask "Ready for step 1?". After that give exactly ONE step per reply with precise amounts, temperatures, times and how to know it is done, then wait. Handle "next", "repeat", "back", "done", questions and problems ("it is too runny") with specific fixes. When a step has a waiting time, offer to set a timer and include a timer action for it when the user agrees. Be encouraging, mention common mistakes, and finish with serving or storage tips.';
+  return p;
+};
+function modeEnd(msg) { if (!MODE.type) return false; const was = MODE.type, n = MODE.n; MODE.type = null; MODE.subject = ''; MODE.n = 0; MODE.streak = 0; $('#app').classList.remove('moded'); const m = msg || (was === 'teach' ? 'Lesson ended after ' + n + ' part' + (n === 1 ? '' : 's') + '. Say “teach me” again whenever you want to continue.' : 'Guide finished. Anything else?'); addMsg('j', m, [], false); speak(m); return true; }
+function modeStopHook(text) { if (!MODE.type) return false; if (/^(?:(?:ok|okay|hey|hi)\s+)?(?:(?:jarvis|buddy|partner)\s+)?(?:please\s+)?(?:stop|end|finish|quit|that'?s enough|enough|cancel)(?:\s+(?:the\s+)?(?:lesson|lessons|teaching|course|class|tutoring|guide|recipe|cooking|session|mode|now|please))*$/i.test(String(text).trim())) { stopSpeak(); modeEnd(); return true; } return false; }
+function modeStart(type, subject) { MODE.type = type; MODE.subject = subject; MODE.n = 1; MODE.since = Date.now(); MODE.streak = 0; if (!isConvo()) setConvo(true); }
+function modeCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you|kindly)\s+/i, '').replace(/[!.?]+$/, '').trim(), low = t.toLowerCase(); let m; if (!low) return null;
+  if (MODE.type && /^(?:stop|end|finish|quit|that'?s enough|enough|cancel)(?:\s+(?:the\s+)?(?:lesson|lessons|teaching|course|class|tutoring|guide|recipe|cooking|session|mode))?$/.test(low)) { modeEnd(); return R(''); }
+  if (MODE.type === 'guide') { const map = { next: 'Next step, please.', 'next step': 'Next step, please.', repeat: 'Repeat the last step.', 'say that again': 'Repeat the last step.', back: 'Go back to the previous step.', 'go back': 'Go back to the previous step.', done: 'I have finished that step. What is the next step?', 'i am done': 'I have finished that step. What is the next step?', 'i\'m done': 'I have finished that step. What is the next step?', ready: 'I am ready. Next step, please.', 'what next': 'What is the next step?' }; if (map[low]) { MODE.n++; return R('', [{ type: 'deck_rerun', text: map[low] }]); } }
+  if (MODE.type === 'teach') { MODE.since = Date.now(); if (/^(?:next|continue|go on|carry on|keep going|next lesson|more)$/.test(low)) { MODE.n++; return R('', [{ type: 'deck_rerun', text: 'Continue with the next lesson part, in full detail.' }]); } if (/^(?:repeat|say that again|again)$/.test(low)) return R('', [{ type: 'deck_rerun', text: 'Repeat that part more slowly with extra examples.' }]); return null; }
+  if (MODE.type) return null;
+  if (/\b(?:cv|resume|résumé|proposal|assignment|homework|essay|report|letter|document|invoice|reminder|alarm|timer)\b/.test(low)) return null;
+  if ((m = /^(?:teach me|i want to learn|i wanna learn|i would like to learn|let'?s learn|help me learn|help me study|i want to study|start (?:a |the )?(?:course|lessons?|class) (?:on|in|for))\s+(?:how to |about |to |in |on )?(.+)$/i.exec(t))) { if (S.guest) return R('That one is reserved for the founder.'); const subj = cap(m[1].replace(/\s+(?:for me|please)$/i, '')); modeStart('teach', subj); return R('Starting your ' + subj + ' course. I will keep teaching, lesson after lesson, until you say stop.', [{ type: 'deck_rerun', text: 'Teach me ' + subj + ' from the very beginning. Begin lesson 1 now.' }]); }
+  if ((m = /\bstep[- ]by[- ]step\b/i.exec(t) && /^(.*)$/.exec(t)) || (m = /^(?:help me|guide me|walk me through|show me how to|i want to|i wanna|i would like to)\s+(?:to\s+)?((?:cook|bake|prepare|brew|fix|install|set up|repair|plant|grow|assemble|paint|wire|configure|roast|fry|grill|braai|sew|knit|braid)\b.*)$/i.exec(t))) {
+    if (S.guest) return R('That one is reserved for the founder.'); const subj = cap((m[1] || t).replace(/\b(?:help me|guide me|walk me through|step[- ]by[- ]step|please)\b/gi, '').replace(/\s{2,}/g, ' ').trim()); if (subj.length < 4) return null; modeStart('guide', subj);
+    return R('Let’s do it: ' + subj + '. I will walk you through one step at a time. Say next, repeat or back, and stop when you are done.', [{ type: 'deck_rerun', text: 'I want to ' + subj.charAt(0).toLowerCase() + subj.slice(1) + '. Give me the overview and everything I need first, then wait for me.' }]);
+  }
+  return null;
+}
+const _deckCommand12 = deckCommand; deckCommand = function (raw) { let r = null; try { r = modeCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand12(raw); };
+setInterval(() => {   /* teaching never stops by itself: after a lesson is spoken and you stay silent, the next part starts */
+  if (MODE.type !== 'teach' || !MODE.auto || S.busy || S.speaking || CONF.pending || ALARM.on || document.hidden && false) return;
+  const idle = Date.now() - Math.max(MODE.since, S.speakEnd || 0); if (idle < 14000 || MODE.streak >= 40) return;
+  MODE.streak++; MODE.n++; MODE.since = Date.now(); VOICE.src = 'typed'; handle('Continue with the next lesson part, in full detail. If I have not answered the quiz, give the answers and move on.');
+}, 2000);
+const _handle12 = handle; handle = function (text, who) { if (MODE.type) { MODE.since = Date.now(); if (VOICE.src === 'voice') MODE.streak = 0; } return _handle12(text, who); };
+
+/* ---------- speak other scripts with a matching voice (Chinese, Japanese, Korean, Arabic, Hindi, Russian…) ---------- */
+function pickVoiceFor(text) {
+  const t = String(text || ''), L = (t.match(/\p{L}/gu) || []).length || 1, share = re => (t.match(re) || []).length / L;
+  const want = share(/[\u3400-\u9fff]/g) > .25 ? 'zh' : share(/[\u3040-\u30ff]/g) > .2 ? 'ja' : share(/[\uac00-\ud7af]/g) > .25 ? 'ko' : share(/[\u0600-\u06ff]/g) > .3 ? 'ar' : share(/[\u0900-\u097f]/g) > .3 ? 'hi' : share(/[\u0400-\u04ff]/g) > .3 ? 'ru' : '';
+  if (want) { const v = (typeof voices !== 'undefined' ? voices : []).find(x => new RegExp('^' + want, 'i').test(x.lang)); if (v) return v; }
+  return pickVoice();
+}
+
+/* ---------- alarm: "wake me up at 6:00pm" ---------- */
+const ALARM = { on: false, r: null, tone: 0, talk: 0, ask: false };
+function alarmTone() { const ac = audioCtx(); if (!ac) return; let t = ac.currentTime + .01; for (let i = 0; i < 4; i++) { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'square'; o.frequency.setValueAtTime(i % 2 ? 1046 : 880, t); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.38, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + .16); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .18); t += .22; } }
+function alarmStart(r) {
+  if (ALARM.on) return; ALARM.on = true; ALARM.r = r; ALARM.t0 = Date.now(); const when = new Date(r.at), tm = when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  $('#alTime').textContent = tm; $('#alTxt').textContent = r.text && r.text !== 'Wake up' ? r.text : 'Wake up, ' + NAME() + '!'; $('#alarmOv').hidden = false; stopSpeak(); haptic([400, 150, 400, 150, 400]);
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => { ALARM.wl = w; }).catch(() => { }); } catch (e) { }
+  const say = () => speak('Wake up, ' + NAME() + '. It is ' + tm + '.'); alarmTone(); ALARM.tone = setInterval(() => { alarmTone(); if (Date.now() - ALARM.t0 > 20 * 60000) alarmStop(); }, 1500); ALARM.talk = setInterval(say, 20000); setTimeout(say, 1800);
+}
+function alarmStop() { if (!ALARM.on) return false; ALARM.on = false; clearInterval(ALARM.tone); clearInterval(ALARM.talk); $('#alarmOv').hidden = true; try { ALARM.wl && ALARM.wl.release(); } catch (e) { } stopSpeak(); return true; }
+function alarmSnooze(min) { if (!ALARM.on) return false; alarmStop(); addReminder('Wake up', Date.now() + (min || 5) * 60000, 'alarm'); toast('Snoozed ' + (min || 5) + ' minutes.', 2500, true); return true; }
+function alarmVoice(text) { if (!ALARM.on) return false; const l = String(text).toLowerCase().trim(); if (/snooze|five more|5 more|few more minutes/.test(l)) { alarmSnooze(5); return true; } if (/^(?:stop|ok|okay|enough|dismiss|silence|i'?m (?:up|awake)|i am (?:up|awake)|turn (?:it )?off|alarm off|good morning|thanks?|thank you)\b/.test(l)) { alarmStop(); const m = 'Good morning, ' + NAME() + '. I hope you slept well.'; addMsg('j', m, [], false); setTimeout(() => speak(m), 300); return true; } return false; }
+const _fireReminder12 = fireReminder; fireReminder = function (r, missed) { _fireReminder12(r, missed); if (r.kind === 'alarm' && !missed) alarmStart(r); };
+$('#alStop').onclick = alarmStop; $('#alSnooze').onclick = () => alarmSnooze(5);
+function alarmCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you)\s+/i, '').replace(/[!.?]+$/, '').trim(), low = t.toLowerCase(); let m; if (!low) return null;
+  const make = str => { const w = parseWhen(str); if (!w || !w.at) return null; const at = new Date(w.at).getTime(); if (at < Date.now() + 5000) return null; const r = addReminder('Wake up', at, 'alarm'); return R('Alarm set for ' + fmtWhen(at) + '. Keep Jarvis open on this device with the volume up and the computer awake, and I will wake you.'); };
+  if (ALARM.ask) { ALARM.ask = false; if (!/^(?:cancel|never ?mind|no)\b/.test(low)) { const r = make(low); if (r) return r; return R('I could not work out that time. Say something like “6 a.m.” or “in 2 hours”.'); } return R('Cancelled.'); }
+  if ((m = /^(?:wake me(?: up)?|set (?:me )?(?:an |my |the )?alarm|alarm|ring me|set (?:a )?wake[- ]?up (?:call|alarm))(?:\s+(?:for|at|in|on|by|tomorrow|today))?\s*(.*)$/i.exec(t)) && !/^(?:list|show|cancel|delete|off)\b/i.test(m[1] || '')) { const rest = (/^(?:wake me(?: up)?)\s+(?:for|at|in|on|by)?/i.test(t) || /^tomorrow|^today/i.test(low)) ? t.replace(/^(?:wake me(?: up)?|set (?:me )?(?:an |my |the )?alarm|alarm|ring me)\s*/i, '') : m[1]; const r = make(rest || ''); if (r) return r; ALARM.ask = true; if (!isConvo()) setConvo(true); return R('What time should I wake you?'); }
+  if (/^(?:cancel|delete|remove|turn off|clear)(?: all)?(?: my)?(?: the)? alarms?$/.test(low)) { const n = S.reminders.filter(r => r.kind === 'alarm' && !r.fired).length; S.reminders = S.reminders.filter(r => !(r.kind === 'alarm' && !r.fired)); save.reminders(); renderReminders(); return R(n ? 'Cancelled ' + n + (n === 1 ? ' alarm.' : ' alarms.') : 'You have no alarms set.'); }
+  if (/^(?:list|show|what)(?: are)?(?: my)? alarms?$|^(?:do i have|any) alarms?(?: set)?$/.test(low)) { const a = S.reminders.filter(r => r.kind === 'alarm' && !r.fired).sort((x, y) => x.at - y.at); return R(a.length ? 'Your alarms: ' + a.map(r => fmtWhen(r.at)).join('; ') + '.' : 'You have no alarms set.'); }
+  return null;
+}
+const _deckCommand12b = deckCommand; deckCommand = function (raw) { let r = null; try { r = alarmCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand12b(raw); };
+
+/* ---------- news: ZBC and more, summarised, with links ---------- */
+Object.assign(NEWS_SRC, { zbc: ['ZBC News', 'https://www.zbcnews.co.zw/feed/', 'https://www.zbcnews.co.zw/'], techzim: ['Techzim', 'https://www.techzim.co.zw/feed/', 'https://www.techzim.co.zw/'], zimeye: ['ZimEye', 'https://www.zimeye.net/feed/', 'https://www.zimeye.net/'], chat263: ['263Chat', 'https://263chat.com/feed/', 'https://263chat.com/'], sundaymail: ['The Sunday Mail', 'https://www.sundaymail.co.zw/feed/', 'https://www.sundaymail.co.zw/'] });
+NEWS_GROUP.zim = ['zbc', 'herald', 'newsday', 'zimlive']; NEWS_GROUP.local = NEWS_GROUP.zim;
+Object.assign(NEWS_ALIAS, { zbc: 'zbc', 'zbc news': 'zbc', 'z b c': 'zbc', 'zimbabwe broadcasting': 'zbc', techzim: 'techzim', zimeye: 'zimeye', 'zim eye': 'zimeye', '263chat': 'chat263', '263 chat': 'chat263', 'sunday mail': 'sundaymail', 'the sunday mail': 'sundaymail', zimbabwe: 'zim', zimbabwean: 'zim', local: 'zim', home: 'zim' });
+function rssItems(feed, n) {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000), clean = x => String(x || '').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#8217;/g, '’').replace(/&#8211;/g, '–').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  return fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed), { signal: ctl.signal }).then(r => { if (!r.ok) throw new Error('http'); return r.json(); }).then(j => { const it = (j.items || []).slice(0, n).map(x => ({ title: clean(x.title), link: x.link, desc: clean(x.description || x.content).slice(0, 260) })).filter(x => x.title); if (!it.length) throw new Error('none'); return it; }).finally(() => clearTimeout(to));
+}
+const _newsAction12 = newsAction;
+newsAction = async function (a) {
+  let keys = ['zbc', 'herald', 'newsday', 'bbc'], n = 3; const topic = String(a.topic || '').trim(), src = String(a.source || '').toLowerCase().trim(), sk = NEWS_ALIAS[src] || (NEWS_SRC[src] ? src : '');
+  if (topic && !NEWS_ALIAS[topic.toLowerCase()]) { NEWS_SRC.__t = ['Google News', 'https://news.google.com/rss/search?q=' + encodeURIComponent(topic) + '&hl=en', 'https://news.google.com/search?q=' + encodeURIComponent(topic)]; keys = ['__t']; n = 6; }
+  else if (sk || (topic && NEWS_ALIAS[topic.toLowerCase()])) { const k = sk || NEWS_ALIAS[topic.toLowerCase()]; keys = NEWS_GROUP[k] || [k]; n = keys.length > 1 ? 3 : 7; }
+  if (a.open && keys.length === 1) { const s = NEWS_SRC[keys[0]], o = openCard(s[0], s[2]); return Object.assign(o, { say: 'Taking you to ' + s[0] + '.' }); }
+  const got = await Promise.all(keys.map(async k => { const s = NEWS_SRC[k]; try { return { k, name: s[0], site: s[2], items: await rssItems(s[1], n) }; } catch (e) { return { k, name: s[0], site: s[2], items: [], failed: true }; } }));
+  const ok = got.filter(g => g.items.length), failed = got.filter(g => g.failed).map(g => g.name);
+  if (!ok.length) { try { return await _newsAction12(a); } catch (e) { const s = NEWS_SRC[keys[0]] || NEWS_SRC.zbc, o = openCard(s[0], s[2]); return Object.assign(o, { say: 'I could not fetch the live headlines (the feeds did not answer), so I am taking you to ' + s[0] + '.' }); } }
+  const digest = ok.map(g => g.name + ':\n' + g.items.map(i => '- ' + i.title + (i.desc ? ' — ' + i.desc : '')).join('\n')).join('\n\n'); let say;
+  try { say = await Promise.race([askWork('Give a spoken news briefing of 6 to 9 sentences from ONLY the items below: lead with the most important story, group by source and name each source. Do not add facts that are not in the items. Plain sentences, no lists.\n\n' + digest), new Promise((_, rj) => setTimeout(() => rj(0), 20000))]); } catch (e) { say = 'Here are the headlines. ' + ok.map(g => 'From ' + g.name + ': ' + g.items.slice(0, 3).map((x, i) => (i + 1) + '. ' + x.title.replace(/[.\s]+$/, '') + '.').join(' ')).join(' '); }
+  if (failed.length) say += ' (' + failed.join(' and ') + ' did not respond.)';
+  const cards = ok.slice(0, 5).map(g => ({ label: g.name + ': ' + g.items[0].title.slice(0, 46), url: g.items[0].link || g.site, sub: 'top story' })); setTimeout(() => addMsg('j', 'Sources — tap to read:', cards.concat(ok.slice(0, 2).map(g => ({ label: 'Open ' + g.name, url: g.site }))), false), 80);
+  return { say, card: { label: 'Open ' + ok[0].name, url: ok[0].site } };
+};
+function newsCommand(raw) {
+  const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you)\s+/i, '').replace(/[!.?]+$/, '').trim(), low = t.toLowerCase(); let m;
+  if ((m = /^(?:take me to|open|go to|show me|bring up)\s+(?:the\s+)?(zbc|z b c|herald|newsday|zimlive|new ?zimbabwe|chronicle|techzim|zimeye|sunday mail|bbc|al jazeera)(?:\s+news)?(?:\s+(?:site|website|page|homepage))?$/.exec(low)) && /news|zbc|herald|newsday|zimlive|chronicle|techzim|zimeye|sunday|bbc|jazeera/.test(low)) { const k = NEWS_ALIAS[m[1]]; if (k && NEWS_SRC[k] && /news|site|website|page/.test(low) || /^(?:take me to|go to)/.test(low)) return R('', [{ type: 'deck_news', source: k || m[1], open: true }]); }
+  if ((m = /^(?:show|give|read|tell|get|bring)(?: me)?(?: the| my| today'?s| all the)*\s*(?:latest |top |today'?s |current |breaking )*(?:news|headlines)(?: (?:from|on|about|in|of|for)\s+(.+))?$/.exec(low)) || (m = /^(?:what(?:'s| is| are)\s+(?:the\s+)?(?:latest |today'?s |current )?(?:news|headlines)|any (?:new )?news|catch me up on the news|news(?: update| briefing)?)(?:\s+(?:from|on|about|in|of|for)\s+(.+))?$/.exec(low)) || (m = /^(?:summari[sz]e|brief me on)(?: the| today'?s)? news(?: (?:from|on|about)\s+(.+))?$/.exec(low))) { const arg = (m[1] || '').replace(/^the\s+/, '').replace(/\s+news$/, '').trim(); const known = arg && (NEWS_ALIAS[arg] || NEWS_SRC[arg]); return R('', [{ type: 'deck_news', source: known ? arg : '', topic: known ? '' : arg }]); }
+  return null;
+}
+const _deckCommand12c = deckCommand; deckCommand = function (raw) { let r = null; try { r = newsCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand12c(raw); };
+
+/* ---------- Windows from your voice: media, system pages, file tasks (needs the bridge) ---------- */
+async function pcReady() { if (BR.ok) return true; if (!S.settings.brTok) return false; return await BR.test(); }
+async function pcAction(a) {
+  if (!(await pcReady())) return { fail: 'The desktop bridge is not running.', say: 'I need the desktop bridge for that. Start jarvis-bridge.js and check Settings, Advanced.' };
+  try {
+    if (a.op === 'media') {
+      const j = await BR.call('/media', { kind: a.kind || 'any', q: a.q || '', random: !!a.random });
+      if (!j.ok || !j.results.length) { if (a.q && a.youtube !== false) { const o = openCard('YouTube: ' + a.q, 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.q)); return Object.assign(o, { say: 'I found no “' + a.q + '” on this computer, so I am searching YouTube.' }); } return { say: 'I found no ' + (a.kind === 'audio' ? 'music' : 'videos') + ' in your allowed folders. Add your Videos folder under roots in the bridge config.' }; }
+      const f = j.results[0], o = await BR.call('/open-path', { path: f.path }); return { say: o.ok ? 'Playing ' + f.name.replace(/\.[^.]+$/, '') + (a.random ? ' (picked at random from ' + j.count + ' files)' : '') + '.' : (o.error || 'I could not play it.'), fail: o.ok ? undefined : o.error };
+    }
+    if (a.op === 'system') { const j = await BR.call('/open-system', { name: a.name }); return { say: j.ok ? 'Opening ' + a.name + '.' : j.error, fail: j.ok ? undefined : j.error }; }
+    if (a.op === 'find1') { const j = await BR.call('/find', { q: a.q }), hits = j.results || []; if (hits.length !== 1) return { say: hits.length ? 'That matches ' + hits.length + ' items: ' + hits.slice(0, 5).map(x => x.name).join(', ') + '. Be more specific.' : 'I found nothing named ' + a.q + ' in your allowed folders.' }; const f = hits[0];
+      if (a.then === 'copy') { const j2 = await BR.call('/copy', { path: f.path, toRoot: a.to }); return { say: j2.ok ? 'Copied ' + f.name + ' to your ' + a.to + ' folder.' : j2.error }; }
+      if (a.then === 'trash') { setTimeout(() => confirmAsk('Move “' + f.name + '” to the Jarvis Trash folder? Nothing is permanently deleted.', async () => { const j3 = await BR.call('/trash', { path: f.path }); const m = j3.ok ? 'Done. It is in “Jarvis Trash” next to where it was.' : j3.error; addMsg('j', m, [], false); speak(m); }, { pin: true }), 60); return { say: 'Checking with you first.' }; } }
+    if (a.op === 'organize') {
+      const j = await BR.call('/organize', { path: await resolveRoot(a.root) }); if (!j.ok) return { say: j.error, fail: j.error };
+      const sum = Object.entries(j.summary).map(([k, v]) => v + ' ' + k.toLowerCase()).join(', '); if (!j.files) return { say: 'That folder has no loose files to organise.' };
+      setTimeout(() => confirmAsk('Sort ' + j.files + ' files in your ' + a.root + ' folder into subfolders (' + sum + ')? Nothing is deleted.', async () => { const j2 = await BR.call('/organize', { path: await resolveRoot(a.root), apply: true }); const m = j2.ok ? 'Done. I moved ' + j2.moved + ' files into tidy subfolders.' : j2.error; addMsg('j', m, [], false); speak(m); }, { pin: true }), 60); return { say: 'I can sort ' + j.files + ' files: ' + sum + '.' };
+    }
+  } catch (e) { return { fail: 'The bridge failed: ' + (e && e.message || e), say: 'The bridge failed: ' + (e && e.message || e) }; }
+  return { say: 'I could not do that.' };
+}
+async function resolveRoot(name) { const r = await BR.call('/root-path', { name }).catch(() => null); return r && r.path || ''; }
+function pcCommand(raw) {
+  if (!S.settings.brTok) return null; const t = String(raw || '').trim().replace(/\s+/g, ' ').replace(/^(?:(?:hey|ok|okay|hi|hello|yo)[, ]+)?(?:jarvis|buddy|partner)[, ]*/i, '').replace(/^(?:please|can you|could you|would you)\s+/i, '').replace(/[!.?]+$/, '').trim(), low = t.toLowerCase(); let m;
+  if (/^(?:play|put on|start)\s+(?:me\s+)?(?:something|anything|a video|some videos?|a movie|a film|any video|a random video)$/.test(low)) return R('', [{ type: 'deck_pc', op: 'media', kind: 'video', random: true }]);
+  if (/^(?:play|put on|start)\s+(?:me\s+)?(?:some |a |any )?(?:music|songs?|a song|a track)$/.test(low)) return R('', [{ type: 'deck_pc', op: 'media', kind: 'audio', random: true }]);
+  if ((m = /^(?:open|show|go to)\s+(?:my\s+|the\s+)?(task manager|device manager|control panel|command prompt|terminal|settings|windows settings|wi-?fi settings|wi-?fi|bluetooth(?: settings)?|display settings|display|sound settings|sound|apps settings|installed apps|windows update|storage settings|storage|battery settings|battery|network settings|network|printers|disk management|services)$/.exec(low))) { const map = { 'windows settings': 'settings', 'wifi': 'wifi settings', 'wi-fi': 'wifi settings', 'wi-fi settings': 'wifi settings', 'bluetooth': 'bluetooth settings', 'display': 'display settings', 'sound': 'sound settings', 'installed apps': 'apps settings', 'storage': 'storage settings', 'battery': 'battery settings', 'network': 'network settings' }; return R('', [{ type: 'deck_pc', op: 'system', name: map[m[1]] || m[1] }]); }
+  if ((m = /^play\s+(.+)$/.exec(low)) && !/\b(?:on|in|via|using)\s+(?:youtube|spotify|apple music|deezer|soundcloud|netflix)\b|\b(?:youtube|spotify)\b/.test(low) && m[1].length > 1) return R('', [{ type: 'deck_pc', op: 'media', kind: 'any', q: m[1].replace(/^(?:the\s+|my\s+)/, '') }]);
+  if ((m = /^copy\s+(?:the\s+)?(?:file\s+|folder\s+)(.+?)\s+to\s+(?:my\s+|the\s+)?([a-z]+)(?:\s+folder)?$/.exec(low)) && (BR.roots || []).includes(m[2])) return R('', [{ type: 'deck_pc', op: 'find1', q: m[1], then: 'copy', to: m[2] }]);
+  if ((m = /^(?:organi[sz]e|tidy(?: up)?|sort|clean up)\s+(?:my\s+|the\s+)?([a-z]+)(?:\s+folder)?$/.exec(low)) && (BR.roots || []).includes(m[1])) return R('', [{ type: 'deck_pc', op: 'organize', root: m[1] }]);
+  if ((m = /^(?:delete|trash|remove|get rid of)\s+(?:the\s+)?(?:file|folder)\s+(.+)$/.exec(low))) return R('', [{ type: 'deck_pc', op: 'find1', q: m[1], then: 'trash' }]);
+  return null;
+}
+const _deckCommand12d = deckCommand; deckCommand = function (raw) { let r = null; try { r = pcCommand(raw); } catch (e) { console.warn(e); } return r || _deckCommand12d(raw); };
+const _execSuper12 = execSuper; execSuper = async function (a) { if (a.type === 'deck_pc') return await pcAction(a); if (a.type === 'deck_news') return await newsAction(a); return _execSuper12(a); };
+HELP += ' **Wake-up alarms** (“wake me up at 6pm”), **news with ZBC** (“show me the news”, “take me to ZBC news”), **teaching** (“teach me Chinese” — it keeps going until you say stop), **guided help** (“help me cook pizza step by step”), **Windows** (“play something”, “open task manager”, “organise my downloads”).';
+$('#app').classList.remove('moded');
 
 init();
 </script>
